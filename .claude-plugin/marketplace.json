@@ -1,0 +1,26 @@
+{
+  "name": "cc-spec-lite",
+  "owner": {
+    "name": "putao",
+    "email": "putao@example.com"
+  },
+  "metadata": {
+    "description": "SPEC-driven development framework for Claude Code with skills, scripts, and role standards",
+    "version": "1.0.0",
+    "pluginRoot": "."
+  },
+  "plugins": [
+    {
+      "name": "cc-spec-lite",
+      "source": ".",
+      "description": "Complete SPEC-driven development framework including architect and programmer skills with automation scripts",
+      "version": "1.0.0",
+      "author": {
+        "name": "putao"
+      },
+      "license": "MIT",
+      "keywords": ["spec", "architecture", "development"],
+      "category": "development"
+    }
+  ]
+}

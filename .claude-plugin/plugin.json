@@ -1,0 +1,19 @@
+{
+  "name": "cc-spec-lite",
+  "description": "SPEC-driven development framework for Claude Code. Provides structured skills (architect, programmer), automation scripts, and role-based coding standards for professional software development workflows.",
+  "version": "1.0.0",
+  "author": {
+    "name": "putao"
+  },
+  "license": "MIT",
+  "keywords": [
+    "spec-driven",
+    "architecture",
+    "development",
+    "skills",
+    "automation"
+  ],
+  "repository": "https://github.com/putao520/cc-spec-lite",
+  "commands": "./skills",
+  "agents": "./skills"
+}
