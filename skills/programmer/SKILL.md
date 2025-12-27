@@ -40,8 +40,8 @@ description: 执行所有生产代码开发（功能实现、业务逻辑、UI�
 
 | 规范类型 | 权威文档位置 | 说明 |
 |---------|-------------|------|
-| **调试分析规范** | `roles/debugger.md` | 调试原则、日志规范、错误处理、禁止模式 |
-| **代码质量规范** | `roles/quality.md` | SOLID原则、代码结构要求、质量指标、命名规范 |
+| **调试分析规范** | `skills/shared/debugger.md` | 调试原则、日志规范、错误处理、禁止模式 |
+| **代码质量规范** | `skills/shared/quality.md` | SOLID原则、代码结构要求、质量指标、命名规范 |
 
 ### 前端开发规范
 
@@ -638,9 +638,9 @@ Bash(command="ai-cli-runner.sh backend 'REQ-AUTH-002' '实现注册'")  # TOKEN�
 
 ⚠️ 用户通知完成后执行，必须验证代码
 
-> **审查依据**：代码审查必须遵循以下角色规范
-> - `roles/debugger.md` - 调试分析规范（日志规范、错误处理、禁止模式）
-> - `roles/quality.md` - 代码质量规范（SOLID原则、代码结构要求、命名规范）
+> **审查依据**：代码审查必须遵循以下共享规范
+> - `skills/shared/debugger.md` - 调试分析规范（日志规范、错误处理、禁止模式）
+> - `skills/shared/quality.md` - 代码质量规范（SOLID原则、代码结构要求、命名规范）
 
 **7.1 验证功能实现**
 
