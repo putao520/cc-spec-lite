@@ -57,11 +57,20 @@ CC-SPEC-Lite is a focused, lightweight SPEC-driven development framework for Cla
 
 ### What's NOT Included
 
-This is the **Lite version** focused on requirements and development:
+This is the **Lite version** designed for streamlined development:
+
+**Focused Scope:**
+- ✅ Requirements management and architecture design
+- ✅ Code implementation and SPEC validation
+- ✅ Interactive project guidance
 - ❌ No test coverage verification
 - ❌ No code quality analysis
 - ❌ No security auditing
 - ❌ No delivery validation
+
+**Use Cases:**
+- **Perfect for**: Rapid prototyping, small projects, personal projects, learning SPEC-driven development
+- **Not for**: Enterprise projects requiring comprehensive testing, quality analysis, or security auditing
 
 For complete testing, quality, and delivery features, use the full **cc-spec** framework.
 
