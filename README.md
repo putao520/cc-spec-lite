@@ -55,6 +55,31 @@ CC-SPEC-Lite is a focused, lightweight SPEC-driven development framework for Cla
 ✅ **Automation**: Reduced manual work with intelligent scripts
 ✅ **Flexibility**: Works with any technology stack
 
+---
+
+## 🚀 Getting Started in 3 Steps
+
+**Step 1**: Initialize your project
+```bash
+mkdir my-project && cd my-project
+git init
+/spec-init           # Interactive SPEC initialization
+```
+
+**Step 2**: Review generated SPEC
+```bash
+/spec-audit          # Verify SPEC completeness
+```
+
+**Step 3**: Start development
+```bash
+/programmer          # Implement features based on SPEC
+```
+
+📖 **Detailed guide**: See [Quick Start](#quick-start) below
+
+---
+
 ### What's NOT Included
 
 This is the **Lite version** focused on core development activities: requirements management, architecture design, code implementation, and SPEC validation.
@@ -63,9 +88,9 @@ This is the **Lite version** focused on core development activities: requirement
 
 For comprehensive testing, quality, and delivery features, use the full **cc-spec** framework.
 
-## Installation
+---
 
-### Prerequisites
+## Installation
 
 - **Claude Code**: v2.0.12 or higher
 - **AI Warden CLI (aiw)**: v1.0.0 or higher
@@ -136,24 +161,24 @@ cd my-project
 # Initialize Git
 git init
 
-# Create SPEC directory
-mkdir -p SPEC/DOCS
-echo "v1.0.0" > SPEC/VERSION
+# Initialize SPEC with interactive guidance
+/spec-init
 ```
 
-### 2. Design Your Architecture
+The `/spec-init` command will guide you through:
+- Understanding your project through dialogue
+- Deriving architecture and data models
+- Generating complete SPEC files automatically
+
+### 2. Review Generated SPEC
 
 ```bash
-# Start architect skill
-/architect
+# Check generated SPEC files
+ls SPEC/
+cat SPEC/01-REQUIREMENTS.md
 
-# Define requirements, architecture, data models, and APIs
-# Architect will create/update:
-# - SPEC/01-REQUIREMENTS.md
-# - SPEC/02-ARCHITECTURE.md
-# - SPEC/03-DATA-STRUCTURE.md
-# - SPEC/04-API-DESIGN.md
-# - SPEC/05-UI-DESIGN.md (if frontend)
+# Verify SPEC completeness
+/spec-audit
 ```
 
 ### 3. Implement Features
@@ -252,12 +277,6 @@ AI: [Calls /architect to generate SPEC]
    - Endpoint implementation matches API-XXX
    - Error code coverage
    - Authentication/authorization
-
-**What It Does NOT Check** (Lite version):
-- ❌ Test coverage
-- ❌ Code quality metrics
-- ❌ Security vulnerabilities
-- ❌ Delivery readiness
 
 **Output**: Generates comprehensive audit report with scores, issues, and improvement suggestions
 
