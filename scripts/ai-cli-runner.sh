@@ -20,7 +20,7 @@ Arguments:
   task_description   任务描述
   task_context       (可选) 任务清单和背景信息
   ai_tool            (可选) AI代理选择器，默认: codex (可选: claude, codex, gemini, all, "agent1|agent2")
-  provider           (可选) AI供应商，用于路由到不同后端 (如: glm, openrouter, anthropic)
+  provider           (可选) AI供应商，默认: auto (自动选择最佳路由，可选: glm, openrouter, anthropic)
 
 Examples:
   # 单个需求ID (使用默认codex)
@@ -35,10 +35,10 @@ Examples:
 Task Types:
   frontend, database/db, big-data/bigdata, game/gaming, blockchain/web3,
   ml/ai/machine-learning, embedded/mcu, graphics/rendering, multimedia/audio/video,
-  iot/sensor, deployment, security, quality, debugger
+  iot/sensor, deployment, debugger
 
 AI Tools: claude, codex, gemini, all, "agent1|agent2" (默认: codex)
-Providers: glm, openrouter, anthropic, google 等 (可选，用于成本优化)
+Providers: auto, glm, openrouter, anthropic, google 等 (默认: auto，自动选择最佳路由)
 
 EOF
 }
@@ -50,15 +50,13 @@ execute() {
     local task_description="$3"
     local task_context="${4:-}"  # 可选参数：任务背景信息
     local ai_tool="${5:-codex}"  # 可选参数：AI代理选择器，默认codex
-    local provider="${6:-}"      # 可选参数：AI供应商，用于成本优化路由
+    local provider="${6:-auto}"  # 可选参数：AI供应商，默认auto（自动选择最佳路由）
 
     echo "=== AI CLI Runner 执行任务 ==="
     echo "任务类型: $task_type"
     echo "关联SPEC ID: $spec_ids"
     echo "AI工具: $ai_tool"
-    if [ -n "$provider" ]; then
-        echo "AI供应商: $provider"
-    fi
+    echo "AI供应商: $provider"
     echo "任务描述: $task_description"
     if [ -n "$task_context" ]; then
         echo "包含任务背景: 是"
@@ -77,16 +75,10 @@ execute() {
 
     echo "=== 执行AI CLI命令 ==="
     # 执行AI CLI命令，注入标准文本
-    # 如果指定了provider，使用 -p 参数传递给 aiw
-    if [ -n "$provider" ]; then
-        aiw "$ai_tool" -p "$provider" "$task_description
+    # 始终使用 -p 参数传递供应商给 aiw
+    aiw "$ai_tool" -p "$provider" "$task_description
 
 $(cat "$injection_file")"
-    else
-        aiw "$ai_tool" "$task_description
-
-$(cat "$injection_file")"
-    fi
 
     local exit_code=$?
 
@@ -166,6 +158,13 @@ generate_injection() {
 - 每个 SPEC 对应的功能都必须 100% 实现
 - 无 TODO、FIXME、stub 等占位符
 
+步骤5：🔄 SPEC 对齐更新（代码完成后必做）
+- 检查 SPEC 文档中的状态字段，将对应 REQ-XXX/ARCH-XXX 的状态更新为"已完成"
+- 如果实现过程中发现 SPEC 有遗漏或不准确，主动更新 SPEC 内容
+- 确保 SPEC 和代码的一致性：代码改了，SPEC 也要同步更新
+- 记录实现过程中的重要决策到 SPEC/DOCS/ 中（如有架构决策）
+- 验证 SPEC 版本号是否需要递增
+
 🚫【绝对禁止的行为 - 任务失败标志】🚫
 
 ❌ 不读 SPEC 就开始编码
@@ -175,6 +174,8 @@ generate_injection() {
 ❌ "SPEC 没说，但我觉得应该加"
 ❌ 只实现部分 SPEC 要求
 ❌ 使用 SPEC 中没有规定的技术栈
+❌ **代码完成后不更新 SPEC 状态（导致 SPEC 过期失效）**
+❌ **发现 SPEC 错误不主动修正（放任 SPEC 与代码不一致）**
 
 ✅【必须做到的标准 - 成功标志】✅
 
@@ -183,6 +184,7 @@ generate_injection() {
 ✅ 代码实现与 SPEC 100% 一致
 ✅ 每个 SPEC 要求都有明确的代码对应
 ✅ 发现 SPEC 问题及时报告而不是自行决定
+✅ **代码完成后主动更新 SPEC 状态和内容，确保 SPEC 与代码一致**
 
 【核心理念】
 - SPEC 是问题的唯一真源 (SSOT)
@@ -442,41 +444,6 @@ DevOps开发要求:
 EOF
             fi
             ;;
-        "security")
-            local security_standards="$HOME/.claude/roles/security.md"
-            if [ -f "$security_standards" ]; then
-                cat "$security_standards"
-            else
-                echo "⚠️  警告：未找到安全编程规范文件"
-                cat <<'EOF'
-安全开发要求:
-- 最小权限原则
-- 深度防御策略
-- 输入验证和清理
-- 输出编码和转义
-- 认证和授权
-- 会话管理
-- 错误处理安全
-EOF
-            fi
-            ;;
-        "quality")
-            local quality_standards="$HOME/.claude/roles/quality.md"
-            if [ -f "$quality_standards" ]; then
-                cat "$quality_standards"
-            else
-                echo "⚠️  警告：未找到代码质量编程规范文件"
-                cat <<'EOF'
-代码质量要求:
-- 可读性优先
-- 可维护性设计
-- SOLID原则应用
-- 代码审查
-- 架构模式验证
-- 性能分析
-EOF
-            fi
-            ;;
         "debugger")
             local debugger_standards="$HOME/.claude/roles/debugger.md"
             if [ -f "$debugger_standards" ]; then
@@ -536,58 +503,6 @@ EOF
         echo ""
         echo "请基于以上背景执行开发任务，理解整体目标和当前进度。"
     fi
-}
-
-# 生成质量要求
-generate_quality_requirements() {
-    echo "=== 代码质量要求 ==="
-    echo "生成时间: $(date)"
-    echo ""
-
-    cat <<'EOF'
-代码质量零容忍要求:
-
-1. 功能完整性
-   ✅ 无TODO/FIXME/stub占位符
-   ✅ 所有函数都有完整实现逻辑
-   ✅ 错误处理覆盖所有边界条件
-   ✅ 输入验证和参数检查
-   ✅ 资源清理和内存管理
-
-2. 代码结构
-   ✅ 遵循SOLID原则
-   ✅ 单一职责原则
-   ✅ 接口隔离和依赖倒置
-   ✅ 代码复用和DRY原则
-   ✅ 清晰的模块边界
-
-3. 错误处理
-   ✅ try-catch完整性
-   ✅ 有意义的错误消息
-   ✅ 日志记录和追踪
-   ✅ 优雅降级处理
-   ✅ 异常恢复机制
-
-4. 性能考虑
-   ✅ 时间复杂度优化
-   ✅ 内存使用效率
-   ✅ 数据库查询优化
-   ✅ 缓存策略应用
-   ✅ 并发安全考虑
-
-5. 安全性
-   ✅ 输入验证和清理
-   ✅ SQL注入防护
-   ✅ XSS攻击防护
-   ✅ 认证和授权
-   ✅ 敏感数据保护
-
-6. 可维护性
-   ✅ 清晰的命名规范
-   ✅ 完整的注释文档
-   ✅ 代码格式统一
-   ✅ 版本兼容性
-EOF
 }
 
 # 生成项目上下文

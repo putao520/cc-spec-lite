@@ -10,6 +10,7 @@ CC-SPEC-Lite provides a streamlined, professional approach to AI-assisted softwa
 - [Features](#features)
 - [Installation](#installation)
 - [Quick Start](#quick-start)
+- [Custom Commands](#custom-commands)
 - [Skills](#skills)
 - [Scripts](#scripts)
 - [Roles](#roles)
@@ -22,12 +23,13 @@ CC-SPEC-Lite provides a streamlined, professional approach to AI-assisted softwa
 
 ## What is CC-SPEC-Lite?
 
-CC-SPEC-Lite is a Claude Code plugin that implements a SPEC-driven development methodology. It enforces professional software engineering practices through:
+CC-SPEC-Lite is a focused, lightweight SPEC-driven development framework for Claude Code. It streamlines professional software engineering by concentrating on core development activities:
 
 - **Design-First Approach**: All development starts with architecture and specification documents
 - **Role-Based Skills**: Specialized AI agents for architecture (architect) and implementation (programmer)
 - **Automated Workflows**: Cross-platform scripts for Git operations and AI CLI execution
 - **Coding Standards**: Role-based guidelines for frontend, backend, and database development
+- **Interactive Guidance**: AI-driven SPEC initialization through dialogue and questions
 
 ## Features
 
@@ -38,6 +40,9 @@ CC-SPEC-Lite is a Claude Code plugin that implements a SPEC-driven development m
   - `architect`: System architecture design and SPEC management
   - `programmer`: Production code development with code review
   - `readme`: Project documentation specialist
+- **Custom Commands**:
+  - `/spec-init`: Interactive SPEC initialization for new projects
+  - `/spec-audit`: Verify SPEC completeness and code consistency
 - **Cross-Platform Scripts**: Bash and PowerShell support for Linux, macOS, and Windows
 - **Automated Git Workflows**: Issue tracking, commit generation, and SPEC status updates
 - **Role-Based Standards**: Consistent coding guidelines across different domains
@@ -50,11 +55,25 @@ CC-SPEC-Lite is a Claude Code plugin that implements a SPEC-driven development m
 ✅ **Automation**: Reduced manual work with intelligent scripts
 ✅ **Flexibility**: Works with any technology stack
 
+### What's NOT Included
+
+This is the **Lite version** focused on requirements and development:
+- ❌ No test coverage verification
+- ❌ No code quality analysis
+- ❌ No security auditing
+- ❌ No delivery validation
+
+For complete testing, quality, and delivery features, use the full **cc-spec** framework.
+
 ## Installation
 
 ### Prerequisites
 
 - **Claude Code**: v2.0.12 or higher
+- **AI Warden CLI (aiw)**: v1.0.0 or higher
+  - Required for running AI CLI with role-based context
+  - Installation: https://github.com/putao520/agentic-warden
+  - Verify: `aiw --version`
 - **Git**: For version control operations
 - **Shell Environment**:
   - Linux: Bash (native)
@@ -149,8 +168,118 @@ echo "v1.0.0" > SPEC/VERSION
 # - Read SPEC documents
 # - Create implementation plan
 # - Generate production code
-# - Run tests and code review
+# - Perform code review
 # - Commit changes with proper format
+```
+
+## Custom Commands
+
+CC-SPEC-Lite provides two custom commands to streamline SPEC management:
+
+### /spec-init - SPEC Initialization
+
+**Purpose**: Initialize project SPEC with AI-driven interactive guidance
+
+**Usage**:
+```bash
+/spec-init
+```
+
+**Modes**:
+
+**New Project (Empty Directory)**:
+- Interactive dialogue to understand your project
+- AI asks focused questions based on your description
+- Derives architecture, data models, and API design
+- Calls `/architect` to generate complete SPEC
+
+**Existing Project (With Code)**:
+- Automatically detects existing codebase
+- Routes to `/architect` for code analysis
+- Generates SPEC with inferred content (marked as `[推断]`)
+
+**Already Has SPEC**:
+- Detects existing SPEC
+- Prompts to use `/architect` for modifications
+
+**Example**:
+```
+User: /spec-init
+AI: Please describe your project you want to build:
+User: I want to build an e-commerce backend with multi-merchant support
+AI: [Asks clarifying questions about merchant isolation, payment, etc.]
+AI: [Shows understanding summary]
+User: Confirm understanding
+AI: [Calls /architect to generate SPEC]
+```
+
+**Key Features**:
+- ✅ Open-ended dialogue (no fixed options)
+- ✅ AI asks only relevant questions
+- ✅ Understanding confirmation before generation
+- ❌ No complex code analysis (delegates to /architect)
+
+### /spec-audit - SPEC Validation
+
+**Purpose**: Verify SPEC completeness and code consistency
+
+**Usage**:
+```bash
+/spec-audit
+```
+
+**What It Checks**:
+
+1. **Format Validation**
+   - File structure completeness
+   - ID format correctness (REQ-XXX/ARCH-XXX/DATA-XXX/API-XXX)
+   - VERSION format
+
+2. **Requirement Completeness**
+   - Acceptance criteria for each REQ-XXX
+   - Priority levels (P0/P1/P2)
+   - Traceability to code implementation
+
+3. **Architecture Consistency**
+   - Module implementation matches ARCH-XXX
+   - Technology stack alignment
+   - Dependency relationships
+
+4. **Data Model Consistency**
+   - Database schema matches DATA-XXX
+   - Foreign key relationships
+   - Required indexes
+
+5. **API Consistency**
+   - Endpoint implementation matches API-XXX
+   - Error code coverage
+   - Authentication/authorization
+
+**What It Does NOT Check** (Lite version):
+- ❌ Test coverage
+- ❌ Code quality metrics
+- ❌ Security vulnerabilities
+- ❌ Delivery readiness
+
+**Output**: Generates comprehensive audit report with scores, issues, and improvement suggestions
+
+**Example**:
+```markdown
+# SPEC Audit Report
+Format Completeness: ✅ 100%
+Requirement Completeness: ⚠️  85%
+Architecture Consistency: ✅ 90%
+Data Consistency: ⚠️  75%
+API Consistency: ✅ 95%
+
+Overall Score: 89%
+
+Issues Found:
+- REQ-USER-005 missing acceptance criteria
+- DATA-PRODUCT-001 missing idx_price index
+- API-USER-001 response format mismatch
+
+Suggestions: Use /architect to fix issues, /programmer to implement missing features
 ```
 
 ## Skills
@@ -200,21 +329,19 @@ Architect: Analyzes requirements → Creates REQ-AUTH-001 →
 - Create implementation plans
 - Generate production-ready code
 - Perform code reviews
-- Execute automated tests
 - Commit changes with proper format
 
 **When to Use**:
 - Implementing features defined in SPEC
 - Fixing bugs
 - Refactoring code
-- Writing tests
 
 **Example Workflow**:
 ```
 User: "Implement REQ-AUTH-001"
 Programmer: Reads SPEC → Creates plan →
            Generates code → Reviews against SPEC →
-           Runs tests → Commits changes
+           Commits changes
 ```
 
 ### Readme
@@ -245,6 +372,8 @@ Programmer: Reads SPEC → Creates plan →
 
 Executes AI CLI with role-based context and SPEC integration.
 
+> **Note**: This script requires [AI Warden CLI (aiw)](https://github.com/putao520/agentic-warden) to be installed.
+
 **Bash**:
 ```bash
 ~/.claude/scripts/ai-cli-runner.sh <role> <requirements> <description>
@@ -255,7 +384,7 @@ Executes AI CLI with role-based context and SPEC integration.
 ~\.claude\scripts\ai-cli-runner.ps1 <role> <requirements> <description>
 ```
 
-**Roles**: `fullstack`, `backend`, `frontend`, `database`, `system`, `testing`, `deployment`, `devops`, `assistant-programmer`
+**Roles**: `fullstack`, `backend`, `frontend`, `database`, `system`, `deployment`, `devops`, `assistant-programmer`
 
 **Example**:
 ```bash
@@ -341,7 +470,6 @@ SPEC/
 ├── 03-DATA-STRUCTURE.md       # Data models (DATA-XXX)
 ├── 04-API-DESIGN.md           # API specifications (API-XXX)
 ├── 05-UI-DESIGN.md            # UI/UX design (UI-XXX) [optional]
-├── 06-TESTING-STRATEGY.md     # Testing approach (TEST-XXX) [optional]
 └── DOCS/                      # Extended documentation
     ├── architecture.md        # Detailed architecture docs
     ├── data-flow.md           # Data flow diagrams
@@ -380,12 +508,10 @@ SPEC/
 2. Creates implementation plan
 3. Generates production code
 4. Performs code review against SPEC
-5. Runs tests
-6. Commits with proper format
+5. Commits with proper format
 
 ### Phase 3: Verification
 
-- All tests pass
 - Code review successful
 - SPEC requirements met
 - Documentation updated
@@ -424,6 +550,20 @@ git config --global alias.spec-commit '!~/.claude/scripts/commit-and-close.sh'
 ## Troubleshooting
 
 ### Common Issues
+
+**Issue**: aiw command not found
+
+**Solution**:
+```bash
+# AI Warden CLI is required for ai-cli-runner scripts
+# Install from: https://github.com/putao520/agentic-warden
+
+# Verify installation
+aiw --version
+
+# If not installed, follow installation guide from:
+# https://github.com/putao520/agentic-warden#installation
+```
 
 **Issue**: Skills not found after installation
 
@@ -516,8 +656,6 @@ Contributions are welcome! Please follow these guidelines:
 
 - Follow the SPEC-driven development workflow
 - Update documentation for new features
-- Add tests for new functionality
-- Ensure all tests pass before submitting
 - Follow existing code style and standards
 - Write clear, descriptive commit messages
 
@@ -527,7 +665,6 @@ All submissions go through code review:
 1. Automated checks (pre-commit hooks)
 2. Peer review (maintainer approval)
 3. SPEC validation (requirements must be met)
-4. Integration testing
 
 ## License
 

@@ -275,7 +275,6 @@ elif 测试类型 == "环境问题":
 | **Pre-commit Hook** | git commit | 敏感文件阻止，其他警告 |
 | **门禁C1** | architect完成 | SPEC完整性自动验证 |
 | **门禁C2** | programmer步骤7 | 代码质量自动审查 |
-| **门禁C3** | testing步骤0 | 测试覆盖率自动检查 |
 
 ---
 

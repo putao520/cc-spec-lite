@@ -20,7 +20,7 @@ Arguments:
   task_description   Task description
   task_context       (Optional) Task list and background info
   ai_tool            (Optional) AI agent selector, default: codex (options: claude, codex, gemini, all, "agent1|agent2")
-  provider           (Optional) AI provider for routing (e.g., glm, openrouter, anthropic)
+  provider           (Optional) AI provider, default: auto (auto-select best route, options: glm, openrouter, anthropic)
 
 Examples:
   # Single requirement ID (using default codex)
@@ -32,10 +32,10 @@ Examples:
 Task Types:
   frontend, database/db, big-data/bigdata, game/gaming, blockchain/web3,
   ml/ai/machine-learning, embedded/mcu, graphics/rendering, multimedia/audio/video,
-  iot/sensor, deployment, security, quality, debugger
+  iot/sensor, deployment, debugger
 
 AI Tools: claude, codex, gemini, all, "agent1|agent2" (default: codex)
-Providers: glm, openrouter, anthropic, google, etc. (optional, for cost optimization)
+Providers: auto, glm, openrouter, anthropic, google, etc. (default: auto, auto-select best route)
 "@
 }
 
@@ -101,6 +101,13 @@ Step 4: SPEC Verification
 - Every SPEC-specified feature must be 100% implemented
 - No TODO, FIXME, stub placeholders
 
+Step 5: SPEC Alignment Update (Mandatory After Code Completion)
+- Check status fields in SPEC documents, update corresponding REQ-XXX/ARCH-XXX status to "completed"
+- If SPEC omissions or inaccuracies found during implementation, proactively update SPEC content
+- Ensure SPEC and code consistency: when code changes, SPEC must sync
+- Document important implementation decisions in SPEC/DOCS/ (if architectural decisions)
+- Verify if SPEC version number needs increment
+
 PROHIBITED BEHAVIORS - Task Failure Markers:
 - Starting to code without reading SPEC
 - Believing task description is more accurate than SPEC
@@ -109,6 +116,8 @@ PROHIBITED BEHAVIORS - Task Failure Markers:
 - "SPEC didn't say, but I think we should add"
 - Implementing only partial SPEC requirements
 - Using tech stack not specified in SPEC
+- **Not updating SPEC status after code completion (causing SPEC to become stale)**
+- **Not proactively fixing SPEC errors (allowing SPEC-code inconsistency)**
 
 REQUIRED STANDARDS - Success Markers:
 - Must completely read relevant SPEC documents before coding
@@ -116,6 +125,7 @@ REQUIRED STANDARDS - Success Markers:
 - Code implementation 100% consistent with SPEC
 - Every SPEC requirement has clear code correspondence
 - Report SPEC issues promptly instead of autonomous decisions
+- **Proactively update SPEC status and content after code completion, ensure SPEC-code consistency**
 
 CORE PHILOSOPHY:
 - SPEC is the Single Source of Truth (SSOT)
@@ -288,8 +298,6 @@ function Get-DomainStandards {
         "^(iot|sensor)$" { "iot.md" }
         "^deployment$" { "deployment.md" }
         "^devops$" { "devops.md" }
-        "^security$" { "security.md" }
-        "^quality$" { "quality.md" }
         "^debugger$" { "debugger.md" }
         default {
             $output += "Unrecognized task type '$TaskType', using general coding standards only`n"
@@ -336,29 +344,6 @@ DevOps Requirements:
 - Automated deployment
 - Performance monitoring
 - Failure recovery mechanisms
-"@
-        }
-        "^security$" {
-            @"
-Security Development Requirements:
-- Principle of least privilege
-- Defense in depth strategy
-- Input validation and sanitization
-- Output encoding and escaping
-- Authentication and authorization
-- Session management
-- Secure error handling
-"@
-        }
-        "^quality$" {
-            @"
-Code Quality Requirements:
-- Readability first
-- Maintainability design
-- SOLID principles application
-- Code review
-- Architecture pattern validation
-- Performance analysis
 "@
         }
         "^debugger$" {
@@ -462,16 +447,14 @@ function Execute-Task {
         [string]$TaskDescription,
         [string]$TaskContext = "",
         [string]$AiTool = "codex",
-        [string]$Provider = ""
+        [string]$Provider = "auto"
     )
 
     Write-Host "=== AI CLI Runner Executing Task ===" -ForegroundColor Cyan
     Write-Host "Task Type: $TaskType"
     Write-Host "Associated SPEC ID: $SpecIds"
     Write-Host "AI Tool: $AiTool"
-    if ($Provider) {
-        Write-Host "AI Provider: $Provider"
-    }
+    Write-Host "AI Provider: $Provider"
     Write-Host "Task Description: $TaskDescription"
     if ($TaskContext) {
         Write-Host "Includes Task Background: Yes"
@@ -495,13 +478,9 @@ $TaskDescription
 $injectionText
 "@
 
-    # Execute AI CLI command
+    # Execute AI CLI command, always use -p parameter to pass provider to aiw
     try {
-        if ($Provider) {
-            & aiw $AiTool -p $Provider $fullPrompt
-        } else {
-            & aiw $AiTool $fullPrompt
-        }
+        & aiw $AiTool -p $Provider $fullPrompt
         $exitCode = $LASTEXITCODE
     } catch {
         Write-Host "Error executing aiw: $_" -ForegroundColor Red
@@ -563,7 +542,7 @@ function Main {
     $taskDescription = $Arguments[2]
     $taskContext = if ($Arguments.Count -ge 4) { $Arguments[3] } else { "" }
     $aiTool = if ($Arguments.Count -ge 5) { $Arguments[4] } else { "codex" }
-    $provider = if ($Arguments.Count -ge 6) { $Arguments[5] } else { "" }
+    $provider = if ($Arguments.Count -ge 6) { $Arguments[5] } else { "auto" }
 
     # Validate AI tool
     if ($Arguments.Count -ge 5) {
