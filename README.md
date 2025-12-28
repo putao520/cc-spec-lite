@@ -93,7 +93,7 @@ For comprehensive testing, quality, and delivery features, use the full **cc-spe
 ## Installation
 
 - **Claude Code**: v2.0.12 or higher
-- **AI Warden CLI (aiw)**: v1.0.0 or higher
+- **AI Warden CLI (aiw)**: v0.5.30 or higher
   - Required for running AI CLI with role-based context
   - Installation: https://github.com/putao520/agentic-warden
   - Verify: `aiw --version`
