@@ -1,535 +1,531 @@
 ---
-description: SPEC审查 - 验证SPEC完整性和代码一致性
-argument-hint: [审查范围(全部/REQ-XXX)]
+description: SPEC Review - Verify SPEC completeness and code consistency
+argument-hint: [review scope(all/REQ-XXX)]
 ---
 
-# SPEC审查命令
+# SPEC Review Command
 
-## 核心功能
+## Core Functionality
 
-**全面审查SPEC的完整性和代码实现一致性**
+**Comprehensively review SPEC completeness and code implementation consistency**
 
-- 验证所有需求都有明确的验收标准
-- 检查代码实现与SPEC的一致性
-- 生成完整性报告
+- Verify all requirements have clear acceptance criteria
+- Check code implementation consistency with SPEC
+- Generate completeness report
 
 ---
 
-## 执行流程
+## Execution Flow
 
-### 阶段0：自动扫描
+### Phase 0: Automatic Scanning
 
 ```bash
-echo "=== SPEC 审查开始 ==="
+echo "=== SPEC Review Started ==="
 
-# 1. 检查 SPEC/ 目录
+# 1. Check SPEC/ directory
 if [ ! -d "SPEC" ]; then
-    echo "❌ SPEC/ 目录不存在"
-    echo "请先运行 /spec-init 初始化SPEC"
+    echo "❌ SPEC/ directory does not exist"
+    echo "Please run /spec-init first to initialize SPEC"
     exit 1
 fi
 
-# 2. 统计SPEC文件
+# 2. Count SPEC files
 req_count=$(grep -c "REQ-" SPEC/01-REQUIREMENTS.md 2>/dev/null || echo 0)
 arch_count=$(grep -c "ARCH-" SPEC/02-ARCHITECTURE.md 2>/dev/null || echo 0)
 data_count=$(grep -c "DATA-" SPEC/03-DATA-STRUCTURE.md 2>/dev/null || echo 0)
 api_count=$(grep -c "API-" SPEC/04-API-DESIGN.md 2>/dev/null || echo 0)
 
-echo "检测到："
-echo "- 需求 (REQ-XXX): $req_count 个"
-echo "- 架构 (ARCH-XXX): $arch_count 个"
-echo "- 数据 (DATA-XXX): $data_count 个"
-echo "- 接口 (API-XXX): $api_count 个"
+echo "Detected:"
+echo "- Requirements (REQ-XXX): $req_count"
+echo "- Architecture (ARCH-XXX): $arch_count"
+echo "- Data (DATA-XXX): $data_count"
+echo "- Interfaces (API-XXX): $api_count"
 ```
 
 ---
 
-### 阶段1：格式验证
+### Phase 1: Format Validation
 
 ```bash
-# 运行格式验证
+# Run format validation
 spec validate SPEC/ 2>&1
 
 if [ $? -ne 0 ]; then
-    echo "⚠️  SPEC 格式验证失败"
-    echo "请先修复格式问题"
+    echo "⚠️ SPEC Format Validation Failed"
+    echo "Please fix format issues first"
     exit 1
 fi
 
-echo "✅ SPEC 格式验证通过"
+echo "✅ SPEC Format Validation Passed"
 ```
 
-**检查项：**
+**Check Items:**
 
-| 检查项 | 验证内容 | 失败处理 |
-|-------|---------|---------|
-| 文件完整性 | 6个核心文件存在 | 提示缺失文件 |
-| VERSION格式 | v{major}.{minor}.{patch} | 提示格式错误 |
-| ID格式 | REQ-XXX/ARCH-XXX/DATA-XXX/API-XXX | 提示ID格式错误 |
-| 文档结构 | 标题层级、列表格式正确 | 提示结构问题 |
+| Check Item | Verification Content | Failure Handling |
+|-----------|----------------------|------------------|
+| File Completeness | 6 core files exist | Prompt for missing files |
+| VERSION Format | v{major}.{minor}.{patch} | Prompt for format error |
+| ID Format | REQ-XXX/ARCH-XXX/DATA-XXX/API-XXX | Prompt for ID format error |
+| Document Structure | Title hierarchy, list format correct | Prompt for structure issues |
 
 ---
 
-### 阶段2：需求完整性审查
+### Phase 2: Requirement Completeness Review
 
-**逐个检查每个REQ-XXX：**
+**Check each REQ-XXX individually:**
 
-#### 2.1 验收标准检查
+#### 2.1 Acceptance Criteria Check
 
 ```markdown
-**审查项：每个需求是否有明确的验收标准**
+**Review Item: Each requirement has clear acceptance criteria**
 
-遍历 01-REQUIREMENTS.md 中的所有 REQ-XXX：
+Traverse all REQ-XXX in 01-REQUIREMENTS.md:
 
-**REQ-XXX - [需求名称]**
-- ✅ 有验收标准
-- ❌ 缺少验收标准 → [提示补充]
+**REQ-XXX - [Requirement Name]**
+- ✅ Has acceptance criteria
+- ❌ Missing acceptance criteria → [Prompt to supplement]
 
-**缺少验收标准的示例：**
-❌ "用户登录"（无验收标准）
-✅ "用户登录"
-   - 验收标准：
-     - 支持邮箱和手机号登录
-     - 密码错误3次锁定账户
-     - 登录成功返回JWT Token
+**Example of missing acceptance criteria:**
+❌ "User login" (no acceptance criteria)
+✅ "User login"
+   - Acceptance Criteria:
+     - Support email and phone login
+     - Lock account after 3 password failures
+     - Return JWT Token on successful login
 ```
 
-#### 2.2 优先级检查
+#### 2.2 Priority Check
 
 ```markdown
-**审查项：每个需求是否有明确的优先级**
+**Review Item: Each requirement has clear priority**
 
-**REQ-XXX - [需求名称]**
-- ✅ 有优先级标记（P0/P1/P2）
-- ❌ 缺少优先级 → [提示补充]
+**REQ-XXX - [Requirement Name]**
+- ✅ Has priority marker (P0/P1/P2)
+- ❌ Missing priority → [Prompt to supplement]
 
-**优先级定义：**
-- P0: 核心功能，必须实现
-- P1: 重要功能，应该实现
-- P2: 次要功能，可以延后
+**Priority Definition:**
+- P0: Core functionality, must implement
+- P1: Important functionality, should implement
+- P2: Minor functionality, can be postponed
 ```
 
-#### 2.3 可追溯性检查
+#### 2.3 Traceability Check
 
 ```markdown
-**审查项：每个需求是否可以追溯到代码**
+**Review Item: Each requirement can be traced to code**
 
-检查方式：
-1. 搜索代码库中是否有对应的实现
-2. 检查Git提交记录是否有引用
+Check method:
+1. Search for corresponding implementation in codebase
+2. Check Git commit history for references
 
-**REQ-XXX - [需求名称]**
-- ✅ 代码已实现（src/xxx/yyy.ts:123）
-- ⚠️  代码部分实现（缺少 ZZZ 功能）
-- ❌ 代码未实现 → [提示是否需要实现]
+**REQ-XXX - [Requirement Name]**
+- ✅ Code implemented (src/xxx/yyy.ts:123)
+- ⚠️ Code partially implemented (missing ZZZ feature)
+- ❌ Code not implemented → [Prompt if implementation needed]
 ```
 
 ---
 
-### 阶段3：架构一致性审查
+### Phase 3: Architecture Consistency Review
 
-**检查 ARCH-XXX 与实际代码架构的一致性：**
+**Check consistency between ARCH-XXX and actual code architecture:**
 
-#### 3.1 模块实现检查
+#### 3.1 Module Implementation Check
 
 ```markdown
-**审查项：架构模块是否已实现**
+**Review Item: Are architecture modules implemented**
 
-**ARCH-XXX - [模块名]**
-- ✅ 代码目录存在（src/modules/xxx/）
-- ✅ 模块接口完整（index.ts 导出所有API）
-- ❌ 模块未找到 → [提示是否需要创建]
+**ARCH-XXX - [Module Name]**
+- ✅ Code directory exists (src/modules/xxx/)
+- ✅ Module interface complete (index.ts exports all APIs)
+- ❌ Module not found → [Prompt if creation needed]
 ```
 
-#### 3.2 技术栈一致性
+#### 3.2 Technology Stack Consistency
 
 ```markdown
-**审查项：实际使用的技术栈与SPEC是否一致**
+**Review Item: Does actual technology stack match SPEC**
 
-**SPEC中定义：**
-- 后端框架：NestJS
-- 数据库：PostgreSQL
-- ORM：Prisma
+**SPEC Definition:**
+- Backend Framework: NestJS
+- Database: PostgreSQL
+- ORM: Prisma
 
-**实际检查：**
-- ✅ package.json 包含 @nestjs/core
-- ✅ package.json 包含 @prisma/client
-- ❌ 未找到 PostgreSQL 相关配置 → [提示修正]
+**Actual Check:**
+- ✅ package.json contains @nestjs/core
+- ✅ package.json contains @prisma/client
+- ❌ PostgreSQL-related configuration not found → [Prompt to fix]
 ```
 
-#### 3.3 依赖关系验证
+#### 3.3 Dependency Relationship Verification
 
 ```markdown
-**审查项：模块间依赖关系是否与SPEC一致**
+**Review Item: Are inter-module dependencies consistent with SPEC**
 
-**ARCH-001** - 用户模块
-- SPEC中依赖：认证模块
-- 实际代码检查：
+**ARCH-001** - User Module
+- SPEC dependency: Authentication module
+- Actual code check:
   - ✅ import { auth } from '../auth'
-  - ❌ 未找到依赖 → [提示修正]
+  - ❌ Dependency not found → [Prompt to fix]
 ```
 
 ---
 
-### 阶段4：数据模型审查
+### Phase 4: Data Model Review
 
-**检查 DATA-XXX 与数据库schema的一致性：**
+**Check consistency between DATA-XXX and database schema:**
 
-#### 4.1 表结构检查
+#### 4.1 Table Structure Check
 
 ```markdown
-**审查项：数据库表是否与SPEC一致**
+**Review Item: Are database tables consistent with SPEC**
 
-**DATA-USER-001** - users 表
-- SPEC定义：字段 id, email, password_hash, created_at
-- 实际检查：
-  - Prisma schema: ✅ 包含所有字段
-  - 数据库表: ⚠️  缺少索引 idx_email
-  - 建议：运行迁移添加索引
+**DATA-USER-001** - users table
+- SPEC Definition: fields id, email, password_hash, created_at
+- Actual check:
+  - Prisma schema: ✅ Contains all fields
+  - Database table: ⚠️ Missing index idx_email
+  - Suggestion: Run migration to add index
 ```
 
-#### 4.2 关系完整性
+#### 4.2 Relationship Completeness
 
 ```markdown
-**审查项：外键关系是否正确建立**
+**Review Item: Are foreign key relationships correctly established**
 
-**DATA-ORDER-001** - orders 表
-- SPEC定义：关联到 users (user_id)
-- 实际检查：
-  - ✅ 外键约束存在
-  - ✅ 级联删除配置正确
+**DATA-ORDER-001** - orders table
+- SPEC Definition: Associated with users (user_id)
+- Actual check:
+  - ✅ Foreign key constraint exists
+  - ✅ Cascade delete configuration correct
 ```
 
-#### 4.3 索引验证
+#### 4.3 Index Verification
 
 ```markdown
-**审查项：查询必需的索引是否存在**
+**Review Item: Required query indexes exist**
 
-**DATA-PRODUCT-001** - products 表
-- SPEC定义：索引 idx_category, idx_price
-- 实际检查：
-  - ✅ idx_category 存在
-  - ❌ idx_price 缺失 → [性能风险，提示添加]
+**DATA-PRODUCT-001** - products table
+- SPEC Definition: Indexes idx_category, idx_price
+- Actual check:
+  - ✅ idx_category exists
+  - ❌ idx_price missing → [Performance risk, prompt to add]
 ```
 
 ---
 
-### 阶段5：CLAUDE.md 合规性审查
+### Phase 5: CLAUDE.md Compliance Review
 
-**检查 CLAUDE.md 内容是否符合"SPEC指针"定位：**
+**Check if CLAUDE.md content follows "SPEC pointer" positioning:**
 
-#### 5.1 内容性质检查
+#### 5.1 Content Nature Check
 
 ```markdown
-**审查原则：CLAUDE.md = SPEC指针，不是设计文档**
+**Principle: CLAUDE.md = SPEC pointer, not design document**
 
-**✅ 允许内容：**
-- SPEC位置说明（./SPEC/ 或 ../SPEC/）
-- 项目特殊约束和开发流程引用
-- 角色分工说明（简略）
-- 流程和规范的**引用**（指向权威文档）
+**✅ Allowed Content:**
+- SPEC location instructions (./SPEC/ or ../SPEC/)
+- Project-specific constraints and development process references
+- Role分工 description (brief)
+- References to processes and standards (point to authoritative documents)
 
-**❌ 禁止内容（必须在SPEC中）：**
-- 功能需求定义
-- 模块清单和职责表格
-- 技术栈详细说明
-- 数据模型定义（表结构、字段）
-- API接口定义（端点、请求/响应格式）
-- ID格式定义（REQ-XXX、ARCH-XXX等）
-- 架构原则和设计模式说明
-- 详细的工作流程步骤
+**❌ Forbidden Content (must be in SPEC):**
+- Functional requirement definitions
+- Module list and responsibility tables
+- Technology stack detailed descriptions
+- Data model definitions (table structures, field lists)
+- API interface definitions (endpoints, request/response formats)
+- ID format definitions (REQ-XXX, ARCH-XXX, etc.)
+- Architecture principles and design pattern descriptions
+- Detailed workflow steps
 ```
 
-#### 5.2 违规内容检测
+#### 5.2 Violation Content Detection
 
 ```markdown
-**检测方式：**
-1. 搜索是否包含需求定义关键词（"需求"、"功能"、"REQ-"）
-2. 搜索是否包含架构设计内容（模块清单、技术栈表格）
-3. 搜索是否包含数据模型定义（表结构、字段列表）
-4. 搜索是否包含API定义（端点、接口格式）
+**Detection Method:**
+1. Search for requirement definition keywords ("需求", "功能", "REQ-")
+2. Search for architecture design content (module lists, technology stack tables)
+3. Search for data model definitions (table structures, field lists)
+4. Search for API definitions (endpoints, interface formats)
 
-**CLAUDE.md - 合规性检查：**
-- ✅ 仅包含 SPEC 位置说明
-- ✅ 仅包含特殊约束说明
-- ⚠️  包含流程说明（应该引用而非定义）
-- ❌ 包含需求定义 → [建议移到 SPEC/01-REQUIREMENTS.md]
-- ❌ 包含模块清单表格 → [建议移到 SPEC/02-ARCHITECTURE.md]
-- ❌ 包含数据模型表格 → [建议移到 SPEC/03-DATA-STRUCTURE.md]
-- ❌ 包含API端点列表 → [建议移到 SPEC/04-API-DESIGN.md]
+**CLAUDE.md - Compliance Check:**
+- ✅ Contains only SPEC location instructions
+- ✅ Contains only specific constraint descriptions
+- ⚠️ Contains process descriptions (should reference rather than define)
+- ❌ Contains requirement definitions → [Suggest moving to SPEC/01-REQUIREMENTS.md]
+- ❌ Contains module list table → [Suggest moving to SPEC/02-ARCHITECTURE.md]
+- ❌ Contains data model table → [Suggest moving to SPEC/03-DATA-STRUCTURE.md]
+- ❌ Contains API endpoint list → [Suggest moving to SPEC/04-API-DESIGN.md]
 ```
 
-#### 5.3 正确示例
+#### 5.3 Correct Examples
 
 ```markdown
-**✅ 正确的 CLAUDE.md（业务项目）：**
+**✅ Correct CLAUDE.md (Business Project):**
 ```markdown
-## SPEC位置
+## SPEC Location
 - ./SPEC/
 
-## 产品级SPEC位置
+## Product-level SPEC Location (if applicable)
 - ../SPEC/
-
-## 项目特殊约束
-- 本项目不使用数据库，所有数据来自外部API
-- 前端使用 TypeScript 严格模式
 ```
 
-**✅ 正确的 CLAUDE.md（框架项目，如 cc-spec-lite）：**
+**✅ Correct CLAUDE.md (Framework Project, e.g., cc-spec-lite):**
 ```markdown
-## SPEC位置
+## SPEC Location
 - ./SPEC/
 
-## 框架定位
-本项目是 SPEC-driven 开发框架，定义开发流程和规范。
+## Framework Positioning
+This is a SPEC-driven development framework, defining development processes and standards.
 
-详细规范见：
-- skills/ 目录：技能定义
-- commands/ 目录：自定义命令
-- roles/ 目录：角色规范
+For detailed specifications, see:
+- skills/ directory: Skill definitions
+- commands/ directory: Custom commands
+- roles/ directory: Role specifications
 
-用户项目应该使用简化的 CLAUDE.md（仅SPEC位置）。
+User projects should use simplified CLAUDE.md (SPEC location only).
 ```
 
-**❌ 错误的 CLAUDE.md示例：**
+**❌ Incorrect CLAUDE.md Example:**
 ```markdown
-## 功能需求
-- REQ-AUTH-001: 用户登录
-- REQ-AUTH-002: 用户注册
+## Functional Requirements
+- REQ-AUTH-001: User login
+- REQ-AUTH-002: User registration
 
-## 模块清单
-| 模块 | 职责 |
-|-----|------|
-| auth | 认证 |
-| user | 用户管理 |
+## Module List
+| Module | Responsibility |
+|-------|---------------|
+| auth  | Authentication |
+| user  | User Management |
 
-## 数据模型
-- users 表：id, email, password
+## Data Model
+- users table: id, email, password
 ```
 
-**建议：将以上内容移到对应 SPEC 文件中**
+**Suggestion: Move the above content to corresponding SPEC files**
 ```
 
 ---
 
-### 阶段6：API一致性审查
+### Phase 6: API Consistency Review
 
-**检查 API-XXX 与实际路由定义的一致性：**
+**Check consistency between API-XXX and actual route definitions:**
 
-#### 6.1 接口实现检查
+#### 6.1 Interface Implementation Check
 
 ```markdown
-**审查项：API接口是否已实现**
+**Review Item: Are API interfaces implemented**
 
 **API-USER-001** - POST /api/users/register
-- SPEC定义：创建用户
-- 实际检查：
-  - ✅ 路由已注册（src/routes/users.ts:15）
-  - ✅ 请求参数符合SPEC
-  - ❌ 响应格式不符 → SPEC要求 code/message，实际返回 status
+- SPEC Definition: Create user
+- Actual check:
+  - ✅ Route registered (src/routes/users.ts:15)
+  - ✅ Request parameters match SPEC
+  - ❌ Response format mismatch → SPEC requires code/message, actual returns status
 ```
 
-#### 5.2 错误码覆盖
+#### 6.2 Error Code Coverage
 
 ```markdown
-**审查项：定义的错误码是否都有实现**
+**Review Item: Are defined error codes all implemented**
 
 **API-ORDER-001** - GET /api/orders/:id
-- SPEC定义错误码：
-  - 404: 订单不存在
-  - 403: 无权限访问
-- 实际检查：
-  - ✅ 404 已实现
-  - ❌ 403 未实现 → [提示补充]
+- SPEC Definition error codes:
+  - 404: Order not found
+  - 403: No permission to access
+- Actual check:
+  - ✅ 404 implemented
+  - ❌ 403 not implemented → [Prompt to supplement]
 ```
 
-#### 5.3 认证授权检查
+#### 6.3 Authentication Authorization Check
 
 ```markdown
-**审查项：需要认证的接口是否都有保护**
+**Review Item: Are authenticated interfaces all protected**
 
 **API-PAYMENT-001** - POST /api/payments
-- SPEC要求：需要Bearer Token认证
-- 实际检查：
-  - ✅ 有 @UseGuards(AuthGuard) 装饰器
-  - ✅ Token验证逻辑正确
+- SPEC Requirement: Requires Bearer Token authentication
+- Actual check:
+  - ✅ Has @UseGuards(AuthGuard) decorator
+  - ✅ Token verification logic correct
 ```
 
 ---
 
-### 阶段7：生成审查报告
+### Phase 7: Generate Review Report
 
 ```markdown
-# SPEC 审查报告
+# SPEC Review Report
 
-生成时间: $(date)
+Generated at: $(date)
 
-## 📊 总体评分
+## 📊 Overall Score
 
-| 维度 | 得分 | 状态 |
-|------|------|------|
-| 格式完整性 | 100% | ✅ |
-| 需求完整性 | 85% | ⚠️  |
-| 架构一致性 | 90% | ✅ |
-| 数据一致性 | 75% | ⚠️  |
-| API一致性 | 95% | ✅ |
-| CLAUDE.md合规性 | 100% | ✅ |
+| Dimension | Score | Status |
+|-----------|-------|--------|
+| Format Completeness | 100% | ✅ |
+| Requirement Completeness | 85% | ⚠️ |
+| Architecture Consistency | 90% | ✅ |
+| Data Consistency | 75% | ⚠️ |
+| API Consistency | 95% | ✅ |
+| CLAUDE.md Compliance | 100% | ✅ |
 
-**综合评分: 89%**
-
----
-
-## ✅ 通过项
-
-**格式验证:**
-- ✅ 所有文件格式正确
-- ✅ ID格式符合规范
-- ✅ VERSION 格式正确
-
-**架构一致性:**
-- ✅ 所有 ARCH-XXX 模块已实现
-- ✅ 技术栈与SPEC一致
-
-**API一致性:**
-- ✅ 95% 的API已实现
-- ✅ 错误码定义完整
+**Overall Score: 89%**
 
 ---
 
-## ⚠️  警告项
+## ✅ Passed Items
 
-**需求完整性:**
-- ⚠️  REQ-USER-005 缺少验收标准
-- ⚠️  REQ-ORDER-003 优先级未定义
+**Format Validation:**
+- ✅ All file formats correct
+- ✅ ID formats compliant
+- ✅ VERSION format correct
 
-**数据一致性:**
-- ⚠️  DATA-PRODUCT-001 缺少 idx_price 索引
-- ⚠️  DATA-ORDER-001 外键级联规则未实现
+**Architecture Consistency:**
+- ✅ All ARCH-XXX modules implemented
+- ✅ Technology stack matches SPEC
 
----
-
-## ❌ 失败项
-
-**需求实现不完整:**
-- ❌ REQ-CHECKOUT-001 代码未实现
-- ❌ REQ-PAYMENT-002 代码部分实现（缺少退款功能）
-
-**建议:**
-1. 补充缺失的验收标准
-2. 实现未完成的需求
-3. 添加缺失的数据库索引
-4. 修复API响应格式不一致
+**API Consistency:**
+- ✅ 95% of APIs implemented
+- ✅ Error code definitions complete
 
 ---
 
-## 📋 问题清单
+## ⚠️ Warning Items
 
-| ID | 类型 | 严重性 | 描述 | 建议 |
-|----|------|--------|------|------|
-| 1 | 需求 | 中 | REQ-USER-005 缺少验收标准 | 补充验收标准 |
-| 2 | 需求 | 高 | REQ-CHECKOUT-001 未实现 | 实现该功能 |
-| 3 | 数据 | 中 | DATA-PRODUCT-001 缺少索引 | 添加 idx_price |
-| 4 | API | 中 | API-USER-001 响应格式不符 | 修正为 code/message |
+**Requirement Completeness:**
+- ⚠️ REQ-USER-005 missing acceptance criteria
+- ⚠️ REQ-ORDER-003 priority not defined
+
+**Data Consistency:**
+- ⚠️ DATA-PRODUCT-001 missing idx_price index
+- ⚠️ DATA-ORDER-001 foreign key cascade rules not implemented
 
 ---
 
-## 🎯 改进建议
+## ❌ Failed Items
 
-1. **需求完整性**
-   - 为所有需求补充验收标准
-   - 明确所有需求的优先级
-   - 实现所有未完成的需求
+**Requirement Implementation Incomplete:**
+- ❌ REQ-CHECKOUT-001 code not implemented
+- ❌ REQ-PAYMENT-002 code partially implemented (missing refund functionality)
 
-2. **数据一致性**
-   - 运行数据库迁移添加缺失索引
-   - 实现所有外键约束
+**Suggestions:**
+1. Supplement missing acceptance criteria
+2. Implement incomplete requirements
+3. Add missing database indexes
+4. Fix API response format inconsistencies
 
-3. **API一致性**
-   - 修正响应格式不一致问题
-   - 补充缺失的错误码处理
+---
 
-4. **文档更新**
-   - 及时更新SPEC反映最新实现
-   - 确保SPEC和代码保持同步
+## 📋 Problem List
+
+| ID | Type | Severity | Description | Suggestion |
+|----|------|----------|-------------|------------|
+| 1 | Requirement | Medium | REQ-USER-005 missing acceptance criteria | Supplement acceptance criteria |
+| 2 | Requirement | High | REQ-CHECKOUT-001 not implemented | Implement this feature |
+| 3 | Data | Medium | DATA-PRODUCT-001 missing index | Add idx_price |
+| 4 | API | Medium | API-USER-001 response format mismatch | Correct to code/message |
+
+---
+
+## 🎯 Improvement Suggestions
+
+1. **Requirement Completeness**
+   - Supplement acceptance criteria for all requirements
+   - Clarify priorities for all requirements
+   - Implement all unfinished requirements
+
+2. **Data Consistency**
+   - Run database migration to add missing indexes
+   - Implement all foreign key constraints
+
+3. **API Consistency**
+   - Fix response format inconsistency issues
+   - Supplement missing error code handling
+
+4. **Documentation Updates**
+   - Update SPEC promptly to reflect latest implementation
+   - Ensure SPEC and code remain synchronized
 ```
 
 ---
 
-## 完成提示
+## Completion Prompt
 
 ```markdown
-✅ SPEC 审查完成！
+✅ SPEC Review Completed!
 
-**审查结果:**
-- 格式完整性: ✅ 100%
-- 需求完整性: ⚠️  85%
-- 架构一致性: ✅ 90%
-- 数据一致性: ⚠️  75%
-- API一致性: ✅ 95%
-- CLAUDE.md合规性: ✅ 100%
+**Review Results:**
+- Format Completeness: ✅ 100%
+- Requirement Completeness: ⚠️ 85%
+- Architecture Consistency: ✅ 90%
+- Data Consistency: ⚠️ 75%
+- API Consistency: ✅ 95%
+- CLAUDE.md Compliance: ✅ 100%
 
-**综合评分: 89%**
+**Overall Score: 89%**
 
-**下一步:**
-1. 📝 查看完整报告：已生成 SPEC-AUDIT-REPORT.md
-2. 🔧 修复问题：使用 /architect 修正SPEC
-3. 💻 完善实现：使用 /programmer 补充代码
+**Next Steps:**
+1. 📝 View complete report: SPEC-AUDIT-REPORT.md generated
+2. 🔧 Fix issues: Use /architect to correct SPEC
+3. 💻 Complete implementation: Use /programmer to supplement code
 
-**建议优先处理:**
-1. 补充缺失的验收标准
-2. 实现未完成的需求
-3. 添加缺失的数据库索引
+**Priority Suggestions:**
+1. Supplement missing acceptance criteria
+2. Implement unfinished requirements
+3. Add missing database indexes
 ```
 
 ---
 
-## 与其他命令的协作
+## Collaboration with Other Commands
 
 ```
 /spec-audit
-    ↓ (发现问题和差距)
+    ↓ (discover issues and gaps)
 /architect
-    ↓ (修正SPEC)
+    ↓ (correct SPEC)
 /programmer
-    ↓ (补充实现)
-/spec-audit (再次审查，验证改进)
+    ↓ (supplement implementation)
+/spec-audit (review again, verify improvements)
 ```
 
 ---
 
-## 审查标准
+## Review Standards
 
-### 通过标准（所有✅）
+### Passing Criteria (all ✅)
 
-- 格式完整性 = 100%
-- 需求完整性 ≥ 90%
-- 架构一致性 ≥ 90%
-- 数据一致性 ≥ 90%
-- API一致性 ≥ 90%
-- CLAUDE.md合规性 = 100%（内容符合SPEC指针定位）
+- Format Completeness = 100%
+- Requirement Completeness ≥ 90%
+- Architecture Consistency ≥ 90%
+- Data Consistency ≥ 90%
+- API Consistency ≥ 90%
+- CLAUDE.md Compliance = 100% (content follows SPEC pointer positioning)
 
-### 优秀标准
+### Excellence Criteria
 
-- 所有维度 ≥ 95%
-- 无任何警告或失败项
-- 所有需求都已实现
+- All dimensions ≥ 95%
+- No warnings or failed items
+- All requirements implemented
 
 ---
 
-## 核心原则
+## Core Principles
 
-**cc-spec-lite 精简版**
+**cc-spec-lite Simplified Version**
 
-- ✅ 只审查需求完整性
-- ✅ 只检查代码与SPEC一致性
-- ✅ 检查 CLAUDE.md 内容合规性（必须是SPEC指针，不限制长度）
-- ❌ 不管测试覆盖率
-- ❌ 不管代码质量
-- ❌ 不管交付标准
+- ✅ Review only requirement completeness
+- ✅ Check only code-SPEC consistency
+- ✅ Review CLAUDE.md content compliance (must be SPEC pointer, no length limit)
+- ❌ No test coverage management
+- ❌ No code quality management
+- ❌ No delivery standards
 
-**CLAUDE.md 审计重点：**
-- ✅ 内容性质：是否包含应该在SPEC中的内容
-- ❌ 不检查文件长度：框架项目可以很长，业务项目应该简短
-- ✅ 检查内容类型：需求、架构、数据模型、API定义必须在SPEC中
+**CLAUDE.md Audit Focus:**
+- ✅ Content nature: Whether it contains content that should be in SPEC
+- ❌ No file length check: Framework projects can be long, business projects should be brief
+- ✅ Content type: Requirements, architecture, data models, API definitions must be in SPEC
 
-测试、质量、交付相关功能请使用完整版 cc-spec。
+For testing, quality, and delivery related features, please use the full version cc-spec.

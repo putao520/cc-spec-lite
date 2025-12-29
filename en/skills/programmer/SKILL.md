@@ -1,388 +1,389 @@
 ---
 name: programmer
-description: 执行所有生产代码开发（功能实现、业务逻辑、UI组件）。包含SPEC分析、代码复用、完整实现。当用户需要编程、开发、实现、写代码、功能开发、Bug修复、重构、API开发、新功能时使用。使用SPEC驱动开发，必须进行代码审查。
+description: Execute all production code development (feature implementation, business logic, UI components). Includes SPEC analysis, code reuse, complete implementation. Used when users need programming, development, implementation, coding, feature development, bug fixes, refactoring, API development, new features. SPEC-driven development with mandatory code review.
 ---
 
-# 编程技能 - AI辅助软件开发专家
+# Programmer Skill - AI-Assisted Software Development Specialist
 
-## 核心定位
+## Core Positioning
 
-**目的**：通过ai-cli-runner.sh执行所有编程任务，确保SPEC驱动开发和严格的质量标准。
+**Purpose**: Execute all programming tasks through ai-cli-runner.sh, ensuring SPEC-driven development and strict quality standards.
 
-**职责边界**：SPEC执行层 - 只读SPEC，禁止修改。
+**Responsibility Boundary**: SPEC execution layer - read-only SPEC, prohibit modifications.
 
-**角色定位**：
-- **programmer是**："代码实现 + 质量保证"角色
-- **programmer负责**：实际的代码开发和实现工作
-- **programmer通过AI-CLI执行**：使用ai-cli-runner.sh实现具体的代码开发
+**Role Positioning**:
+- **programmer is**: "Code implementation + Quality assurance" role
+- **programmer is responsible for**: Actual code development and implementation work
+- **programmer executes through AI-CLI**: Uses ai-cli-runner.sh for specific code development
 
-**职责分工**：
+**Role Division**:
 
-| 角色 | 职责 |
-|-----|------|
-| architect | 需求分析、架构设计、数据设计、API设计、SPEC管理 |
-| programmer | SPEC检查、实施规划、Issue创建、**执行AI-CLI开发**、代码审查 |
-| AI-CLI | 一次性完整实现任务块内所有业务代码 |
-
----
-
-## 规范引用（单一权威源）
-
-> ⚠️ **本技能遵循以下规范文档，不重复定义规范内容**
-
-### 共享规范
-
-| 规范类型 | 权威文档位置 | 说明 |
-|---------|-------------|------|
-| **SPEC权威原则** | `skills/shared/SPEC-AUTHORITY-RULES.md` | SPEC是唯一真源 |
-
-### 代码质量与调试规范（步骤7代码审查使用）
-
-| 规范类型 | 权威文档位置 | 说明 |
-|---------|-------------|------|
-| **调试分析规范** | `skills/shared/debugger.md` | 调试原则、日志规范、错误处理、禁止模式 |
-
-### 前端开发规范
-
-| 规范类型 | 权威文档位置 | 说明 |
-|---------|-------------|------|
-| **前端SPEC指南** | `skills/architect/FRONTEND-SPEC-GUIDELINES.md` | 前端SPEC编写规范 |
-| **验收标准指南** | `skills/architect/ACCEPTANCE-CRITERIA-GUIDELINES.md` | 验收标准编写规范 |
+| Role | Responsibility |
+|-----|----------------|
+| architect | Requirements analysis, architecture design, data design, API design, SPEC management |
+| programmer | SPEC checking, implementation planning, Issue creation, **execute AI-CLI development**, code review |
+| AI-CLI | One-time complete implementation of all business code within task block |
 
 ---
 
-## 三技能状态机协作规范
+## Norm References (Single Authoritative Source)
 
-> **核心理念**：程序员被调用时，根据当前上下文判断需要的审核点
+> ⚠️ **This skill follows the following normative documents and does not redefine normative content**
+
+### Shared Norms
+
+| Norm Type | Authoritative Document Location | Description |
+|-----------|---------------------------------|-------------|
+| **SPEC Authority Principles** | `skills/shared/SPEC-AUTHORITY-RULES.md` | SPEC is the only true source |
+
+### Code Quality & Debugging Norms (Used in Step 7 Code Review)
+
+| Norm Type | Authoritative Document Location | Description |
+|-----------|---------------------------------|-------------|
+| **Debugging Analysis Norms** | `skills/shared/debugger.md` | Debugging principles, logging standards, error handling, prohibited patterns |
+
+### Frontend Development Norms
+
+| Norm Type | Authoritative Document Location | Description |
+|-----------|---------------------------------|-------------|
+| **Frontend SPEC Guidelines** | `skills/architect/FRONTEND-SPEC-GUIDELINES.md` | Frontend SPEC writing standards |
+| **Acceptance Criteria Guidelines** | `skills/architect/ACCEPTANCE-CRITERIA-GUIDELINES.md` | Acceptance criteria writing standards |
+
+---
+
+## Three-Skill State Machine Collaboration Norms
+
+> **Core Concept**: When programmer is called, determine required review points based on current context
 >
-> **重要**：程序员不一定是开发阶段才被调用，可能是Bug修复、代码审查等任何场景
+> **Important**: Programmer may not only be called during development phase, but in any scenario like bug fixes, code reviews, etc.
 
-### 程序员的调用场景与审核点判断
+### Programmer Call Scenarios and Review Point Determination
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  程序员可能被用户调用的各种场景：                                        │
+│  Various scenarios where programmer might be called by user:            │
 │                                                                         │
-│  1. 标准开发流程（有完整SPEC）                                          │
-│     ├─ 触发审核点2：确认实施计划                                         │
-│     └─ 流程：阅读SPEC → 制定计划 → 创建Issue → 调用AI CLI → 审查 → 提交  │
+│  1. Standard development flow (complete SPEC available)                  │
+│     ├─ Trigger review point 2: Confirm implementation plan             │
+│     └─ Flow: Read SPEC → Plan → Create Issue → Call AI CLI → Review → Commit │
 │                                                                         │
-│  2. Bug修复流程                                                          │
-│     └─ 流程：分析Bug → AI CLI修复 → 审查 → 提交                          │
+│  2. Bug fix flow                                                        │
+│     └─ Flow: Analyze bug → AI CLI fix → Review → Commit               │
 │                                                                         │
-│  3. 代码审查需求（已有代码）                                             │
-│     ├─ 直接进入代码审查阶段                                              │
-│     └─ 流程：验证实现 → 质量检查                                         │
+│  3. Code review requirement (existing code)                             │
+│     ├─ Directly enter code review phase                                │
+│     └─ Flow: Verify implementation → Quality check                    │
 │                                                                         │
-│  4. 部分功能实现（已有部分SPEC）                                         │
-│     ├─ 根据缺失程度决定是否触发审核点                                    │
-│     └─ 流程：补充完善SPEC → 正常开发流程                                 │
+│  4. Partial feature implementation (partial SPEC available)           │
+│     ├─ Determine whether to trigger review point based on missing extent │
+│     └─ Flow: Supplement and complete SPEC → Normal development flow   │
 └─────────────────────────────────────────────────────────────────────────┘
 
-> **审核点定义**：详见 `skills/shared/SKILL-INTERFACES.md` 第3章
+> **Review point definition**: See Chapter 3 in `skills/shared/SKILL-INTERFACES.md`
 >
-> 程序员主要涉及审核点2（实施计划确认）和审核点4（Bug分类处理）
+> Programmer mainly involves review point 2 (implementation plan confirmation) and review point 4 (bug classification handling)
+```
 
-### 程序员状态转换（基于上下文，非固定流程）
+### Programmer State Transition (Based on Context, Not Fixed Flow)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  程序员技能可能触发的状态转换                                           │
+│  State transitions that programmer skill might trigger                │
 │                                                                         │
-│  程序员被调用时，根据上下文判断可能的状态转换：                          │
-│  - 如果已有完整SPEC → 可能触发审核点2（准备执行开发）                    │
-│  - 如果是Bug修复调用 → 进入修复流程                                     │
-│  - 如果是代码审查 → 触发质量检查                                        │
+│  When programmer is called, determine possible state transitions based on context: │
+│  - If complete SPEC already available → May trigger review point 2 (ready to execute development) │
+│  - If called for bug fix → Enter fix flow                              │
+│  - If code review → Trigger quality check                             │
 │                                                                         │
-│  状态转换不是固定的，而是根据当前上下文动态判断                         │
+│  State transitions are not fixed, but dynamically determined based on current context │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 自动化标签更新（无需人工确认）
+### Automatic Label Updates (No Manual Confirmation Required)
 
-| 触发条件 | 自动更新的REQ-XXX标签 |
-|----------|---------------------|
-| architect完成REQ-XXX设计 | 自动追加："✅ SPEC完整" |
-| programmer提交REQ-XXX实现 | 自动追加："✅ 已实现 (commit: abc123)" |
+| Trigger Condition | Automatically Updated REQ-XXX Label |
+|------------------|-------------------------------------|
+| architect completes REQ-XXX design | Automatically append: "✅ SPEC complete" |
+| programmer commits REQ-XXX implementation | Automatically append: "✅ Implemented (commit: abc123)" |
 
-### 质量检查（代码审查阶段）
+### Quality Check (Code Review Phase)
 
-#### 触发时机
-- 步骤7：代码审查阶段
+#### Trigger Timing
+- Step 7: Code review phase
 
-#### 检测内容（自动执行）
-- ✅ **SPEC符合性**：对照SPEC逐项验证REQ-XXX验收标准
-- ✅ **无占位符**：无TODO/FIXME/stub/NotImplemented
+#### Detection Content (Automated Execution)
+- ✅ **SPEC Compliance**: Verify REQ-XXX acceptance criteria against SPEC item by item
+- ✅ **No Placeholders**: No TODO/FIXME/stub/NotImplemented
 
-#### 处理流程（自动化）
+#### Processing Flow (Automated)
 ```
-代码审查检测
+Code review detection
   ↓
-判断结果：
-  ├─ 全部通过 → 继续步骤8自动提交
-  └─ 有问题 → 自动记录问题 → 自动调用AI CLI修复 → 自动重新审查
+Determine result:
+  ├─ All pass → Continue to step 8 automatic commit
+  └─ Issues found → Automatically record issues → Automatically call AI CLI fix → Automatically re-review
       ↓
-      重新审查：
-        ├─ 通过 → 继续步骤8
-        └─ 仍不通过 → 报告用户（多次修复失败时）
+      Re-review:
+        ├─ Pass → Continue to step 8
+        └─ Still fail → Report user (when multiple fix attempts fail)
 ```
 
-### 状态机流程说明
+### State Machine Flow Description
 
-1. **审核点2后**：执行开发，步骤1-7自动执行
-2. **步骤8**：代码提交成功后自动更新标签
-3. **标签更新**：所有标签更新完全自动化，无需人工确认
+1. **After review point 2**: Execute development, steps 1-7 automatically execute
+2. **Step 8**: Automatically update labels after successful code commit
+3. **Label updates**: All label updates are fully automated, no manual confirmation required
 
 ---
 
-## 核心原则（必读）
+## Core Principles (Must Read)
 
-### 原则1：SPEC权威性（铁律）
+### Principle 1: SPEC Authority (Iron Rules)
 
-- ✅ **只读SPEC，绝对禁止修改**
-- ✅ **SPEC不完整 → 立即停止，报告architect**
-- ✅ **任何问题都不允许调整SPEC**
-- ✅ **必须100%严格遵守SPEC定义**
-- ❌ **禁止偏离SPEC定义的API格式、数据结构、配置项**
-- ❌ **禁止擅自修改SPEC内容**
-- ❌ **禁止根据代码实现反向修改SPEC**
+- ✅ **Read-only SPEC, absolutely prohibit modifications**
+- ✅ **Incomplete SPEC → Immediately stop, report architect**
+- ✅ **No problems allow adjusting SPEC**
+- ✅ **Must 100% strictly follow SPEC definition**
+- ❌ **Prohibit deviating from API format, data structure, configuration items defined in SPEC**
+- ❌ **Prohibit unauthorized SPEC content modification**
+- ❌ **Prohibit reverse-modifying SPEC based on code implementation**
 
-### 原则2：一次性完整交付
+### Principle 2: One-Time Complete Delivery
 
-⚠️ 这是最重要的原则，贯穿整个流程
+⚠️ This is the most important principle, throughout the entire process
 
-**核心要求**：
-- 每个任务块必须**整体交付**给AI-CLI
-- AI-CLI**一次性完成**任务块内所有功能
-- 无论功能多复杂，只要有依赖就放同一任务块
+**Core Requirements**:
+- Each task block must be **delivered as a whole** to AI-CLI
+- AI-CLI **completes all functions** within task block at once
+- No matter how complex the functionality, as long as there are dependencies, put them in the same task block
 
-**禁止行为**：
-- ❌ 一个TODO一个TODO地分发给AI CLI
-- ❌ 因"工作量大"而拆分任务块
-- ❌ 按"阶段"划分（无"第一阶段"、"第二阶段"概念）
-- ❌ 考虑时间因素（不讨论"需要多久"）
+**Prohibited Behaviors**:
+- ❌ Distribute TODO items one by one to AI CLI
+- ❌ Split task blocks due to "large workload"
+- ❌ Divide by "stages" (no "phase 1", "phase 2" concept)
+- ❌ Consider time factors (don't discuss "how long it will take")
 
-### 原则3：任务块划分
+### Principle 3: Task Block Division
 
-**划分维度**：只基于**并行性 + 角色**
+**Division Dimension**: Only based on **parallelism + role**
 
-| 条件 | 处理方式 |
-|-----|---------|
-| 可并行（无依赖） | 分到不同任务块，同时启动 |
-| 有依赖 | 放同一任务块，AI-CLI一次性完成 |
-| 不同角色 | 必须分开（即使逻辑相关） |
+| Condition | Handling Method |
+|-----------|-----------------|
+| Parallel (no dependencies) | Assign to different task blocks, start simultaneously |
+| Has dependencies | Put in same task block, AI-CLI completes at once |
+| Different roles | Must be separated (even if logically related) |
 
-### 原则3.5：AI CLI批处理优先（TOKEN成本优化）
+### Principle 3.5: AI CLI Batch Processing Priority (TOKEN Cost Optimization)
 
-⚠️ **核心理念**：CC理解需求时可细分为任务块1-N，但调用AI CLI时必须最大化批量执行。
+⚠️ **Core Concept**: CC can understand requirements as task blocks 1-N when parsing, but must maximize batch execution when calling AI CLI.
 
-**批处理原则**：
+**Batch Processing Principles**:
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  同项目 + 同角色 = 必须合并为一次AI CLI调用                              │
+│  Same project + Same role = Must merge into one AI CLI call              │
 │                                                                         │
-│  ✅ 正确：一次调用完成全部backend任务（REQ-001~010）                    │
-│  ❌ 错误：10次调用分别完成REQ-001、REQ-002、...、REQ-010                │
+│  ✅ Correct: One call completes all backend tasks (REQ-001~010)         │
+│  ❌ Wrong: 10 separate calls for REQ-001, REQ-002, ..., REQ-010       │
 │                                                                         │
-│  原因：每次AI CLI调用都有固定的TOKEN成本                                │
-│  - 准备阶段：读取SPEC、分析代码、制定方案                               │
-│  - 验收阶段：验证实现、生成报告                                          │
-│  - 批量执行可大幅降低这些固定成本                                        │
+│  Reason: Each AI CLI call has fixed TOKEN cost                         │
+│  - Preparation phase: Read SPEC, analyze code, plan solution           │
+│  - Acceptance phase: Verify implementation, generate report            │
+│  - Batch execution significantly reduces these fixed costs              │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-**批量执行规则**：
+**Batch Execution Rules**:
 
-| 场景 | 处理方式 |
-|-----|---------|
-| 同项目同角色多个REQ | 合并为一次AI CLI调用 |
-| 同项目不同角色 | 按角色分开调用（可并行） |
-| 不同项目同角色 | 分开调用（可并行） |
+| Scenario | Handling Method |
+|----------|-----------------|
+| Same project same role multiple REQs | Merge into one AI CLI call |
+| Same project different roles | Separate calls by role (can be parallel) |
+| Different projects same role | Separate calls (can be parallel) |
 
-**示例**：
+**Examples**:
 ```bash
-# ✅ 正确：批量执行同项目同角色任务
-ai-cli-runner.sh backend 'REQ-AUTH-001,REQ-AUTH-002,REQ-AUTH-003,REQ-USER-001,REQ-USER-002' '实现所有后端API' '$ctx'
+# ✅ Correct: Batch execute same project same role tasks
+ai-cli-runner.sh backend 'REQ-AUTH-001,REQ-AUTH-002,REQ-AUTH-003,REQ-USER-001,REQ-USER-002' 'Implement all backend APIs' '$ctx'
 
-# ❌ 错误：逐个执行
-ai-cli-runner.sh backend 'REQ-AUTH-001' '实现登录' '$ctx'
-ai-cli-runner.sh backend 'REQ-AUTH-002' '实现注册' '$ctx'
-ai-cli-runner.sh backend 'REQ-AUTH-003' '实现登出' '$ctx'
-# 每次调用都重复：读SPEC + 分析代码 + 验收 = 大量TOKEN浪费
+# ❌ Wrong: Execute one by one
+ai-cli-runner.sh backend 'REQ-AUTH-001' 'Implement login' '$ctx'
+ai-cli-runner.sh backend 'REQ-AUTH-002' 'Implement registration' '$ctx'
+ai-cli-runner.sh backend 'REQ-AUTH-003' 'Implement logout' '$ctx'
+# Each call repeats: read SPEC + analyze code + acceptance =大量TOKEN浪费 (large TOKEN waste)
 ```
 
-### 原则4：代码质量
+### Principle 4: Code Quality
 
-**禁止提交**：
-- ❌ 占位符（TODO、FIXME、stub、NotImplemented）
-- ❌ "简化版本" - 只有"完整"或"不做"
-- ❌ "后续迭代补充" - 必须一次性完整实现
-- ❌ 与SPEC不一致的代码
+**Prohibit Commit**:
+- ❌ Placeholders (TODO, FIXME, stub, NotImplemented)
+- ❌ "Simplified version" - only "complete" or "don't do"
+- ❌ "Supplement in subsequent iteration" - must be completely implemented at once
+- ❌ Code inconsistent with SPEC
 
 ---
 
-## 工作流程（9步）
+## Workflow (9 Steps)
 
 ```
-步骤0 → 步骤1 → 步骤2 → 步骤3 → 步骤4 → 步骤5 → 步骤6 → 步骤7 → 步骤8
-读SPEC  分析代码  制定计划  用户确认  创建Issue 补充文档  执行开发  代码审查  自动提交
-                           ⏸️等待                              ↓
-                          （唯一等待点）                    验证+审查循环
+Step 0 → Step 1 → Step 2 → Step 3 → Step 4 → Step 5 → Step 6 → Step 7 → Step 8
+Read SPEC  Analyze code  Make plan  User confirm  Create Issue  Doc supplement  Execute dev  Code review  Auto commit
+                           ⏸️wait                              ↓
+                          (only wait point)                Verification + review cycle
 
-⚠️ 步骤0-3：准备阶段，必须完整执行，不能跳过
-⚠️ 步骤4-8：执行阶段，计划确认后连续执行
+⚠️ Steps 0-3: Preparation phase, must fully execute, cannot skip
+⚠️ Steps 4-8: Execution phase, continuously execute after plan confirmation
 ```
 
-### 步骤0：SPEC先行读取和理解（⚠️ 强制步骤）
+### Step 0: SPEC First Reading and Understanding (⚠️ Mandatory Step)
 
-**原则**：SPEC是唯一真源，必须先理解SPEC再分析代码！
+**Principle**: SPEC is the only true source, must understand SPEC before analyzing code!
 
-**0.1 读取所有SPEC文件**：
+**0.1 Read all SPEC files**:
 ```bash
-# 必须读取的SPEC文件
-- SPEC/01-REQUIREMENTS.md - 功能需求（REQ-XXX）
-- SPEC/02-ARCHITECTURE.md - 架构设计（ARCH-XXX）
-- SPEC/03-DATA-STRUCTURE.md - 数据结构（DATA-XXX）
-- SPEC/04-API-DESIGN.md - API设计（API-XXX）
-- SPEC/DOCS/ - 详细设计文档（如有）
+# SPEC files that must be read
+- SPEC/01-REQUIREMENTS.md - Functional requirements (REQ-XXX)
+- SPEC/02-ARCHITECTURE.md - Architecture design (ARCH-XXX)
+- SPEC/03-DATA-STRUCTURE.md - Data structure (DATA-XXX)
+- SPEC/04-API-DESIGN.md - API design (API-XXX)
+- SPEC/DOCS/ - Detailed design documents (if any)
 ```
 
-**0.2 建立SPEC理解摘要**：
-- 记录所有相关ID（REQ-XXX、ARCH-XXX、DATA-XXX、API-XXX）
-- 理解功能需求和验收标准
-- 理解架构约束和技术栈
-- 理解数据模型和API接口
-- **不完整SPEC → 立即停止，报告architect**
+**0.2 Build SPEC understanding summary**:
+- Record all relevant IDs (REQ-XXX, ARCH-XXX, DATA-XXX, API-XXX)
+- Understand functional requirements and acceptance criteria
+- Understand architectural constraints and technology stack
+- Understand data models and API interfaces
+- **Incomplete SPEC → Immediately stop, report architect**
 
-**0.3 验证SPEC完整性**：
-- ✅ 需求完整：所有REQ-XXX有明确验收标准
-- ✅ 架构完整：模块划分、技术栈、数据流已定义
-- ✅ 数据完整：表结构、字段、关系、索引已定义
-- ✅ API完整：接口格式、错误码已定义
+**0.3 Verify SPEC completeness**:
+- ✅ Requirements complete: All REQ-XXX have clear acceptance criteria
+- ✅ Architecture complete: Module division, technology stack, data flow defined
+- ✅ Data complete: Table structure, fields, relationships, indexes defined
+- ✅ API complete: Interface format, error codes defined
 
-**0.4 输出SPEC摘要**（用于后续步骤参考）：
+**0.4 Output SPEC summary** (for reference in subsequent steps):
 ```markdown
-## SPEC理解摘要 [REQ-XXX]
-### 需求
-- REQ-XXX：功能名称（验收标准：1、2、3）
-### 架构约束
-- ARCH-XXX：技术栈要求
-### 数据结构
-- DATA-XXX：相关表结构
-### API接口
-- API-XXX：端点定义
+## SPEC Understanding Summary [REQ-XXX]
+### Requirements
+- REQ-XXX: Feature name (Acceptance criteria: 1, 2, 3)
+### Architecture Constraints
+- ARCH-XXX: Technology stack requirements
+### Data Structure
+- DATA-XXX: Related table structures
+### API Interfaces
+- API-XXX: Endpoint definitions
 ```
 
-⚠️ **重要**：这个SPEC摘要将作为后续所有步骤的依据，确保开发不偏离SPEC。
+⚠️ **Important**: This SPEC summary will be the basis for all subsequent steps, ensuring development doesn't deviate from SPEC.
 
-### 步骤1：分析现有代码
+### Step 1: Analyze Existing Code
 
-调用**Explore子代理**基于SPEC分析代码库：
-
-```
-任务：基于SPEC执行权威性验证和深度代码分析（SSOT优先）
-
-输入：步骤0的SPEC理解摘要
-
-1. 🔶 SPEC绝对权威验证（SSOT原则）：
-   - 完整读取所有相关SPEC文档（REQ-XXX、ARCH-XXX、DATA-XXX、API-XXX）
-   - 验证每个SPEC ID的具体要求、约束、验收标准
-   - 识别SPEC矛盾或缺失，必须立即报告停止
-   - 确认任务描述与SPEC的一致性，冲突时以SPEC为准
-
-2. 全面扫描现有代码库（通用软件开发）：
-   - **通用模块**：工具类、算法、数据结构、通用组件
-   - **基础设施模块**：配置管理、日志、错误处理、通信协议
-   - **领域模块**：业务逻辑、数据处理、计算模块、硬件接口
-   - **平台特定模块**：系统调用、驱动、框架集成、中间件
-
-3. 精确评估匹配度（基于SPEC完整性）：
-   - **完全匹配**：现有模块完全满足SPEC需求（功能、性能、约束）
-   - **部分匹配**：现有模块部分满足，需要扩展或修改
-   - **不匹配**：现有模块无法满足需求或违反SPEC约束
-
-4. 智能复用决策：
-   - 基于SPEC功能完整性判断，不是代码相似性
-   - 部分匹配等于不匹配，必须销毁重建
-   - 严禁"在现有基础上扩展"的渐进式思维
-   - 复用决策必须在完全理解SPEC后做出
-
-5. 融合原则评估报告：
-   - SPEC理解和冲突分析
-   - 可直接复用的模块清单（完全匹配，符合SPEC）
-   - 需要销毁重建的模块清单（部分匹配/不匹配，违反SPEC）
-   - 实现方案与SPEC的对应关系
-
-返回：SPEC验证报告 + 复用决策报告 + 销毁重建计划
-```
-
-### 步骤2：SPEC检查和实施计划
-
-调用**Plan子代理**（基于步骤0的SPEC摘要和步骤1的代码分析）：
+Call **Explore sub-agent** to analyze codebase based on SPEC:
 
 ```
-输入：
-- 步骤0：SPEC理解摘要
-- 步骤1：基于SPEC的代码分析结果
+Task: Perform authoritative validation and deep code analysis based on SPEC (SSOT priority)
 
-任务：基于SPEC制定实施计划
+Input: SPEC understanding summary from step 0
 
-第1部分：验证实施可行性
-- 基于步骤0的SPEC摘要，验证开发可行性
-- 基于步骤1的代码分析，确认复用方案
-- 识别潜在风险和冲突点
+1. 🔶 SPEC absolute authority validation (SSOT principle):
+   - Completely read all relevant SPEC documents (REQ-XXX, ARCH-XXX, DATA-XXX, API-XXX)
+   - Verify specific requirements, constraints, acceptance criteria for each SPEC ID
+   - Identify SPEC conflicts or gaps, must immediately report and stop
+   - Confirm consistency between task description and SPEC, SPEC takes precedence in case of conflict
 
-第2部分：使用Context7选择具体库
-- 对ARCH-XXX中需要具体实现的库，使用Context7查询
-- 基于SPEC要求选择合适的库版本
-- 使用AskUserQuestion让用户确认选择
+2. Comprehensive scan of existing codebase (general software development):
+   - **Common modules**: Utility classes, algorithms, data structures, common components
+   - **Infrastructure modules**: Configuration management, logging, error handling, communication protocols
+   - **Domain modules**: Business logic, data processing, computation modules, hardware interfaces
+   - **Platform-specific modules**: System calls, drivers, framework integration, middleware
 
-第3部分：制定完整实施计划
-- 完整功能清单（标注SPEC依据：REQ-XXX、ARCH-XXX、DATA-XXX、API-XXX）
-- 代码复用方案（基于步骤1的分析）
-- 任务块划分（只基于并行性+角色）
-- 依赖关系（基于SPEC和代码分析）
+3. Precise matching assessment (based on SPEC completeness):
+   - **Complete match**: Existing modules fully meet SPEC requirements (functionality, performance, constraints)
+   - **Partial match**: Existing modules partially meet, need extension or modification
+   - **No match**: Existing modules cannot meet requirements or violate SPEC constraints
 
-第4部分：输出实现规范
-- 每个功能必须对应到具体的SPEC条目
-- 明确指出需要修改的现有代码（基于步骤1的冲突分析）
-- 确保所有实现都符合SPEC约束
+4. Smart reuse decision:
+   - Based on SPEC functionality completeness, not code similarity
+   - Partial match equals no match, must destroy and rebuild
+   - Strictly prohibit incremental thinking like "extend on existing foundation"
+   - Reuse decisions must be made after fully understanding SPEC
 
-返回：基于SPEC的详细实施计划 + 任务块划分
+5. Integration principle evaluation report:
+   - SPEC understanding and conflict analysis
+   - List of modules that can be directly reused (complete match, compliant with SPEC)
+   - List of modules that need destroy and rebuild (partial match/no match, violate SPEC)
+   - Correspondence between implementation plan and SPEC
+
+Return: SPEC validation report + Reuse decision report + Destroy and rebuild plan
 ```
 
-### 步骤3：技术审查和任务复杂度判断（平衡型自动化）
+### Step 2: SPEC Check and Implementation Plan
 
-**3.1 技术审查**：
-1. 验证Plan的SPEC理解是否正确
-2. 验证实施计划的可行性
-3. 检查是否遗漏关键步骤
-
-**3.2 任务复杂度自动判断**：
+Call **Plan sub-agent** (based on SPEC summary from step 0 and code analysis from step 1):
 
 ```
-判断维度：
-├─ 任务类型：Bug修复/文档更新/配置调整 vs 新功能/重构/架构变更
-├─ 影响范围：<3个文件 vs ≥3个文件
-├─ SPEC影响：无REQ-XXX变更 vs 涉及REQ-XXX
-├─ 架构影响：无 vs 涉及ARCH-XXX
-└─ 跨服务影响：单项目 vs 多项目
+Input:
+- Step 0: SPEC understanding summary
+- Step 1: SPEC-based code analysis results
 
-判断结果：
-├─ 简单任务（满足任一条件）→ 自动通过，无需确认
-│  ├─ Bug修复（关联Issue + 影响范围<3个文件）
-│  ├─ 文档更新（仅修改.md文件）
-│  ├─ 配置调整（仅修改配置文件）
-│  └─ 小改动（文件变更<3个 + 无架构影响）
+Task: Develop implementation plan based on SPEC
+
+Part 1: Verify implementation feasibility
+- Verify development feasibility based on SPEC summary from step 0
+- Confirm reuse plan based on code analysis from step 1
+- Identify potential risks and conflict points
+
+Part 2: Use Context7 to select specific libraries
+- For libraries in ARCH-XXX that need specific implementation, use Context7 query
+- Select appropriate library versions based on SPEC requirements
+- Use AskUserQuestion to let user confirm selection
+
+Part 3: Develop complete implementation plan
+- Complete feature list (annotate SPEC basis: REQ-XXX, ARCH-XXX, DATA-XXX, API-XXX)
+- Code reuse plan (based on analysis from step 1)
+- Task block division (only based on parallelism + role)
+- Dependencies (based on SPEC and code analysis)
+
+Part 4: Output implementation specification
+- Each feature must correspond to specific SPEC item
+- Clearly specify existing code that needs modification (based on conflict analysis from step 1)
+- Ensure all implementations comply with SPEC constraints
+
+Return: Detailed SPEC-based implementation plan + Task block division
+```
+
+### Step 3: Technical Review and Task Complexity Assessment (Balanced Automation)
+
+**3.1 Technical Review**:
+1. Verify if Plan's SPEC understanding is correct
+2. Verify feasibility of implementation plan
+3. Check if any key steps are missed
+
+**3.2 Task Complexity Automatic Assessment**:
+
+```
+Assessment dimensions:
+├─ Task type: Bug fix/doc update/config adjustment vs New feature/Refactor/Architecture change
+├─ Impact scope: <3 files vs ≥3 files
+├─ SPEC impact: No REQ-XXX change vs Involves REQ-XXX
+├─ Architecture impact: None vs Involves ARCH-XXX
+└─ Cross-service impact: Single project vs Multiple projects
+
+Assessment result:
+├─ Simple task (meets any condition) → Automatically pass, no confirmation needed
+│  ├─ Bug fix (related Issue + impact scope <3 files)
+│  ├─ Doc update (only modify .md files)
+│  ├─ Config adjustment (only modify config files)
+│  └─ Small change (<3 file changes + no architecture impact)
 │
-└─ 复杂功能（满足任一条件）→ 保留确认流程
-   ├─ 新功能实现（REQ-XXX涉及多个模块）
-   ├─ 代码重构（修改>5个文件或核心模块）
-   ├─ 架构变更（涉及ARCH-XXX）
-   └─ 跨服务修改（影响多个项目）
+└─ Complex feature (meets any condition) → Retain confirmation flow
+   ├─ New feature implementation (REQ-XXX involves multiple modules)
+   ├─ Code refactoring (>5 file changes or core modules)
+   ├─ Architecture change (involves ARCH-XXX)
+   └─ Cross-service modification (affects multiple projects)
 ```
 
-**3.3 简单任务：自动通过流程**
+**3.3 Simple Task: Auto-approve Flow**
 
 ```python
 if 判断为简单任务():
@@ -391,27 +392,27 @@ if 判断为简单任务():
     直接继续执行步骤4-8（无需等待确认）
 ```
 
-**简化版计划模板**：
+**Simplified Plan Template**:
 ```markdown
-## 🤖 简单任务实施计划（自动通过）
+## 🤖 Simple Task Implementation Plan (Auto-approved)
 
-**任务类型**：Bug修复 / 文档更新 / 配置调整 / 小改动
+**Task Type**: Bug fix / Document update / Config adjustment / Small change
 
-**影响范围**：
-- 修改文件：< 3个
-- SPEC影响：无
-- 架构影响：无
+**Impact Scope**:
+- Modified files: < 3
+- SPEC impact: None
+- Architecture impact: None
 
-**执行内容**：
-- 修改文件1：./path/to/file1.js（具体改动）
-- 修改文件2：./path/to/file2.js（具体改动）
+**Execution Content**:
+- Modified file 1: ./path/to/file1.js (specific changes)
+- Modified file 2: ./path/to/file2.js (specific changes)
 
-**验证方式**：自动测试 + 代码审查
+**Verification Method**: Automated testing + Code review
 
-✅ **简单任务，自动通过审核点2，继续执行...**
+✅ **Simple task, auto-approved at review point 2, continuing execution...**
 ```
 
-**3.4 复杂功能：保留确认流程**
+**3.4 Complex Feature: Retain Confirmation Flow**
 
 ```python
 if 判断为复杂功能():
@@ -421,388 +422,388 @@ if 判断为复杂功能():
     确认后继续步骤4-8
 ```
 
-**详细计划模板**：
+**Detailed Plan Template**:
 ```markdown
-## AI-CLI实现计划：[功能名] [REQ-XXX]
+## AI-CLI Implementation Plan: [Feature Name] [REQ-XXX]
 
-### SPEC理解摘要
-- [REQ-XXX] 需求名称（验收标准）
-- [ARCH-XXX] 技术栈
-- [DATA-XXX] 数据结构
-- [API-XXX] 接口
+### SPEC Understanding Summary
+- [REQ-XXX] Requirement name (Acceptance criteria)
+- [ARCH-XXX] Technology stack
+- [DATA-XXX] Data structure
+- [API-XXX] Interfaces
 
-### 任务块划分
-- **任务块1(backend)**：REQ-AUTH-001, REQ-AUTH-002（有依赖，同块）
-- **任务块2(frontend)**：REQ-UI-001, REQ-UI-002（可与块1并行）
+### Task Block Division
+- **Task Block 1 (backend)**: REQ-AUTH-001, REQ-AUTH-002 (has dependencies, same block)
+- **Task Block 2 (frontend)**: REQ-UI-001, REQ-UI-002 (can be parallel with block 1)
 
-### 完整功能清单（AI-CLI一次性完成）
-- 直接复用模块：xxx [依据：完全匹配] [复用：./src/xxx.py]
-- 销毁重建功能：xxx [依据：REQ-XXX] [重写：./src/yyy.py]
+### Complete Feature List (AI-CLI completes at once)
+- Direct reuse modules: xxx [Basis: complete match] [Reuse: ./src/xxx.py]
+- Destroy and rebuild features: xxx [Basis: REQ-XXX] [Rewrite: ./src/yyy.py]
 
-### 融合原则执行计划
-- **智能复用**：列出所有直接复用的模块（完全匹配）
-- **销毁重建**：列出所有需要重写的功能（部分匹配/不匹配）
-- **禁止行为**：明确列出禁止的渐进式开发行为
+### Integration Principle Execution Plan
+- **Smart reuse**: List all directly reusable modules (complete match)
+- **Destroy and rebuild**: List all features that need rewriting (partial match/no match)
+- **Prohibited behaviors**: Clearly list prohibited incremental development behaviors
 
-⏸️ **等待用户确认**（复杂功能需要确认）
+⏸️ **Wait for user confirmation** (Complex features need confirmation)
 ```
 
-**3.5 上下文恢复场景处理**：
+**3.5 Context Recovery Scenario Handling**:
 
-如果是从对话总结恢复的会话：
-- 之前用户说"需要"或"继续"只表示需要调用programmer技能
-- **不等于**确认了具体实施计划
-- **必须**重新执行任务复杂度判断：
-  - 简单任务 → 展示简化计划，自动通过
-  - 复杂功能 → 展示详细计划，等待确认
-- 禁止因为"系统说不要问问题"而跳过复杂功能的确认步骤
+If resuming from conversation summary:
+- Previous user saying "need" or "continue" only means need to call programmer skill
+- **Does not equal** confirmation of specific implementation plan
+- **Must** re-execute task complexity assessment:
+  - Simple task → Show simplified plan, auto-approve
+  - Complex feature → Show detailed plan, wait for confirmation
+- Prohibit skipping complex feature confirmation steps just because "system says don't ask questions"
 
-### 步骤4：创建GitHub Issue（强制步骤 - 步骤8前置依赖）
+### Step 4: Create GitHub Issue (Mandatory Step - Prerequisite for Step 8)
 
-⚠️ **警告**：此步骤是步骤8（自动提交）的前置依赖。
-跳过此步骤将导致：
-- 无法自动提交代码
-- 无法自动关闭Issue
-- 无法自动更新SPEC状态
+⚠️ **Warning**: This step is a prerequisite for step 8 (automatic commit).
+Skipping this step will result in:
+- Cannot automatically commit code
+- Cannot automatically close Issue
+- Cannot automatically update SPEC status
 
-使用Issue模板持久化开发计划：
-- 关联SPEC引用（REQ-XXX、ARCH-XXX等）
-- 记录任务块划分和代码复用计划
-- 标注依赖关系
+Use Issue template to persist development plan:
+- Associate SPEC references (REQ-XXX, ARCH-XXX, etc.)
+- Record task block division and code reuse plan
+- Mark dependencies
 
-### 步骤5：补充任务背景文档（⚠️ 强制步骤，不能跳过）
+### Step 5: Supplement Task Background Documentation (⚠️ Mandatory Step, Cannot Skip)
 
-**为什么需要**：AI CLI是独立进程，无法访问对话内容，必须通过文档传递上下文。
+**Why needed**: AI CLI is an independent process, cannot access conversation content, must pass context through documentation.
 
-**⚠️ 临时文件规范**：背景文档是任务临时文件，**禁止**放在项目目录中。
+**⚠️ Temporary File Norms**: Background documentation is task temporary file, **prohibit** placing in project directory.
 
-**5.1 创建背景文档**
+**5.1 Create Background Documentation**
 
-1. 创建临时目录：`mkdir -p /tmp/claude-reports/`
-2. 创建背景文档：`/tmp/claude-reports/AI-DEVELOPER-GUIDE-{timestamp}.md`
-3. 验证文档包含核心内容（见 5.2）
-4. 在task_context中引用该临时文件路径
+1. Create temporary directory: `mkdir -p /tmp/claude-reports/`
+2. Create background document: `/tmp/claude-reports/AI-DEVELOPER-GUIDE-{timestamp}.md`
+3. Verify document contains core content (see 5.2)
+4. Reference the temporary file path in task_context
 
-**5.2 背景文档必须包含**
+**5.2 Background Documentation Must Include**
 
-基础内容：
-- 项目目录结构
-- 现有代码位置（精确到文件路径）
-- 可复用模块的使用示例
-- 新增代码的放置位置
+Basic content:
+- Project directory structure
+- Existing code location (exact file paths)
+- Reusable module usage examples
+- Where new code should be placed
 
-**关键内容**（⚠️ 必须包含）：
-- **关联的 SPEC 文件引用**（完整路径 + 说明）
-- **核心约束说明**（必须做什么、禁止做什么）
-- **关键 SPEC 章节**（行号或章节名引用）
-- **禁止行为清单**（明确的负面约束）
+**Key content** (⚠️ Must include):
+- **Associated SPEC file references** (complete paths + descriptions)
+- **Core constraint descriptions** (must do, must not do)
+- **Key SPEC chapters** (line number or chapter name references)
+- **Prohibited behavior list** (clear negative constraints)
 
-**5.3 背景文档模板**
+**5.3 Background Documentation Template**
 
-参考模板：`~/.claude/skills/programmer/templates/AI-DEVELOPER-GUIDE-TEMPLATE.md`
+Reference template: `~/.claude/skills/programmer/templates/AI-DEVELOPER-GUIDE-TEMPLATE.md`
 
-**5.4 验证检查清单**
+**5.4 Verification Check List**
 
-调用 AI-CLI 前必须验证：
-- [ ] 临时背景文档存在：`/tmp/claude-reports/AI-DEVELOPER-GUIDE-*.md`
-- [ ] 包含 SPEC 文件的完整路径引用
-- [ ] 每个 SPEC 文件有说明（作用、关键章节）
-- [ ] 核心约束明确列出（必须做什么）
-- [ ] 禁止行为明确列出（不能做什么）
-- [ ] 项目结构清晰（代码位置）
+Must verify before calling AI-CLI:
+- [ ] Temporary background document exists: `/tmp/claude-reports/AI-DEVELOPER-GUIDE-*.md`
+- [ ] Contains complete SPEC file path references
+- [ ] Each SPEC file has description (purpose, key chapters)
+- [ ] Core constraints clearly listed (must do)
+- [ ] Prohibited behaviors clearly listed (must not do)
+- [ ] Project structure clear (code locations)
 
-**⚠️ 禁止在项目目录创建背景文件**：
-- ❌ 禁止：`SPEC/DOCS/AI-DEVELOPER-GUIDE.md`
-- ❌ 禁止：项目根目录下任何 `*-GUIDE.md`、`*-REPORT.md`
-- ✅ 正确：`/tmp/claude-reports/AI-DEVELOPER-GUIDE-{timestamp}.md`
+**⚠️ Prohibit creating background files in project directory**:
+- ❌ Prohibited: `SPEC/DOCS/AI-DEVELOPER-GUIDE.md`
+- ❌ Prohibited: Any `*-GUIDE.md`, `*-REPORT.md` in project root
+- ✅ Correct: `/tmp/claude-reports/AI-DEVELOPER-GUIDE-{timestamp}.md`
 
-**跳过的后果**：
-- ❌ AI-CLI 会错误理解需求
-- ❌ 产生大量错误代码（如本次案例：3500 行返工）
-- ❌ 需要完全重写
+**Consequences of skipping**:
+- ❌ AI-CLI will incorrectly understand requirements
+- ❌ Generate大量错误代码 (large amount of error code)
+- ❌ Need complete rewrite
 
-### 步骤6：执行开发
+### Step 6: Execute Development
 
-**🚨 批处理优先原则**（参考原则3.5）：
+**🚨 Batch Processing Priority Principle** (refer to principle 3.5):
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  同项目同角色的所有任务 = 一次AI CLI调用                                 │
+│  Same project same role all tasks = One AI CLI call                     │
 │                                                                         │
-│  CC理解：任务块1(REQ-001)、任务块2(REQ-002)、任务块3(REQ-003)...        │
-│  AI CLI执行：一次调用 'REQ-001,REQ-002,REQ-003,...' 批量完成            │
+│  CC understanding: Task block 1 (REQ-001), Task block 2 (REQ-002), Task block 3 (REQ-003)... │
+│  AI CLI execution: One call 'REQ-001,REQ-002,REQ-003...' batch completion │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-**执行方式**：
+**Execution Method**:
 
 ```bash
-# ✅ 正确：批量执行同项目同角色的所有任务
-Bash(command="ai-cli-runner.sh backend 'REQ-AUTH-001,REQ-AUTH-002,REQ-AUTH-003,REQ-USER-001' '实现所有后端功能' '$ctx'", timeout=43200000)
+# ✅ Correct: Batch execute same project same role all tasks
+Bash(command="ai-cli-runner.sh backend 'REQ-AUTH-001,REQ-AUTH-002,REQ-AUTH-003,REQ-USER-001' 'Implement all backend features' '$ctx'", timeout=43200000)
 
-# ✅ 正确：不同角色可以并行（各自批量）
-Bash(command="ai-cli-runner.sh frontend 'REQ-UI-001,REQ-UI-002,REQ-UI-003' '实现所有前端页面' '$ctx'", run_in_background=True, timeout=43200000)
-Bash(command="ai-cli-runner.sh backend 'REQ-API-001,REQ-API-002,REQ-API-003' '实现所有后端API' '$ctx'", run_in_background=True, timeout=43200000)
+# ✅ Correct: Different roles can be parallel (each batched)
+Bash(command="ai-cli-runner.sh frontend 'REQ-UI-001,REQ-UI-002,REQ-UI-003' 'Implement all frontend pages' '$ctx'", run_in_background=True, timeout=43200000)
+Bash(command="ai-cli-runner.sh backend 'REQ-API-001,REQ-API-002,REQ-API-003' 'Implement all backend APIs' '$ctx'", run_in_background=True, timeout=43200000)
 
-# ❌ 错误：逐个调用同角色任务
-Bash(command="ai-cli-runner.sh backend 'REQ-AUTH-001' '实现登录'")
-Bash(command="ai-cli-runner.sh backend 'REQ-AUTH-002' '实现注册'")  # TOKEN浪费！
+# ❌ Wrong: One by one calls for same role tasks
+Bash(command="ai-cli-runner.sh backend 'REQ-AUTH-001' 'Implement login'")
+Bash(command="ai-cli-runner.sh backend 'REQ-AUTH-002' 'Implement register'")  # TOKEN waste!
 ```
 
-**task_context格式**（⚠️ 必须包含 SPEC 文件引用）：
+**task_context format** (⚠️ Must include SPEC file references):
 
 ```
-【项目根目录】/home/putao/code/c-cpp/project/
+【Project Root Directory】/home/putao/code/c-cpp/project/
 
-【SPEC 文件引用】（⚠️ 强制，完整路径 + 说明）
-- /完整路径/SPEC/01-REQUIREMENTS.md
-  说明：功能需求定义（REQ-XXX）
-  关键章节：所有需求条目
+【SPEC File References】(⚠️ Mandatory, complete path + description)
+- /complete/path/SPEC/01-REQUIREMENTS.md
+  Description: Functional requirements definition (REQ-XXX)
+  Key chapters: All requirement items
 
-- /完整路径/SPEC/02-ARCHITECTURE.md
-  说明：架构设计（ARCH-XXX）
-  关键章节：模块划分、技术栈、数据流
+- /complete/path/SPEC/02-ARCHITECTURE.md
+  Description: Architecture design (ARCH-XXX)
+  Key chapters: Module division, technology stack, data flow
 
-- /完整路径/SPEC/05-RUST-IMPLEMENTATION.md
-  说明：Rust 实现规范
-  关键章节：
-  - L11: 项目概述（纯 Rust 重写）
-  - L332: ARCH-RUST-001（自实现 DEFLATE）
-  - L95: ARCH-FFI-001（FFI 仅用于验证）
+- /complete/path/SPEC/05-RUST-IMPLEMENTATION.md
+  Description: Rust implementation specification
+  Key chapters:
+  - L11: Project overview (pure Rust rewrite)
+  - L332: ARCH-RUST-001 (self-implement DEFLATE)
+  - L95: ARCH-FFI-001 (FFI only for verification)
 
-【核心约束】⚠️ 违反即失败
-- 实现方式：纯 Rust 实现，禁止 FFI 用于生产代码
-- FFI 用途：仅允许验证目录中使用
-- 算法复刻：参考 C 代码但用 Rust 重写，不是包装器
-- 验收标准：输出与 C 版本一致
+【Core Constraints】⚠️ Violation = failure
+- Implementation method: Pure Rust implementation, prohibit FFI for production code
+- FFI usage: Only allowed in verification directory
+- Algorithm replication: Reference C code but rewrite in Rust, not wrapper
+- Acceptance criteria: Output consistent with C version
 
-【背景文档】/tmp/claude-reports/AI-DEVELOPER-GUIDE-{timestamp}.md
-  说明：详细开发指南和约束说明（临时文件，任务完成后可删除）
+【Background Document】/tmp/claude-reports/AI-DEVELOPER-GUIDE-{timestamp}.md
+  Description: Detailed development guide and constraint description (temporary file, can be deleted after task completion)
 
-【功能清单】（必须一次性完成，批量执行）
-- REQ-AUTH-001：JWT认证中间件
-- REQ-AUTH-002：用户登录API
-- REQ-AUTH-003：用户注册API
-- REQ-USER-001：用户信息查询
+【Feature List】(Must complete at once, batch execution)
+- REQ-AUTH-001: JWT authentication middleware
+- REQ-AUTH-002: User login API
+- REQ-AUTH-003: User registration API
+- REQ-USER-001: User info query
 
-【代码复用】参考 src/middleware/base.py
-【验收标准】所有功能完整实现，单测通过
+【Code Reuse】Reference src/middleware/base.py
+【Acceptance Criteria】All features completely implemented, unit tests pass
 ```
 
-**task_context 示例**：`~/.claude/skills/programmer/examples/task-context-example.md`
+**task_context Example**: `~/.claude/skills/programmer/examples/task-context-example.md`
 
-**等待规则**：
-- 并发任务块（使用 `run_in_background=True`）→ 等待系统自动通知
-- 单个任务块（前台执行）→ 直接等待任务完成
-- 串行任务块 → 前一个完成后直接继续下一个
+**Waiting Rules**:
+- Concurrent task blocks (use `run_in_background=True`) → Wait for system automatic notification
+- Single task block (foreground execution) → Directly wait for task completion
+- Sequential task blocks → Continue to next one after previous completes
 
-**🚨 重要：AI-CLI 执行期间的工作流程**：
+**🚨 Important: Correct workflow during AI-CLI execution**:
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  AI-CLI 执行期间的正确工作流程                                           │
+│  Correct workflow during AI-CLI execution                                │
 ├─────────────────────────────────────────────────────────────────────────┤
 │                                                                         │
-│  ✅ 启动 AI-CLI 后                                                      │
-│     └─▶ 停止主动监控进度（不要 tail/read 输出文件）                      │
-│     └─▶ 不要轮询检查状态（BashOutput 禁止使用）                          │
-│     └─▶ 等待系统自动通知（Background bash 有新输出时）                  │
+│  ✅ After starting AI-CLI                                                │
+│     └─▶ Stop active progress monitoring (don't tail/read output files)   │
+│     └─▶ Don't poll for status (BashOutput prohibited)                   │
+│     └─▶ Wait for system automatic notification (Background bash has new output) │
 │                                                                         │
-│  ⏰ 系统通知时机                                                         │
-│     └─▶ AI-CLI 完成时自动触发通知                                       │
-│     └─▶ 此时再进行步骤 7（代码审查）                                    │
+│  ⏰ System notification timing                                          │
+│     └─▶ Automatically triggered when AI-CLI completes                  │
+│     └─▶ Then perform step 7 (code review)                              │
 │                                                                         │
-│  ❌ 禁止的行为                                                           │
-│     └─▶ 启动后立即读取输出文件                                         │
-│     └─▶ 定期轮询检查进度                                               │
-│     └─▶ 主动查询"完成了吗"                                             │
+│  ❌ Prohibited behaviors                                                 │
+│     └─▶ Immediately read output files after starting                   │
+│     └─▶ Periodically poll for progress                                │
+│     └─▶ Proactively ask "finished yet?"                               │
 │                                                                         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-**原因**：
-- AI-CLI 执行时间可能很长（数小时）
-- 频繁读取输出浪费 TOKEN 和上下文
-- 系统会在完成时自动通知
-- 专注其他任务或等待即可
+**Reasons**:
+- AI-CLI execution time may be very long (several hours)
+- Frequent reading of output wastes TOKEN and context
+- System will automatically notify when complete
+- Focus on other tasks or just wait
 
-**禁止行为**：
-- ❌ 同项目同角色任务逐个调用AI CLI（必须批量）
-- ❌ 前台任务自动转换成后台模式
-- ❌ 轮询检测任务状态（禁止 BashOutput 轮询）
-- ❌ 任务块之间询问"是否继续"
-- ❌ 启动后主动读取输出文件或监控进度
+**Prohibited behaviors**:
+- ❌ One by one AI CLI calls for same project same role tasks (must batch)
+- ❌ Foreground tasks automatically converted to background mode
+- ❌ Polling for task status (BashOutput polling prohibited)
+- ❌ Ask "continue?" between task blocks
+- ❌ Actively read output files or monitor progress after starting
 
-### 步骤7：代码审查
+### Step 7: Code Review
 
-⚠️ 用户通知完成后执行，必须验证代码
+⚠️ Execute after user notification, must verify code
 
-> **审查依据**：代码审查必须遵循以下共享规范
-> - `skills/shared/debugger.md` - 调试分析规范（日志规范、错误处理、禁止模式）
+> **Review basis**: Code review must follow the following shared norms
+> - `skills/shared/debugger.md` - Debugging analysis norms (logging standards, error handling, prohibited patterns)
 
-**7.1 验证功能实现**
+**7.1 Verify Feature Implementation**
 
 ```bash
-# 获取Issue任务清单
+# Get Issue task list
 gh issue view <issue#> --json body,title
 ```
 
-对每项功能：
-- 使用 `git status` 和 `Read` 工具验证实现
-- 检查是否符合SPEC定义
-- 验证通过 → 标记完成
-- 验证失败 → 记录问题，要求修复
+For each feature:
+- Use `git status` and `Read` tools to verify implementation
+- Check if it complies with SPEC definition
+- Verification passes → Mark as complete
+- Verification fails → Record issue, request fix
 
-**7.2 SPEC一致性验证**
+**7.2 SPEC Consistency Verification**
 
 ```
-[REQ-XXX] 需求名称
-- 验收标准1: ✅/❌ [代码位置: file:line]
-- 验收标准2: ✅/❌ [代码位置: file:line]
+[REQ-XXX] Requirement name
+- Acceptance criteria 1: ✅/❌ [Code location: file:line]
+- Acceptance criteria 2: ✅/❌ [Code location: file:line]
 
-[ARCH-XXX] 架构约束
-- 约束内容: [描述]
-- 代码遵守: ✅/❌ [位置: file:line]
+[ARCH-XXX] Architecture constraint
+- Constraint content: [Description]
+- Code compliance: ✅/❌ [Location: file:line]
 ```
 
-**7.3 调试规范审查（基于 debugger.md）**
+**7.3 Debugging Norms Review (Based on debugger.md)**
 
-**检查项**：
-- ✅ **日志规范**：适当的日志记录、正确的日志级别（DEBUG/INFO/WARN/ERROR）
-- ✅ **错误处理**：完整的错误处理、避免吞掉异常、有意义的错误信息
-- ✅ **禁止模式**：无硬编码调试代码、无临时补丁式修复、无try-catch吞异常
+**Check items**:
+- ✅ **Logging standards**: Appropriate logging, correct log levels (DEBUG/INFO/WARN/ERROR)
+- ✅ **Error handling**: Complete error handling, avoid swallowing exceptions, meaningful error messages
+- ✅ **Prohibited patterns**: No hardcoded debug code, no temporary patch fixes, no try-catch swallowing exceptions
 
-**参考**：`roles/debugger.md` 中的调试原则和禁止行为
+**Reference**: Debugging principles and prohibited behaviors in `roles/debugger.md`
 
-**7.4 决策**
+**7.4 Decision Making**
 
-| 结果 | 处理 |
-|-----|------|
-| 全部通过 | 进入步骤8 |
-| 有问题 | 记录问题，要求AI CLI修复，重新审查 |
+| Result | Handling |
+|--------|----------|
+| All pass | Proceed to step 8 |
+| Issues found | Record issues, request AI CLI fix, re-review |
 
-### 步骤8：自动提交和状态更新（🚨 强制执行步骤）
+### Step 8: Automatic Commit and Status Update (🚨 Mandatory Execution Step)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  🚨 步骤8是强制执行步骤，步骤7通过后必须立即执行以下bash命令！          │
+│  🚨 Step 8 is a mandatory execution step, must immediately execute the following bash commands after step 7 passes! │
 │                                                                         │
-│  ❌ 禁止：步骤7完成后结束流程                                           │
-│  ❌ 禁止：询问用户"是否提交"                                            │
-│  ❌ 禁止：等待用户指示                                                  │
-│  ✅ 必须：步骤7通过 → 立即执行步骤8的bash命令 → 报告完成                │
+│  ❌ Prohibit: End flow after step 7 completes                           │
+│  ❌ Prohibit: Ask user "whether to commit"                              │
+│  ❌ Prohibit: Wait for user indication                                  │
+│  ✅ Must: Step 7 passes → Immediately execute step 8 bash commands → Report completion │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-**8.1 提交前检查**：
-- 所有 `[REQ-XXX]` 验证项已完成
-- 代码审查已通过
-- 验证已通过
+**8.1 Pre-commit Checks**:
+- All `[REQ-XXX]` verification items completed
+- Code review passed
+- Verification passed
 
-**8.2 立即执行代码提交（必须执行以下bash命令）**：
+**8.2 Immediately Execute Code Commit (Must execute the following bash commands)**:
 
 ```bash
-# 🚨 步骤7通过后，必须立即执行以下命令，不询问用户！
+# 🚨 After step 7 passes, must immediately execute the following commands, don't ask user!
 
-# 提取Issue号（优先使用步骤4创建的Issue，或自动检测）
+# Extract Issue number (preferably use Issue created in step 4, or auto-detect)
 ISSUE_NUMBER=$(gh issue list --limit 1 --search "sort:created-desc" --json number | jq -r '.[0].number')
 
-# 执行提交脚本
+# Execute commit script
 ~/.claude/scripts/commit-and-close.sh \
-  --message "feat: 实现XXX功能 [REQ-XXX]" \
+  --message "feat: Implement XXX feature [REQ-XXX]" \
   --issue $ISSUE_NUMBER
 ```
 
-**Bash工具调用方式**：
+**Bash Tool Calling Method**:
 ```
 Bash(
-  command="~/.claude/scripts/commit-and-close.sh --message 'feat: 实现XXX功能 [REQ-XXX]' --issue <issue#>",
-  description="自动提交代码并关闭Issue"
+  command="~/.claude/scripts/commit-and-close.sh --message 'feat: Implement XXX feature [REQ-XXX]' --issue <issue#>",
+  description="Automatically commit code and close Issue"
 )
 ```
 
-**脚本功能**：
-- 自动Issue检测（如果没提供会自动查找）
-- 自动SPEC状态更新
-- 版本号自动升级
-- Git标签自动创建
+**Script Functions**:
+- Auto Issue detection (if not provided, will auto-search)
+- Auto SPEC status update
+- Auto version number upgrade
+- Auto Git tag creation
 
-**8.3 报告主会话**：
+**8.3 Report to Main Session**:
 
-步骤8执行完成后，向主会话报告：
+After step 8 execution completes, report to main session:
 ```
-✅ 开发完成并已自动提交：
-- 代码已验证并通过
-- 提交已执行：[commit hash]
-- Issue已关闭：#<issue#>
-- SPEC状态已自动更新
+✅ Development completed and automatically committed:
+- Code verified and passed
+- Commit executed: [commit hash]
+- Issue closed: #<issue#>
+- SPEC status automatically updated
 ```
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  🚨 执行检查清单（步骤7通过后逐项执行）                                  │
+│  🚨 Execution Check List (Execute item by item after step 7 passes)   │
 │                                                                         │
-│  □ 执行 commit-and-close.sh 脚本                                       │
-│  □ 确认提交成功（获取commit hash）                                      │
-│  □ 确认Issue已关闭                                                      │
-│  □ 向主会话报告完成结果                                                 │
+│  □ Execute commit-and-close.sh script                                  │
+│  □ Confirm commit successful (get commit hash)                         │
+│  □ Confirm Issue closed                                                 │
+│  □ Report completion result to main session                            │
 │                                                                         │
-│  只有全部完成后，programmer技能才算执行完毕！                            │
+│  Only after all completed, programmer skill execution is finished!     │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 错误调试流程
+## Error Debugging Flow
 
-### 触发条件
+### Trigger Conditions
 
-- 代码审查发现问题
-- 构建失败、运行时错误
+- Code review finds issues
+- Build failure, runtime errors
 
-### 调试步骤
+### Debugging Steps
 
-1. **问题定位**：创建诊断脚本，复现问题
-2. **根因分析**：分析日志、检查代码逻辑、验证数据结构
-3. **制定方案**：明确修复策略和影响范围
-4. **执行修复**：通过AI CLI执行修复
-5. **验证修复**：确认修复有效
-6. **回归验证**：确保没有破坏其他功能
+1. **Problem Location**: Create diagnostic script, reproduce problem
+2. **Root Cause Analysis**: Analyze logs, check code logic, verify data structures
+3. **Plan Development**:明确修复策略和影响范围 (clear fix strategy and impact scope)
+4. **Execute Fix**: Execute fix through AI CLI
+5. **Verify Fix**: Confirm fix is effective
+6. **Regression Verification**: Ensure no other functionality is broken
 
-### 数据结构对齐检测
+### Data Structure Alignment Detection
 
-**检测时机**：修改ORM模型后、验证失败涉及数据字段时
+**Detection Timing**: After modifying ORM models, when verification failure involves data fields
 
-**检测内容**：
-- 字段名称一致性
-- 数据类型一致性
-- 必填字段一致性
-- 枚举值一致性
-- 默认值一致性
+**Detection Content**:
+- Field name consistency
+- Data type consistency
+- Required field consistency
+- Enum value consistency
+- Default value consistency
 
 ---
 
-## 快速参考
+## Quick Reference
 
-### 正确示例
-
-```
-✅ 任务块3已提交。继续实施任务块4：套餐订阅管理API...
-   [直接开始工作]
-
-✅ 发现SPEC中API-AUTH-003的响应格式不明确，需要确认：
-   [使用AskUserQuestion询问]
-```
-
-### 错误示例
+### Correct Examples
 
 ```
-❌ 任务块3已完成。是否继续任务块4？还是先推送？
-   [违反原则4：执行连续性]
+✅ Task block 3 committed. Continue implementing task block 4: Package subscription management API...
+   [Directly start work]
 
-❌ 先实现REQ-AUTH-001，完成后再实现REQ-AUTH-002
-   [违反原则2：一次性完整交付]
+✅ Found API-AUTH-003 response format unclear in SPEC, need confirmation:
+   [Use AskUserQuestion to ask]
+```
 
-❌ 这个功能比较复杂，我们分两个阶段实现
-   [违反原则2：禁止分阶段]
+### Incorrect Examples
+
+```
+❌ Task block 3 completed. Whether to continue task block 4? Or push first?
+   [Violates principle 4: Execution continuity]
+
+❌ Implement REQ-AUTH-001 first, then implement REQ-AUTH-002 after completion
+   [Violates principle 2: One-time complete delivery]
+
+❌ This feature is relatively complex, let's implement it in two phases
+   [Violates principle 2: No phases allowed]
 ```

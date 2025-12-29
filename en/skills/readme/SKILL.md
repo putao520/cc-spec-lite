@@ -1,7 +1,7 @@
 ---
 name: readme
-description: 专门负责项目README编写和维护。专注于清晰描述项目功能、安装部署、使用方法和配置说明。所有文档使用英文编写。适用于：项目初始化、文档更新、README重构。遵循项目规范和最佳实践。
-Triggered by: readme, README, documentation, docs, 项目文档, 说明文档, 安装指南, 使用说明, 部署文档
+description: Specializes in project README creation and maintenance. Focuses on clearly describing project functionality, installation and deployment, usage methods, and configuration instructions. All documentation is written in English. Applicable to: project initialization, documentation updates, README refactoring. Follows project specifications and best practices.
+Triggered by: readme, README, documentation, docs, project documentation, instruction documentation, installation guide, usage instructions, deployment documentation
 ---
 
 # README Documentation Skill - Project Documentation Specialist

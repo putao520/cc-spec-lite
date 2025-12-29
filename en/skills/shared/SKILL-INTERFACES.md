@@ -1,358 +1,358 @@
-# 技能接口规范文档
+# Skill Interface Specification Document
 
-> **版本**：v1.1
-> **日期**：2025-12-26
-> **适用范围**：architect、programmer等所有AI技能
-> **更新内容**：实施平衡型自动化审核点机制（减少人工干预，保留安全保障）
+> **Version**: v1.1
+> **Date**: 2025-12-26
+> **Scope**: All AI skills including architect, programmer, etc.
+> **Updates**: Implement balanced automation checkpoint mechanism (reduce manual intervention, maintain safety guarantees)
 
 ---
 
-## 1. 核心设计理念
+## 1. Core Design Philosophy
 
-### 1.1 用户中心原则
+### 1.1 User-Centric Principle
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  用户是绝对中心，技能是响应式工具                                        │
+│  User is absolute center, skills are responsive tools                    │
 │                                                                         │
-│  ✅ 正确理解：                                                           │
-│     - 用户随时决定调用哪个技能                                           │
-│     - 技能根据上下文响应，不预设流程                                     │
-│     - 平衡型自动化：效率与安全的平衡                                     │
-│     - 简单任务自动通过，复杂任务保留审核                                 │
+│  ✅ Correct Understanding:                                              │
+│     - User decides which skill to call at any time                      │
+│     - Skills respond based on context, no preset workflows              │
+│     - Balanced automation: Balance between efficiency and safety        │
+│     - Simple tasks auto-pass, complex tasks retain review               │
 │                                                                         │
-│  ❌ 错误理解：                                                           │
-│     - 必须按 architect → programmer 顺序调用                           │
-│     - 技能间有固定调用顺序                                               │
-│     - 状态机控制技能调用                                                 │
-│     - 所有任务都需要人工审核                                             │
+│  ❌ Incorrect Understanding:                                            │
+│     - Must call in architect → programmer order                         │
+│     - Fixed call order between skills                                   │
+│     - State machine controls skill invocation                           │
+│     - All tasks require manual review                                   │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 1.4 平衡型自动化策略
+### 1.4 Balanced Automation Strategy
 
-**核心原则**：在保证代码质量的前提下，最大化自动化程度
+**Core Principle**: Maximize automation while ensuring code quality
 
-| 审核点 | 原机制 | 平衡型机制 |
-|--------|--------|-----------|
-| **审核点1** | 用户确认SPEC完整 | ✅ **自动验证**（门禁C1）+ ❌失败时询问 |
-| **审核点2** | 所有任务需用户确认 | ✅ **简单任务自动通过** + 复杂任务保留确认 |
-| **审核点4** | 用户确认Bug分类 | ✅ **自动分类**（基于失败规则） |
+| Checkpoint | Old Mechanism | Balanced Mechanism |
+|------------|---------------|-------------------|
+| **Checkpoint 1** | User confirms SPEC complete | ✅ **Auto-verify** (Gate C1) + ❌ Ask on failure |
+| **Checkpoint 2** | All tasks need user confirmation | ✅ **Simple tasks auto-pass** + Complex tasks retain confirmation |
+| **Checkpoint 4** | User confirms Bug classification | ✅ **Auto-classify** (based on failure rules) |
 
-**简单任务判断标准**：
-- Bug修复（关联Issue + 影响范围<3个文件）
-- 文档更新（仅修改`.md`文件）
-- 配置调整（仅修改配置文件）
-- 小改动（文件变更<3个 + 无架构影响）
+**Simple task criteria**:
+- Bug fixes (associated Issue + impact < 3 files)
+- Documentation updates (only `.md` files modified)
+- Configuration adjustments (only config files modified)
+- Small changes (file changes < 3 + no architectural impact)
 
-**复杂功能判断标准**：
-- 新功能实现（REQ-XXX涉及多个模块）
-- 代码重构（修改>5个文件或核心模块）
-- 架构变更（涉及ARCH-XXX）
-- 跨服务修改（影响多个项目）
+**Complex feature criteria**:
+- New feature implementation (REQ-XXX involves multiple modules)
+- Code refactoring (modifying > 5 files or core modules)
+- Architecture changes (involving ARCH-XXX)
+- Cross-service modifications (affecting multiple projects)
 
-**用户手动审查机制**：
-- 新增 `/programmer --review` 命令
-- 用户可随时触发代码审查
-- 验证代码与SPEC的一致性
-- 生成质量报告和改进建议
+**Manual review mechanism**:
+- Add `/programmer --review` command
+- User can trigger code review at any time
+- Verify consistency between code and SPEC
+- Generate quality report and improvement suggestions
 
-### 1.2 技能独立性
+### 1.2 Skill Independence
 
-每个技能都是独立的模块，具有：
-- 明确的职责边界
-- 独立的输入/输出接口
-- 自包含的上下文管理
-- 不依赖其他技能的调用顺序
+Each skill is an independent module with:
+- Clear responsibility boundaries
+- Independent input/output interfaces
+- Self-contained context management
+- No dependency on other skill call order
 
-### 1.3 状态机上下文管理
+### 1.3 State Machine Context Management
 
-状态机不是技能调用控制器，而是：
-- 审核点触发条件的判断器
-- 自动化流程的协调器
-- REQ-XXX标签状态的管理器
-
----
-
-## 2. 技能调用触发条件
-
-### 2.1 主会话决策流程（强制执行）
-
-```
-用户消息
-    ↓
-步骤1：判断是否涉及需求/设计变更
-  以下情况 = 需求变更 = 必须调用 /architect：
-  - 用户说"改成XXX"、"支持XXX"、"不要XXX"
-  - 用户调整功能参数、接口、行为
-  - 用户修改技术方案、架构决策
-  - 任何导致SPEC内容需要变化的指令
-  → 立即调用 /architect，禁止口头调整计划
-    ↓ 否
-步骤2：判断是否涉及代码实现
-  以下情况 = 必须调用 /programmer：
-  - 用户说"继续"、"开始实现"、"写代码"
-  - 计划确认后的代码开发
-  - Bug修复、功能修改
-  → 立即调用 /programmer，禁止自己写代码
-    ↓ 否
-步骤3：主会话直接处理（仅限以下情况）
-  - 纯文档（README、注释）
-  - 配置值修改
-  - 格式调整
-  - 回答问题
-```
-
-### 2.2 技能调用决策树
-
-```
-用户请求类型
-    ↓
-代码修改类 → /programmer
-    ├─ 功能实现
-    ├─ Bug修复
-    └─ 代码重构
-
-架构设计类 → /architect
-    ├─ 需求变更
-    ├─ 技术选型
-    ├─ 架构调整
-    └─ SPEC更新
-```
-
-### 2.3 Context传递规范
-
-```
-每个技能调用必须包含完整上下文：
-
-【项目根目录】
-完整路径
-
-【关联文件引用】
-- SPEC文件路径 + 说明
-- 关键章节引用
-- 核心约束说明
-
-【任务背景】
-- 用户原始需求
-- 当前项目状态
-- 已有代码/模块
-
-【执行要求】
-- 必须做什么
-- 禁止做什么
-- 验收标准
-
-【临时文件】
-- AI-DEVELOPER-GUIDE路径（如适用）
-```
+State machine is not a skill call controller, but:
+- Trigger condition evaluator for checkpoints
+- Coordinator for automation workflows
+- Manager for REQ-XXX tag status
 
 ---
 
-## 3. 平衡型审核点触发机制
+## 2. Skill Call Trigger Conditions
 
-### 3.1 审核点通用规范
+### 2.1 Main Session Decision Flow (Mandatory)
 
-- **触发判断**：基于状态和上下文，自动评估任务复杂度
-- **执行者**：当前被调用技能负责判断并执行
-- **询问方式**：复杂任务使用AskUserQuestion，简单任务自动通过
-- **自动记录**：审核结果自动记录到Issue和SPEC标签
+```
+User message
+    ↓
+Step 1: Determine if it involves requirements/design changes
+  Following situations = requirement change = must call /architect:
+  - User says "change to XXX", "support XXX", "don't XXX"
+  - User adjusts function parameters, interfaces, behaviors
+  - User modifies technical solutions, architecture decisions
+  - Any instructions causing SPEC content changes
+  → Immediately call /architect, prohibit verbally adjusting plans
+    ↓ No
+Step 2: Determine if it involves code implementation
+  Following situations = must call /programmer:
+  - User says "continue", "start implementing", "write code"
+  - Code development after plan confirmation
+  - Bug fixes, function modifications
+  → Immediately call /programmer, prohibit writing code yourself
+    ↓ No
+Step 3: Main session handles directly (only for following situations)
+  - Pure documentation (README, comments)
+  - Configuration value modifications
+  - Format adjustments
+  - Answering questions
+```
 
-### 3.2 审核点1：SPEC完整性验证（自动）
+### 2.2 Skill Call Decision Tree
 
-**平衡型优化**：完全自动化，仅在失败时询问
+```
+User request type
+    ↓
+Code modification → /programmer
+    ├─ Feature implementation
+    ├─ Bug fixes
+    └─ Code refactoring
 
-#### 门禁C1：SPEC完整性自动检查
+Architecture design → /architect
+    ├─ Requirement changes
+    ├─ Technology selection
+    ├─ Architecture adjustments
+    └─ SPEC updates
+```
 
-**检查项**：
-- ✅ 需求完整：所有REQ-XXX有明确验收标准
-- ✅ 架构完整：模块划分、技术栈、数据流已定义
-- ✅ 数据完整：表结构、字段、关系、索引已定义
-- ✅ API完整：接口格式、错误码已定义
+### 2.3 Context Passing Specification
 
-**触发时机**：architect完成设计后
+```
+Each skill call must include complete context:
 
-**自动执行逻辑**：
+【Project Root Directory】
+Complete path
+
+【Associated File References】
+- SPEC file paths + descriptions
+- Key section references
+- Core constraint descriptions
+
+【Task Background】
+- User's original request
+- Current project status
+- Existing code/modules
+
+【Execution Requirements】
+- Must do
+- Must not do
+- Acceptance criteria
+
+【Temporary Files】
+- AI-DEVELOPER-GUIDE path (if applicable)
+```
+
+---
+
+## 3. Balanced Checkpoint Trigger Mechanism
+
+### 3.1 Checkpoint General Specification
+
+- **Trigger judgment**: Automatically evaluate task complexity based on state and context
+- **Executor**: Current called skill responsible for judgment and execution
+- **Ask method**: Use AskUserQuestion for complex tasks, simple tasks auto-pass
+- **Auto-record**: Review results automatically recorded to Issue and SPEC tags
+
+### 3.2 Checkpoint 1: SPEC Completeness Verification (Auto)
+
+**Balanced optimization**: Fully automated, only ask on failure
+
+#### Gate C1: SPEC Completeness Auto Check
+
+**Check items**:
+- ✅ Requirements complete: All REQ-XXX have clear acceptance criteria
+- ✅ Architecture complete: Module division, tech stack, data flow defined
+- ✅ Data complete: Table structures, fields, relationships, indexes defined
+- ✅ API complete: Interface formats, error codes defined
+
+**Trigger timing**: After architect completes design
+
+**Auto execution logic**:
 ```python
-if SPEC完整性检查通过:
-    自动追加标签 "✅ SPEC完整 (YYYY-MM-DD)"
-    允许直接进入开发阶段（无需用户确认）
+if SPEC completeness check passes:
+    Auto-append tag "✅ SPEC Complete (YYYY-MM-DD)"
+    Allow direct entry to development phase (no user confirmation needed)
 else:
-    向用户报告缺失内容清单
-    等待用户决策：
-    - 调用architect补充SPEC
-    - 或强制继续（风险提示）
+    Report missing content list to user
+    Wait for user decision:
+    - Call architect to supplement SPEC
+    - Or force continue (risk warning)
 ```
 
-**不触发场景**：Bug修复、代码审查、小改动
+**No trigger scenarios**: Bug fixes, code review, small changes
 
-### 3.3 审核点2：实施计划确认（条件自动化）
+### 3.3 Checkpoint 2: Implementation Plan Confirmation (Conditional Auto)
 
-**平衡型优化**：简单任务自动通过，复杂功能保留确认
+**Balanced optimization**: Simple tasks auto-pass, complex features retain confirmation
 
-#### 任务复杂度自动判断
+#### Task Complexity Auto Judgment
 
-| 判断维度 | 简单任务 | 复杂功能 |
-|---------|---------|----------|
-| **任务类型** | Bug修复、文档更新、配置调整 | 新功能、重构、架构变更 |
-| **影响范围** | < 3个文件 | ≥ 3个文件 |
-| **SPEC影响** | 无REQ-XXX变更 | 涉及REQ-XXX |
-| **架构影响** | 无 | 涉及ARCH-XXX |
-| **跨服务影响** | 单项目 | 多项目 |
+| Judgment Dimension | Simple Tasks | Complex Features |
+|-------------------|--------------|------------------|
+| **Task type** | Bug fixes, doc updates, config adjustments | New features, refactoring, architecture changes |
+| **Impact scope** | < 3 files | ≥ 3 files |
+| **SPEC impact** | No REQ-XXX changes | Involves REQ-XXX |
+| **Architecture impact** | None | Involves ARCH-XXX |
+| **Cross-service impact** | Single project | Multiple projects |
 
-#### 简单任务：自动通过流程
+#### Simple Tasks: Auto Pass Flow
 
-**判断条件**（满足任一即可）：
-1. Bug修复（关联Issue + 影响范围<3个文件）
-2. 文档更新（仅修改`.md`文件）
-3. 配置调整（仅修改配置文件）
-4. 小改动（文件变更<3个 + 无架构影响）
+**Judgment conditions** (meet any one):
+1. Bug fix (associated Issue + impact < 3 files)
+2. Documentation update (only `.md` files modified)
+3. Configuration adjustment (only config files modified)
+4. Small change (file changes < 3 + no architectural impact)
 
-**自动执行流程**：
+**Auto execution flow**:
 ```python
-if 判断为简单任务():
-    展示简化版实施计划（1屏内）
-    追加说明："🤖 简单任务，自动通过审核点2"
-    直接继续执行步骤4-8（无需等待确认）
+if judged as simple task():
+    Display simplified implementation plan (within 1 screen)
+    Append note: "🤖 Simple task, auto-pass checkpoint 2"
+    Directly continue steps 4-8 (no wait for confirmation)
 ```
 
-#### 复杂功能：保留确认流程
+#### Complex Features: Retain Confirmation Flow
 
-**判断条件**（满足任一即可）：
-1. 新功能实现（REQ-XXX涉及多个模块）
-2. 代码重构（修改>5个文件或核心模块）
-3. 架构变更（涉及ARCH-XXX）
-4. 跨服务修改（影响多个项目）
+**Judgment conditions** (meet any one):
+1. New feature implementation (REQ-XXX involves multiple modules)
+2. Code refactoring (modifying > 5 files or core modules)
+3. Architecture change (involving ARCH-XXX)
+4. Cross-service modification (affecting multiple projects)
 
-**保留确认流程**：
+**Retain confirmation flow**:
 ```python
-if 判断为复杂功能():
-    展示详细实施计划
-    包含：SPEC理解摘要、任务块划分、完整功能清单
-    ⏸️ 等待用户明确确认
-    确认后继续步骤4-8
+if judged as complex feature():
+    Display detailed implementation plan
+    Include: SPEC understanding summary, task block division, complete feature list
+    ⏸️ Wait for explicit user confirmation
+    After confirmation, continue steps 4-8
 ```
 
-### 3.4 审核点4：Bug分类处理（自动）
+### 3.4 Checkpoint 4: Bug Classification Handling (Auto)
 
-**平衡型优化**：基于失败规则自动分类和处理
+**Balanced optimization**: Auto-classify and handle based on failure rules
 
-#### 测试失败自动分类规则
+#### Test Failure Auto Classification Rules
 
-| 失败类型 | 测试层 | 自动分类 | 自动处理 |
-|---------|--------|----------|----------|
-| 代码逻辑错误 | 单元测试 | 代码Bug | 自动调用programmer修复 |
-| 接口不符合 | 集成测试 | API契约问题 | 自动调用programmer修复 |
-| SPEC不符合 | E2E测试 | SPEC冲突 | **询问用户**决策 |
-| 环境问题 | 任意 | 非代码问题 | 自动重试，失败报告 |
+| Failure Type | Test Layer | Auto Classification | Auto Handling |
+|-------------|------------|---------------------|---------------|
+| Code logic error | Unit tests | Code Bug | Auto-call programmer to fix |
+| Interface mismatch | Integration tests | API contract issue | Auto-call programmer to fix |
+| SPEC non-compliance | E2E tests | SPEC conflict | **Ask user** for decision |
+| Environment issue | Any | Non-code issue | Auto-retry, report on failure |
 
-**自动执行逻辑**：
+**Auto execution logic**:
 ```python
-# 测试失败自动分类
-if 测试类型 == "单元测试":
-    Bug类型 = "代码逻辑错误"
-    处理方式 = "自动调用programmer修复"
-elif 测试类型 == "集成测试" and 失败原因包含接口:
-    Bug类型 = "API契约不符合"
-    处理方式 = "自动调用programmer修复"
-elif 测试类型 == "E2E测试" and 失败原因包含SPEC不符合:
-    Bug类型 = "SPEC冲突"
-    处理方式 = "报告用户，等待决策"
-    询问内容：
-    1. 调用architect更新SPEC
-    2. 调用programmer修改代码符合SPEC
-    3. 强制通过（标记技术债）
-elif 测试类型 == "环境问题":
-    处理方式 = "自动重试最多3次，失败后报告用户"
+# Test failure auto classification
+if test_type == "unit tests":
+    Bug_type = "Code logic error"
+    Handling = "Auto-call programmer to fix"
+elif test_type == "integration tests" and failure_reason contains interface:
+    Bug_type = "API contract non-compliance"
+    Handling = "Auto-call programmer to fix"
+elif test_type == "E2E tests" and failure_reason contains SPEC non-compliance:
+    Bug_type = "SPEC conflict"
+    Handling = "Report to user, wait for decision"
+    Ask content:
+    1. Call architect to update SPEC
+    2. Call programmer to modify code to match SPEC
+    3. Force pass (mark as technical debt)
+elif test_type == "environment issue":
+    Handling = "Auto-retry up to 3 times, report to user on failure"
 ```
 
-### 3.5 安全网机制（完全保留）
+### 3.5 Safety Net Mechanism (Fully Retained)
 
-以下检查**完全保留**，确保自动化不会降低代码质量：
+Following checks **fully retained**, ensuring automation doesn't reduce code quality:
 
-| 安全检查 | 触发时机 | 行为 |
-|---------|---------|------|
-| **Pre-commit Hook** | git commit | 敏感文件阻止，其他警告 |
-| **门禁C1** | architect完成 | SPEC完整性自动验证 |
-| **门禁C2** | programmer步骤7 | 代码质量自动审查 |
+| Safety Check | Trigger Timing | Behavior |
+|--------------|----------------|----------|
+| **Pre-commit Hook** | git commit | Block on sensitive files, warn on others |
+| **Gate C1** | Architect complete | SPEC completeness auto verification |
+| **Gate C2** | Programmer step 7 | Code quality auto review |
 
 ---
 
-## 4. 技能间协作机制
+## 4. Skill Collaboration Mechanism
 
-### 4.1 自动化协作（无需人工）
+### 4.1 Automated Collaboration (No Manual)
 
 ```
-Bug修复流程：
-发现问题 → 自动生成Issue
+Bug fix workflow:
+Discover issue → Auto-generate Issue
 ↓
-programmer接收Bug → 自动分析修复 → 提交代码 → 关闭Issue → 更新标签"✅ 已修复"
+programmer receives Bug → Auto-analyze fix → Commit code → Close Issue → Update tag "✅ Fixed"
 ```
 
-### 4.2 Issue生命周期管理
+### 4.2 Issue Lifecycle Management
 
 ```
-Issue创建时机：
-- 计划确认后（programmer创建）
-- Bug发现时（programmer创建）
-- 需求变更时（architect创建）
+Issue creation timing:
+- After plan confirmation (created by programmer)
+- When Bug discovered (created by programmer)
+- When requirement changes (created by architect)
 
-Issue状态流转：
+Issue status transition:
 open → in_progress → resolved/closed
   ↓        ↓          ↓
-开发中   修复中      已完成
+Developing Fixing   Completed
 
-标签关联：
-每个Issue自动关联REQ-XXX标签
-标签状态随Issue变化
+Tag association:
+Each Issue auto-associates REQ-XXX tags
+Tag status changes with Issue
 ```
 
-### 4.3 SPEC状态同步
+### 4.3 SPEC Status Sync
 
 ```
-REQ-XXX标签自动更新流程：
-"✅ SPEC完整" → "✅ 已实现"
+REQ-XXX tag auto update flow:
+"✅ SPEC Complete" → "✅ Implemented"
 
-触发条件：
-- architect完成 → 追加"✅ SPEC完整"
-- programmer提交 → 追加"✅ 已实现 (commit: xxx)"
-```
-
----
-
-## 5. 错误处理与恢复
-
-### 5.1 技能调用错误
-
-```
-技能调用失败处理：
-1. 参数错误 → 主会话重新分析，纠正参数后重试
-2. 上下文缺失 → 要求用户提供完整信息
-3. 网络超时 → 重试，多次失败报告用户
-4. AI CLI错误 → 记录错误，提供诊断信息
-```
-
-### 5.2 审核点处理错误
-
-```
-用户响应异常处理：
-1. 不在选项内 → 提示重新选择，限制次数3次
-2. 超时未响应 → 默认选择最安全选项（通常是"调整方案"）
-3. 矛盾选择 → 指出矛盾，要求澄清
-```
-
-### 5.3 自动化流程错误
-
-```
-错误处理：
-- AI CLI修复失败 → 记录错误，通知用户介入
+Trigger conditions:
+- architect completes → Append "✅ SPEC Complete"
+- programmer commits → Append "✅ Implemented (commit: xxx)"
 ```
 
 ---
 
-## 6. 输入输出接口规范
+## 5. Error Handling and Recovery
 
-### 6.1 标准输入格式
+### 5.1 Skill Call Errors
+
+```
+Skill call failure handling:
+1. Parameter error → Main session re-analyzes, corrects parameters and retries
+2. Missing context → Request user to provide complete information
+3. Network timeout → Retry, report to user after multiple failures
+4. AI CLI error → Log error, provide diagnostic information
+```
+
+### 5.2 Checkpoint Handling Errors
+
+```
+User response exception handling:
+1. Not in options → Prompt to re-select, limit to 3 attempts
+2. Timeout no response → Default to safest option (usually "adjust plan")
+3. Contradictory choice → Point out contradiction, request clarification
+```
+
+### 5.3 Automation Flow Errors
+
+```
+Error handling:
+- AI CLI fix fails → Log error, notify user to intervene
+```
+
+---
+
+## 6. Input/Output Interface Specification
+
+### 6.1 Standard Input Format
 
 ```json
 {
@@ -361,102 +361,102 @@ REQ-XXX标签自动更新流程：
     "spec_files": [
       {
         "path": "SPEC/01-REQUIREMENTS.md",
-        "description": "功能需求定义",
+        "description": "Feature requirements definition",
         "key_sections": ["REQ-AUTH-001", "REQ-AUTH-002"]
       }
     ],
     "constraints": {
-      "must_do": ["列表"],
-      "forbidden": ["列表"]
+      "must_do": ["list"],
+      "forbidden": ["list"]
     }
   },
-  "user_request": "用户原始请求",
+  "user_request": "User's original request",
   "additional_context": {}
 }
 ```
 
-### 6.2 标准输出格式
+### 6.2 Standard Output Format
 
 ```json
 {
   "status": "success|error|needs_review",
   "result": {
-    "output": "执行结果",
+    "output": "Execution result",
     "files_created": ["path1", "path2"],
     "issues_created": ["#123"],
-    "labels_updated": ["REQ-XXX: 新状态"]
+    "labels_updated": ["REQ-XXX: new status"]
   },
   "next_steps": [
-    "下一步操作建议"
+    "Next step suggestions"
   ],
   "needs_review": {
     "review_point": 1-4,
-    "question": "询问内容",
-    "options": ["选项1", "选项2"]
+    "question": "Ask content",
+    "options": ["Option 1", "Option 2"]
   }
 }
 ```
 
-### 6.3 错误输出格式
+### 6.3 Error Output Format
 
 ```json
 {
   "status": "error",
   "error_type": "parameter|context|execution|network",
-  "error_message": "详细错误信息",
-  "suggestion": "修复建议",
-  "recovery_steps": ["步骤1", "步骤2"]
+  "error_message": "Detailed error message",
+  "suggestion": "Fix suggestion",
+  "recovery_steps": ["Step 1", "Step 2"]
 }
 ```
 
 ---
 
-## 7. 性能与约束
+## 7. Performance and Constraints
 
-### 7.1 超时设置
+### 7.1 Timeout Settings
 
-| 操作类型 | 默认超时 | 可配置 |
-|----------|----------|--------|
-| skill调用 | 12小时 | 是 |
-| 单个AI CLI | 4小时 | 是 |
-| 审核点响应 | 5分钟 | 否 |
+| Operation Type | Default Timeout | Configurable |
+|----------------|-----------------|--------------|
+| skill call | 12 hours | Yes |
+| Single AI CLI | 4 hours | Yes |
+| Checkpoint response | 5 minutes | No |
 
-### 7.2 资源限制
+### 7.2 Resource Limits
 
-- 内存使用：单次对话 < 8GB
-- 文件操作：临时文件 < 1GB
-- 并发任务：同一项目最多3个
-- Issue数量：单次会话 < 50个
+- Memory usage: Single session < 8GB
+- File operations: Temporary files < 1GB
+- Concurrent tasks: Maximum 3 per project
+- Issue quantity: < 50 per session
 
-### 7.3 重试机制
+### 7.3 Retry Mechanism
 
-| 错误类型 | 重试次数 | 重试策略 |
-|----------|----------|----------|
-| 网络错误 | 3次 | 指数退避 |
-| API限制 | 5次 | 线性间隔 |
-| 参数错误 | 1次 | 不重试 |
-| AI CLI错误 | 2次 | 立即重试 |
-
----
-
-## 8. 版本兼容性
-
-### 8.1 向后兼容
-
-- 技能接口保持向后兼容
-- 新版本支持旧版本输入格式
-- 重大变更通过版本号标识
-
-### 8.2 废弃策略
-
-- 废弃功能提前6个月通知
-- 提供迁移指南
-- 旧版本支持至少3个月
+| Error Type | Retry Count | Retry Strategy |
+|------------|-------------|----------------|
+| Network error | 3 times | Exponential backoff |
+| API limit | 5 times | Linear interval |
+| Parameter error | 1 time | No retry |
+| AI CLI error | 2 times | Immediate retry |
 
 ---
 
-*本文档是技能协作的基础规范，所有技能实现必须遵循本文档定义的接口和协作机制。*
+## 8. Version Compatibility
 
-## 版本历史
-- v1.1 (2025-12-26): 实施平衡型自动化审核点机制，减少人工干预保留安全保障
-- v1.0 (2025-12-25): 初始版本，定义用户驱动的技能协作接口规范
+### 8.1 Backward Compatibility
+
+- Skill interfaces maintain backward compatibility
+- New versions support old version input formats
+- Breaking changes identified by version number
+
+### 8.2 Deprecation Strategy
+
+- Deprecated features notified 6 months in advance
+- Provide migration guide
+- Old versions supported for at least 3 months
+
+---
+
+*This document is the foundational specification for skill collaboration, all skill implementations must follow the interfaces and collaboration mechanisms defined in this document.*
+
+## Version History
+- v1.1 (2025-12-26): Implement balanced automation checkpoint mechanism, reduce manual intervention while maintaining safety guarantees
+- v1.0 (2025-12-25): Initial version, define user-driven skill collaboration interface specification

@@ -1,411 +1,411 @@
-# 前端开发规范 - CODING-STANDARDS-FRONTEND
+# Frontend Development Standards - CODING-STANDARDS-FRONTEND
 
-**版本**: 2.0.0
-**适用范围**: 前端开发岗位（Web/移动APP/桌面应用，技术栈无关）
-**最后更新**: 2025-12-25
+**Version**: 2.0.0
+**Scope**: Frontend development positions (Web/Mobile/Desktop applications, technology stack agnostic)
+**Last Updated**: 2025-12-25
 
 ---
 
-## 🚨 核心铁律（继承自 common.md）
+## 🚨 Core Iron Rules (Inherited from common.md)
 
-> **必须遵循 common.md 的四大核心铁律**
+> **Must follow the four core iron rules from common.md**
 
 ```
-铁律1: SPEC 是唯一真源（SSOT）
-       - UI 实现必须符合 SPEC 定义
-       - 交互、布局、样式以 SPEC 为准
+Iron Rule 1: SPEC is the Only Source of Truth (SSOT)
+       - UI implementation must comply with SPEC definitions
+       - Interactions, layout, and styles follow SPEC
 
-铁律2: 智能复用与销毁重建
-       - 现有组件完全匹配 → 直接复用
-       - 部分匹配 → 删除重建，不做渐进式修改
+Iron Rule 2: Smart Reuse and Destroy-Rebuild
+       - Existing components completely matched → Direct reuse
+       - Partial match → Delete and rebuild, no incremental modifications
 
-铁律3: 禁止渐进式开发
-       - 禁止在旧组件上添加新功能
-       - 禁止保留兼容性代码
+Iron Rule 3: Prohibitive Incremental Development
+       - Prohibit adding new features to old components
+       - Prohibit retaining compatibility code
 
-铁律4: Context7 调研先行
-       - 使用成熟的 UI 库和组件
-       - 禁止自己实现常见 UI 组件
+Iron Rule 4: Context7 Research First
+       - Use mature UI libraries and components
+       - Prohibit implementing common UI components from scratch
 ```
 
 ---
 
-## 🏗️ 组件设计
+## 🏗️ Component Design
 
-### 组件职责
-- ✅ 单个组件文件 < 300行
-- ✅ 组件只负责一个功能或UI片段
-- ✅ 容器组件与展示组件分离
-- ❌ 禁止"万能组件"包含多个不相关功能
+### Component Responsibilities
+- ✅ Single component file < 300 lines
+- ✅ Component responsible for only one function or UI fragment
+- ✅ Separate container components from presentation components
+- ❌ Prohibit "god components" containing multiple unrelated functions
 
-### 组件层次
-- ✅ 原子组件：按钮、输入框、图标（不可再分）
-- ✅ 分子组件：搜索框 = 输入框 + 按钮
-- ✅ 组织组件：头部 = Logo + 导航 + 搜索
-- ✅ 嵌套层级 < 5层
+### Component Hierarchy
+- ✅ Atomic components: Button, Input, Icon (indivisible)
+- ✅ Molecular components: Search box = Input + Button
+- ✅ Organizational components: Header = Logo + Navigation + Search
+- ✅ Nesting level < 5 layers
 
-### Props/接口设计
-- ✅ 单个组件Props < 10个
-- ✅ 必填和可选参数明确标注
-- ✅ 布尔值使用 is/has/should 前缀
-- ✅ 事件回调使用 on 前缀
-- ✅ 使用类型定义（TypeScript/Flow/PropTypes）
-- ❌ 禁止Props类型为any
-
----
-
-## 📊 状态管理
-
-### 状态原则
-- ✅ 每个数据只有一个权威来源（Single Source of Truth）
-- ✅ 只存储必要状态，能计算得出的不存储
-- ✅ 共享状态提升到共同父组件
-- ✅ 使用不可变更新（不直接修改state）
-- ❌ 禁止在多处维护相同数据
-
-### 数据流
-- ✅ 数据从父组件流向子组件
-- ✅ 事件从子组件流向父组件
-- ✅ 状态变更触发UI更新
-- ❌ 避免双向绑定的复杂性（除非框架强制）
+### Props/Interface Design
+- ✅ Single component Props < 10
+- ✅ Required and optional parameters clearly marked
+- ✅ Boolean values use is/has/should prefix
+- ✅ Event callbacks use on prefix
+- ✅ Use type definitions (TypeScript/Flow/PropTypes)
+- ❌ Prohibit Props type of any
 
 ---
 
-## 🎨 HTML/CSS规范
+## 📊 State Management
 
-### HTML语义化
-- ✅ 使用语义化标签（header、nav、main、article、footer）
-- ✅ 表单字段必须有label
-- ✅ 图片必须有alt属性
-- ✅ 通过W3C验证
-- ❌ 避免过度使用div和span
+### State Principles
+- ✅ Each data has only one single source of truth
+- ✅ Store only necessary state, don't store what can be computed
+- ✅ Promote shared state to common parent component
+- ✅ Use immutable updates (don't directly modify state)
+- ❌ Prohibit maintaining the same data in multiple places
 
-### CSS命名
-- ✅ 使用一致的命名方法（BEM、CSS Modules、CSS-in-JS）
-- ✅ 样式作用域隔离，避免全局污染
-- ✅ 类名语义化，表达用途而非样式
-- ❌ 禁止内联样式（除非动态计算）
-
-### 响应式设计
-- ✅ 移动优先设计（Mobile First）
-- ✅ 使用相对单位（rem、em、%、vh/vw）
-- ✅ 使用媒体查询适配不同屏幕
-- ✅ 验证常见设备尺寸（手机、平板、桌面）
-- ✅ 触摸目标 ≥ 44x44px
+### Data Flow
+- ✅ Data flows from parent component to child component
+- ✅ Events flow from child component to parent component
+- ✅ State changes trigger UI updates
+- ❌ Avoid bidirectional binding complexity (unless framework-enforced)
 
 ---
 
-## ⚡ 性能优化
+## 🎨 HTML/CSS Standards
 
-### 渲染优化
-- ✅ 避免不必要的重渲染（使用缓存机制）
-- ✅ 列表渲染必须有唯一key
-- ✅ 长列表（>100项）使用虚拟化
-- ✅ 大数据集分页加载
-- ❌ 禁止在渲染函数中定义组件
+### Semantic HTML
+- ✅ Use semantic tags (header, nav, main, article, footer)
+- ✅ Form fields must have labels
+- ✅ Images must have alt attributes
+- ✅ Pass W3C validation
+- ❌ Avoid overuse of div and span
 
-### 代码分割
-- ✅ 路由级代码分割
-- ✅ 大组件懒加载
-- ✅ 第三方库按需引入
-- ✅ 初始加载体积 < 200KB（gzip后）
+### CSS Naming
+- ✅ Use consistent naming methods (BEM, CSS Modules, CSS-in-JS)
+- ✅ Style scope isolation, avoid global pollution
+- ✅ Class names semantic, express purpose not style
+- ❌ Prohibit inline styles (unless dynamic calculation)
 
-### 资源优化
-- ✅ 图片懒加载
-- ✅ 使用现代图片格式（WebP、AVIF）
-- ✅ 响应式图片（srcset）
-- ✅ 压缩和优化资源
-- ✅ 关键资源预加载（preload）
-
----
-
-## ♿ 无障碍访问
-
-### WCAG合规
-- ✅ 键盘可访问（Tab导航）
-- ✅ 屏幕阅读器友好（ARIA标签）
-- ✅ 颜色对比度 ≥ 4.5:1（普通文本）
-- ✅ 焦点可见（focus状态）
-- ✅ 表单错误提示明确
-
-### 常见要求
-- ✅ 交互元素有焦点状态
-- ✅ 按钮和链接有清晰文本
-- ✅ 动态内容更新通知屏幕阅读器
-- ❌ 禁止仅通过颜色区分状态
+### Responsive Design
+- ✅ Mobile-first design
+- ✅ Use relative units (rem, em, %, vh/vw)
+- ✅ Use media queries for different screens
+- ✅ Validate common device sizes (mobile, tablet, desktop)
+- ✅ Touch targets ≥ 44x44px
 
 ---
 
-## 🔒 前端安全
+## ⚡ Performance Optimization
 
-### XSS防护
-- ✅ 使用框架的自动转义
-- ❌ 禁止使用危险的HTML注入API（如dangerouslySetInnerHTML）
-- ✅ 用户输入必须验证和清理
-- ✅ 设置CSP（Content Security Policy）
+### Rendering Optimization
+- ✅ Avoid unnecessary re-renders (use caching mechanisms)
+- ✅ List rendering must have unique keys
+- ✅ Long lists (>100 items) use virtualization
+- ✅ Large datasets paginate loading
+- ❌ Prohibit defining components in render functions
 
-### CSRF防护
-- ✅ 使用CSRF Token
+### Code Splitting
+- ✅ Route-level code splitting
+- ✅ Large component lazy loading
+- ✅ Third-party libraries on-demand import
+- ✅ Initial load size < 200KB (gzip)
+
+### Resource Optimization
+- ✅ Image lazy loading
+- ✅ Use modern image formats (WebP, AVIF)
+- ✅ Responsive images (srcset)
+- ✅ Compress and optimize resources
+- ✅ Critical resource preloading (preload)
+
+---
+
+## ♿ Accessibility
+
+### WCAG Compliance
+- ✅ Keyboard accessible (Tab navigation)
+- ✅ Screen reader friendly (ARIA labels)
+- ✅ Color contrast ≥ 4.5:1 (normal text)
+- ✅ Focus visible (focus states)
+- ✅ Clear form error messages
+
+### Common Requirements
+- ✅ Interactive elements have focus states
+- ✅ Buttons and links have clear text
+- ✅ Dynamic content updates notify screen readers
+- ❌ Prohibit distinguishing states only by color
+
+---
+
+## 🔒 Frontend Security
+
+### XSS Protection
+- ✅ Use framework's auto-escaping
+- ❌ Prohibit using dangerous HTML injection APIs (like dangerouslySetInnerHTML)
+- ✅ User input must be validated and sanitized
+- ✅ Set CSP (Content Security Policy)
+
+### CSRF Protection
+- ✅ Use CSRF Token
 - ✅ SameSite Cookie
-- ✅ 验证请求来源
+- ✅ Verify request origin
 
-### 敏感数据
-- ❌ 禁止在前端存储敏感信息（密码、完整身份证）
-- ✅ Token存储在HttpOnly Cookie或安全存储
-- ✅ HTTPS传输
-- ✅ 敏感操作二次确认
-
----
-
-## 📋 前端开发检查清单
-
-- [ ] 组件职责单一（< 300行）
-- [ ] Props类型定义完整
-- [ ] 状态管理清晰（单一数据源）
-- [ ] HTML语义化标签
-- [ ] CSS样式隔离
-- [ ] 响应式设计
-- [ ] 性能优化（懒加载、虚拟化）
-- [ ] 无障碍访问（键盘、ARIA、对比度）
-- [ ] XSS/CSRF防护
+### Sensitive Data
+- ❌ Prohibit storing sensitive information in frontend (passwords, complete ID cards)
+- ✅ Tokens stored in HttpOnly Cookie or secure storage
+- ✅ HTTPS transmission
+- ✅ Secondary confirmation for sensitive operations
 
 ---
 
+## 📋 Frontend Development Checklist
+
+- [ ] Single component responsibility (< 300 lines)
+- [ ] Props type definitions complete
+- [ ] State management clear (single data source)
+- [ ] Semantic HTML tags
+- [ ] CSS style isolation
+- [ ] Responsive design
+- [ ] Performance optimization (lazy loading, virtualization)
+- [ ] Accessibility (keyboard, ARIA, contrast)
+- [ ] XSS/CSRF protection
+
 ---
 
-## 🏛️ 高级架构模式（20+年经验）
+---
 
-### 微前端架构
+## 🏛️ Advanced Architectural Patterns (20+ years experience)
+
+### Micro-Frontend Architecture
 ```
-✅ 适用场景：
-- 多团队协作的大型应用
-- 需要独立部署的模块
-- 技术栈异构（React/Vue/Angular共存）
+✅ Use cases:
+- Large applications with multi-team collaboration
+- Modules requiring independent deployment
+- Heterogeneous technology stacks (React/Vue/Angular coexistence)
 
-架构模式：
-- Module Federation（Webpack 5）
-- Single-SPA 编排
-- qiankun 沙箱隔离
-- Web Components 边界
+Architecture patterns:
+- Module Federation (Webpack 5)
+- Single-SPA orchestration
+- qiankun sandbox isolation
+- Web Components boundaries
 
-通信机制：
-- CustomEvent 跨应用通信
-- 共享状态管理（Redux/Zustand Store Slice）
-- PostMessage 安全通道
-```
-
-### 状态管理高级模式
-```
-原子化状态（Jotai/Recoil）：
-- 自底向上的状态原子
-- 派生状态自动计算
-- 精确订阅，最小重渲染
-
-服务端状态（TanStack Query/SWR）：
-- 请求缓存和去重
-- 乐观更新
-- 后台刷新
-- 离线支持
-
-状态机（XState）：
-- 复杂业务流程建模
-- 明确的状态转换
-- 可视化调试
+Communication mechanisms:
+- CustomEvent cross-application communication
+- Shared state management (Redux/Zustand Store Slice)
+- PostMessage secure channels
 ```
 
-### 渲染架构选择
+### Advanced State Management Patterns
 ```
-CSR (客户端渲染):
-- 适用：交互密集型应用（后台管理）
-- 缺点：首屏慢，SEO差
+Atomic state (Jotai/Recoil):
+- Bottom-up state atoms
+- Derived state auto-computation
+- Precise subscriptions, minimal re-renders
 
-SSR (服务端渲染):
-- 适用：内容网站，SEO需求
-- 技术：Next.js/Nuxt.js
-- 注意：水合成本
+Server state (TanStack Query/SWR):
+- Request caching and deduplication
+- Optimistic updates
+- Background refresh
+- Offline support
 
-SSG (静态生成):
-- 适用：博客、文档站
-- 优点：最佳性能
+State machines (XState):
+- Complex business process modeling
+- Clear state transitions
+- Visual debugging
+```
 
-ISR (增量静态再生):
-- 适用：电商产品页
-- 结合SSG和SSR优点
+### Rendering Architecture Selection
+```
+CSR (Client-Side Rendering):
+- Use cases: Interactive-intensive applications (admin dashboards)
+- Drawbacks: Slow first screen, poor SEO
+
+SSR (Server-Side Rendering):
+- Use cases: Content websites, SEO requirements
+- Technology: Next.js/Nuxt.js
+- Note: Hydration cost
+
+SSG (Static Site Generation):
+- Use cases: Blogs, documentation sites
+- Advantages: Best performance
+
+ISR (Incremental Static Regeneration):
+- Use cases: E-commerce product pages
+- Combines SSG and SSR advantages
 
 Streaming SSR:
 - React 18 Suspense
-- 渐进式渲染
+- Progressive rendering
 ```
 
 ---
 
-## 🔧 资深开发者必备技巧
+## 🔧 Essential Techniques for Senior Developers
 
-### 构建优化深度技巧
+### Deep Build Optimization Techniques
 ```
-Bundle分析：
+Bundle Analysis:
 - webpack-bundle-analyzer
 - source-map-explorer
-- 依赖大小可视化
+- Dependency size visualization
 
-Tree Shaking 优化：
-- 确保 sideEffects: false
-- 避免重导出（re-export）
-- 使用 ESM 格式库
+Tree Shaking Optimization:
+- Ensure sideEffects: false
+- Avoid re-exports
+- Use ESM format libraries
 
-代码分割策略：
-- 路由级分割（基础）
-- 组件级分割（进阶）
-- 数据预取分割（高级）
+Code Splitting Strategies:
+- Route-level splitting (basic)
+- Component-level splitting (advanced)
+- Data pre-fetching splitting (expert)
 
-长期缓存：
-- contenthash 文件名
-- 抽离稳定依赖（vendor chunk）
-- 运行时分离（runtime chunk）
+Long-term Caching:
+- contenthash filenames
+- Extract stable dependencies (vendor chunk)
+- Runtime separation (runtime chunk)
 ```
 
-### 运行时性能深度优化
+### Deep Runtime Performance Optimization
 ```
-React 优化：
-- React.memo + useMemo + useCallback 三剑客
-- 状态下沉，避免提升
-- Context 分割，避免整体重渲染
-- 使用 useTransition 延迟非紧急更新
+React Optimization:
+- React.memo + useMemo + useCallback trio
+- State hoisting, avoid lifting
+- Context splitting, avoid overall re-rendering
+- Use useTransition to delay non-urgent updates
 
-Vue 优化：
-- v-once 静态内容
-- v-memo 条件缓存
-- 函数式组件
-- KeepAlive 组件缓存
+Vue Optimization:
+- v-once for static content
+- v-memo for conditional caching
+- Functional components
+- KeepAlive component caching
 
-通用优化：
-- requestIdleCallback 空闲调度
-- IntersectionObserver 懒加载
-- ResizeObserver 布局监控
-- 虚拟滚动（react-window/vue-virtual-scroller）
+General Optimization:
+- requestIdleCallback idle scheduling
+- IntersectionObserver lazy loading
+- ResizeObserver layout monitoring
+- Virtual scrolling (react-window/vue-virtual-scroller)
 ```
 
-### 调试和性能分析
+### Debugging and Performance Analysis
 ```
-DevTools 高级用法：
-- Performance Tab 火焰图分析
-- Memory Tab 内存泄漏检测
-- Coverage Tab 代码覆盖率
-- Layers Tab 合成层分析
+DevTools Advanced Usage:
+- Performance Tab flame chart analysis
+- Memory Tab memory leak detection
+- Coverage Tab code coverage
+- Layers Tab compositing layer analysis
 
-React DevTools：
-- Profiler 组件渲染分析
-- Highlight Updates 重渲染可视化
-- Components 树状态检查
+React DevTools:
+- Profiler component rendering analysis
+- Highlight Updates re-render visualization
+- Components tree state inspection
 
-性能指标监控：
-- Core Web Vitals（LCP/FID/CLS）
+Performance Metrics Monitoring:
+- Core Web Vitals (LCP/FID/CLS)
 - TTFB/FCP/TTI
-- Lighthouse CI 集成
+- Lighthouse CI integration
 ```
 
-### 复杂表单处理
+### Complex Form Handling
 ```
-表单库选择：
-- React Hook Form（性能优先）
-- Formik（功能全面）
-- VeeValidate（Vue生态）
+Form Library Selection:
+- React Hook Form (performance-first)
+- Formik (feature-complete)
+- VeeValidate (Vue ecosystem)
 
-高级模式：
-- 动态表单（JSON Schema驱动）
-- 表单向导（多步骤）
-- 表单联动（条件字段）
-- 异步校验（防抖）
+Advanced Patterns:
+- Dynamic forms (JSON Schema driven)
+- Form wizards (multi-step)
+- Form联动 (conditional fields)
+- Async validation (debounce)
 
-性能要点：
-- 非受控组件（减少重渲染）
-- 字段级校验（局部更新）
-- 表单状态隔离
-```
-
----
-
-## 🚨 资深开发者常见陷阱
-
-### 架构陷阱
-```
-❌ 过度抽象：
-- 为了"复用"创建过度通用的组件
-- 配置项比代码还多
-- 正确做法：先具体后抽象，Rule of Three
-
-❌ 状态全局化：
-- 所有状态都放全局Store
-- 导致组件耦合严重
-- 正确做法：状态就近原则，能local不global
-
-❌ 微前端滥用：
-- 小项目强行微前端
-- 增加复杂度无实际收益
-- 正确做法：评估团队规模和项目复杂度
-```
-
-### 性能陷阱
-```
-❌ useMemo/useCallback 滥用：
-- 到处加缓存
-- 反而增加内存开销
-- 正确做法：Profile后优化，不盲目优化
-
-❌ 过度组件拆分：
-- 每个DOM元素一个组件
-- Props drilling 地狱
-- 正确做法：合理粒度，组件有明确职责
-
-❌ 图片无限加载：
-- 没有限制并发请求
-- 网络阻塞
-- 正确做法：请求队列，优先级调度
+Performance Points:
+- Uncontrolled components (reduce re-renders)
+- Field-level validation (partial updates)
+- Form state isolation
 ```
 
 ---
 
-## 📊 性能监控指标
+## 🚨 Common Pitfalls for Senior Developers
 
-| 指标 | 目标值 | 告警阈值 | 测量方法 |
-|------|--------|----------|----------|
+### Architecture Pitfalls
+```
+❌ Over-abstraction:
+- Creating overly generic components for "reuse"
+- Configuration options more than code
+- Correct approach: Start specific, then abstract, Rule of Three
+
+❌ Global State Overuse:
+- Put all state in global Store
+- Causes severe component coupling
+- Correct approach: State proximity principle, can local don't global
+
+❌ Micro-frontend Abuse:
+- Forcing micro-frontends on small projects
+- Adds complexity without actual benefits
+- Correct approach: Evaluate team size and project complexity
+```
+
+### Performance Pitfalls
+```
+❌ useMemo/useCallback Abuse:
+- Adding cache everywhere
+- Actually increases memory overhead
+- Correct approach: Optimize after profiling, don't optimize blindly
+
+❌ Over-component Splitting:
+- One component per DOM element
+- Props drilling hell
+- Correct approach: Reasonable granularity, components have clear responsibilities
+
+❌ Infinite Image Loading:
+- No concurrent request limits
+- Network blocking
+- Correct approach: Request queues, priority scheduling
+```
+
+---
+
+## 📊 Performance Monitoring Metrics
+
+| Metric | Target Value | Alert Threshold | Measurement Method |
+|--------|-------------|----------------|-------------------|
 | LCP | < 2.5s | > 4s | Lighthouse/RUM |
 | FID | < 100ms | > 300ms | Lighthouse/RUM |
 | CLS | < 0.1 | > 0.25 | Lighthouse/RUM |
 | TTI | < 3.8s | > 7.3s | Lighthouse |
 | FCP | < 1.8s | > 3s | Lighthouse |
 | Bundle Size (gzip) | < 200KB | > 500KB | Bundle Analyzer |
-| 首屏渲染 | < 1.5s | > 3s | Performance API |
-| 内存占用 | < 100MB | > 300MB | Memory Tab |
-| 组件重渲染 | < 3次/交互 | > 10次 | React Profiler |
+| First screen render | < 1.5s | > 3s | Performance API |
+| Memory usage | < 100MB | > 300MB | Memory Tab |
+| Component re-renders | < 3 times/interaction | > 10 times | React Profiler |
 
 ---
 
-## 📋 前端开发检查清单（完整版）
+## 📋 Frontend Development Checklist (Complete)
 
-### 基础检查
-- [ ] 组件职责单一（< 300行）
-- [ ] Props类型定义完整
-- [ ] 状态管理清晰（单一数据源）
-- [ ] HTML语义化标签
-- [ ] CSS样式隔离
-- [ ] 响应式设计
+### Basic Check
+- [ ] Single component responsibility (< 300 lines)
+- [ ] Props type definitions complete
+- [ ] State management clear (single data source)
+- [ ] Semantic HTML tags
+- [ ] CSS style isolation
+- [ ] Responsive design
 
-### 性能检查
-- [ ] Core Web Vitals 达标
+### Performance Check
+- [ ] Core Web Vitals meet standards
 - [ ] Bundle Size < 200KB (gzip)
-- [ ] 路由级代码分割
-- [ ] 图片懒加载和现代格式
-- [ ] 长列表虚拟化
-- [ ] 无内存泄漏
+- [ ] Route-level code splitting
+- [ ] Image lazy loading and modern formats
+- [ ] Long list virtualization
+- [ ] No memory leaks
 
-### 安全检查
-- [ ] XSS/CSRF防护
-- [ ] 敏感数据不存前端
-- [ ] CSP策略配置
-- [ ] HTTPS强制
+### Security Check
+- [ ] XSS/CSRF protection
+- [ ] No sensitive data storage in frontend
+- [ ] CSP policy configured
+- [ ] HTTPS enforcement
 
 ---
 
-**前端开发原则总结**：
-组件化、单一职责、状态最小化、语义化HTML、样式隔离、响应式设计、性能优先、无障碍访问、安全防护
+**Frontend Development Principles Summary**:
+Component-based, single responsibility, minimal state, semantic HTML, style isolation, responsive design, performance-first, accessibility, security protection

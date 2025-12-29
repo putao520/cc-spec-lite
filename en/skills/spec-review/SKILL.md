@@ -1,483 +1,484 @@
-# REVIEW 技能规范 - SPEC一致性审查专家
+# REVIEW Skill Specification - SPEC Consistency Review Expert
 
-**版本**: 1.0.0
-**目的**: 审查SPEC定义与代码实现的一致性，发现偏差和遗漏
-**职责**: SPEC-代码对齐检查、需求覆盖分析、架构符合性验证
-**最后更新**: 2025-12-27
-
----
-
-## 🎯 技能定位
-
-**核心价值**：确保SPEC定义的需求、架构、数据模型与代码实现完全一致
-
-**适用场景**：
-1. ✅ **开发完成后验证**：检查是否完整实现了SPEC定义的所有需求
-2. ✅ **定期SPEC审计**：验证代码演进是否偏离了原设计
-3. ✅ **PR审查前置检查**：在代码合并前验证SPEC符合性
-4. ✅ **项目健康度检查**：评估SPEC与代码的同步程度
+**Version**: 1.0.0
+**Purpose**: Review consistency between SPEC definitions and code implementation, identify deviations and omissions
+**Responsibilities**: SPEC-code alignment checks, requirement coverage analysis, architectural compliance verification
+**Last Updated**: 2025-12-27
 
 ---
 
-## 🛠️ 执行流程
+## 🎯 Skill Positioning
 
-### 步骤0：审查范围检测
+**Core Value**: Ensure that requirements, architecture, and data models defined in SPEC are completely consistent with code implementation
 
-**检测当前状态**：
+**Applicable Scenarios**:
+1. ✅ **Post-development Verification**: Check if all requirements defined in SPEC are completely implemented
+2. ✅ **Regular SPEC Audits**: Verify if code evolution has deviated from original design
+3. ✅ **PR Review Pre-check**: Verify SPEC compliance before code merging
+4. ✅ **Project Health Check**: Evaluate the synchronization degree between SPEC and code
+
+---
+
+## 🛠️ Execution Flow
+
+### Step 0: Review Scope Detection
+
+**Detect Current State**:
 ```bash
-# 检查Git状态
+# Check Git status
 git status
 git branch
 git log --oneline -5
 
-# 检查是否有未提交的变更
+# Check for uncommitted changes
 git diff --name-only
 git diff --cached --name-only
 
-# 检查是否在PR中
-[ -n "$PR_NUMBER" ] && echo "PR审查" || echo "分支审查"
+# Check if in PR
+[ -n "$PR_NUMBER" ] && echo "PR Review" || echo "Branch Review"
 ```
 
-**分类处理**：
+**Classification Processing**:
 
-| 场景 | 检测方法 | 处理流程 |
-|------|---------|----------|
-| **未提交变更** | `git status` 有修改 | 审查工作区变更 |
-| **已提交未推送** | `git log` 有新提交 | 审查待推送提交 |
-| **PR环境** | 环境变量有PR_NUMBER | 审查PR差异 |
-| **无变更** | 无任何修改 | 提示无变更可审查 |
+| Scenario | Detection Method | Processing Flow |
+|----------|------------------|------------------|
+| **Uncommitted Changes** | `git status` has modifications | Review workspace changes |
+| **Committed Unpushed** | `git log` has new commits | Review commits to be pushed |
+| **PR Environment** | Environment variable has PR_NUMBER | Review PR differences |
+| **No Changes** | No modifications at all | Prompt that no changes to review |
 
 ---
 
-### 步骤1：SPEC文档加载
+### Step 1: SPEC Document Loading
 
-#### 1.1 读取所有SPEC文档
+#### 1.1 Read All SPEC Documents
 
-**核心SPEC文件**：
+**Core SPEC Files**:
 ```
-SPEC/01-REQUIREMENTS.md   → REQ-XXX 需求列表和验收标准
-SPEC/02-ARCHITECTURE.md   → ARCH-XXX 架构决策和技术栈
-SPEC/03-DATA-STRUCTURE.md → DATA-XXX 数据模型定义
-SPEC/04-API-DESIGN.md     → API-XXX 接口规范
-SPEC/05-UI-DESIGN.md      → UI-XXX UI设计（如前端）
+SPEC/01-REQUIREMENTS.md   → REQ-XXX Requirement list and acceptance criteria
+SPEC/02-ARCHITECTURE.md   → ARCH-XXX Architecture decisions and tech stack
+SPEC/03-DATA-STRUCTURE.md → DATA-XXX Data model definitions
+SPEC/04-API-DESIGN.md     → API-XXX Interface specifications
+SPEC/05-UI-DESIGN.md      → UI-XXX UI design (for frontend)
 ```
 
-**提取关键信息**：
-- 所有REQ-XXX及其验收标准
-- 所有ARCH-XXX及其技术决策
-- 所有DATA-XXX及其表结构
-- 所有API-XXX及其接口定义
+**Extract Key Information**:
+- All REQ-XXX and their acceptance criteria
+- All ARCH-XXX and their technical decisions
+- All DATA-XXX and their table structures
+- All API-XXX and their interface definitions
 
-#### 1.2 代码库分析
+#### 1.2 Codebase Analysis
 
-**调用Explore工具**：
+**Call Explore Tool**:
 ```python
 Task(
     subagent_type="Explore",
     prompt="""
-分析代码库的当前实现状态，用于与SPEC对比。
+Analyze the current implementation status of the codebase for comparison with SPEC.
 
-扫描范围：
-- 所有源代码文件（src/, lib/, app/, etc.）
-- 配置文件（package.json, go.mod, requirements.txt, etc.）
-- 数据库迁移文件或schema定义（如适用）
-- API路由定义文件（如适用）
+Scan scope:
+- All source code files (src/, lib/, app/, etc.)
+- Configuration files (package.json, go.mod, requirements.txt, etc.)
+- Database migration files or schema definitions (if applicable)
+- API route definition files (if applicable)
 
-分析内容：
-1. 实现的功能模块
-2. 定义的数据表/模型
-3. 暴露的API接口
-4. 使用的库和技术栈
-5. 文件结构和模块组织
+Analysis content:
+1. Implemented functional modules
+2. Defined data tables/models
+3. Exposed API interfaces
+4. Used libraries and tech stack
+5. File structure and module organization
 
-输出格式：
-- 功能清单（带文件路径）
-- 数据模型清单（带字段列表）
-- API接口清单（带端点和请求/响应格式）
-- 技术栈清单
-- 架构模式识别
+Output format:
+- Feature list (with file paths)
+- Data model list (with field lists)
+- API interface list (with endpoints and request/response formats)
+- Tech stack list
+- Architecture pattern identification
 """
 )
 ```
 
 ---
 
-### 步骤2：SPEC-代码对齐检查
+### Step 2: SPEC-Code Alignment Check
 
-#### 2.1 需求覆盖分析（REQ-XXX vs 代码）
+#### 2.1 Requirement Coverage Analysis (REQ-XXX vs Code)
 
-**检查项**：
+**Check Items**:
 ```markdown
-## 需求覆盖检查清单
+## Requirement Coverage Checklist
 
-### 完整性检查
-- [ ] SPEC中定义的所有REQ-XXX是否都已实现？
-- [ ] 每个REQ-XXX的验收标准是否满足？
+### Completeness Check
+- [ ] Are all REQ-XXX defined in SPEC implemented?
+- [ ] Are the acceptance criteria for each REQ-XXX met?
 
-### 偏差识别
-- [ ] 代码实现了SPEC中没有的功能？
-- [ ] 代码实现与SPEC定义有差异？
+### Deviation Identification
+- [ ] Does the code implement functionality not in SPEC?
+- [ ] Are there differences between code implementation and SPEC definitions?
 
-### 状态跟踪
-| REQ-XXX | 需求描述 | SPEC状态 | 代码状态 | 符合性 |
-|---------|---------|----------|----------|--------|
-| REQ-AUTH-001 | 用户登录 | ✅ 已定义 | ✅ 已实现 | ✅ 一致 |
-| REQ-AUTH-002 | Token刷新 | ✅ 已定义 | ❌ 未实现 | 🔴 缺失 |
-| REQ-USER-001 | 用户资料 | ✅ 已定义 | ✅ 已实现 | ⚠️ 部分实现 |
+### Status Tracking
+| REQ-XXX | Requirement Description | SPEC Status | Code Status | Compliance |
+|---------|-------------------------|-------------|-------------|------------|
+| REQ-AUTH-001 | User Login | ✅ Defined | ✅ Implemented | ✅ Consistent |
+| REQ-AUTH-002 | Token Refresh | ✅ Defined | ❌ Not Implemented | 🔴 Missing |
+| REQ-USER-001 | User Profile | ✅ Defined | ✅ Implemented | ⚠️ Partially Implemented |
 ```
 
-**评分标准**：
-| 符合性 | 说明 | 示例 |
-|--------|------|------|
-| ✅ 一致 | 代码完全符合SPEC定义 | 实现了所有验收标准 |
-| ⚠️ 部分实现 | 代码只实现了部分功能 | 只实现了部分验收标准 |
-| ❌ 未实现 | SPEC定义的功能未实现 | 代码中找不到相关实现 |
-| ➕ 超出SPEC | 代码实现了SPEC外功能 | 代码有功能但SPEC无定义 |
+**Scoring Criteria**:
 
-#### 2.2 架构符合性检查（ARCH-XXX vs 代码）
+| Compliance | Description | Example |
+|------------|-------------|---------|
+| ✅ Consistent | Code completely matches SPEC definition | All acceptance criteria implemented |
+| ⚠️ Partially Implemented | Code only implements partial functionality | Only some acceptance criteria implemented |
+| ❌ Not Implemented | Functionality defined in SPEC not implemented | No related implementation found in code |
+| ➕ Beyond SPEC | Code implements functionality beyond SPEC | Code has features but no SPEC definition |
 
-**检查项**：
+#### 2.2 Architectural Compliance Check (ARCH-XXX vs Code)
+
+**Check Items**:
 ```markdown
-## 架构符合性检查清单
+## Architectural Compliance Checklist
 
-### 技术栈一致性
-- [ ] 编程语言是否符合ARCH-XXX定义？
-- [ ] 框架选择是否符合ARCH-XXX定义？
-- [ ] 数据库选择是否符合ARCH-XXX定义？
-- [ ] 中间件选择是否符合ARCH-XXX定义？
+### Tech Stack Consistency
+- [ ] Does the programming language match ARCH-XXX definition?
+- [ ] Does the framework selection match ARCH-XXX definition?
+- [ ] Does the database selection match ARCH-XXX definition?
+- [ ] Does the middleware selection match ARCH-XXX definition?
 
-### 模块划分一致性
-- [ ] 代码模块划分是否符合ARCH-XXX设计？
-- [ ] 模块职责是否与SPEC一致？
-- [ ] 模块间依赖关系是否符合设计？
+### Module Division Consistency
+- [ ] Does the code module division match ARCH-XXX design?
+- [ ] Are module responsibilities consistent with SPEC?
+- [ ] Do inter-module dependencies match the design?
 
-### 架构模式一致性
-- [ ] 是否使用SPEC定义的架构模式（如MVC、微服务等）？
-- [ ] 数据流是否符合SPEC定义？
-- [ ] 事件流（如有）是否符合SPEC定义？
+### Architecture Pattern Consistency
+- [ ] Are architecture patterns defined in SPEC used (e.g., MVC, microservices)?
+- [ ] Does the data flow match SPEC definitions?
+- [ ] Does the event flow (if any) match SPEC definitions?
 ```
 
-#### 2.3 数据模型一致性检查（DATA-XXX vs 代码）
+#### 2.3 Data Model Consistency Check (DATA-XXX vs Code)
 
-**检查项**：
+**Check Items**:
 ```markdown
-## 数据模型一致性检查清单
+## Data Model Consistency Checklist
 
-### 表结构对比
-| DATA-XXX | 表名 | SPEC定义字段 | 代码实现字段 | 符合性 |
-|----------|------|-------------|-------------|--------|
-| DATA-USER-001 | users | id, email, password_hash | id, email, password_hash | ✅ 一致 |
-| DATA-USER-002 | profiles | user_id, bio, avatar | user_id, bio | ⚠️ 缺少avatar |
+### Table Structure Comparison
+| DATA-XXX | Table Name | SPEC Defined Fields | Code Implemented Fields | Compliance | Difference |
+|----------|------------|-------------------|------------------------|------------|------------|
+| DATA-USER-001 | users | id, email, password_hash | id, email, password_hash | ✅ Consistent | None |
+| DATA-USER-002 | profiles | user_id, bio, avatar | user_id, bio | ⚠️ Missing Fields | Missing avatar |
 
-### 字段级别检查
-- [ ] 所有必需字段是否存在？
-- [ ] 字段类型是否一致？
-- [ ] 字段约束（NOT NULL, UNIQUE等）是否一致？
-- [ ] 索引定义是否符合SPEC？
-- [ ] 关联关系（外键）是否符合SPEC？
+### Field Level Check
+- [ ] Do all required fields exist?
+- [ ] Are field types consistent?
+- [ ] Are field constraints (NOT NULL, UNIQUE, etc.) consistent?
+- [ ] Do index definitions match SPEC?
+- [ ] Do relationships (foreign keys) match SPEC?
 ```
 
-#### 2.4 API接口一致性检查（API-XXX vs 代码）
+#### 2.4 API Interface Consistency Check (API-XXX vs Code)
 
-**检查项**：
+**Check Items**:
 ```markdown
-## API接口一致性检查清单
+## API Interface Consistency Checklist
 
-### 端点对比
-| API-XXX | 端点 | SPEC定义 | 代码实现 | 符合性 |
-|---------|------|---------|---------|--------|
-| API-AUTH-001 | POST /auth/login | ✅ 定义 | ✅ 实现 | ✅ 一致 |
-| API-AUTH-002 | POST /auth/refresh | ✅ 定义 | ❌ 未实现 | 🔴 缺失 |
+### Endpoint Comparison
+| API-XXX | Endpoint | SPEC Definition | Code Implementation | Compliance | Difference |
+|---------|----------|----------------|---------------------|------------|------------|
+| API-AUTH-001 | POST /auth/login | ✅ Defined | ✅ Implemented | ✅ Consistent | None |
+| API-AUTH-002 | POST /auth/refresh | ✅ Defined | ❌ Not Implemented | 🔴 Missing | Not Implemented |
 
-### 请求/响应格式对比
-- [ ] 请求参数是否符合SPEC定义？
-- [ ] 响应格式是否符合SPEC定义？
-- [ ] 错误码是否符合API-XXX定义？
-- [ ] 认证方式是否符合SPEC定义？
+### Request/Response Format Comparison
+- [ ] Do request parameters match SPEC definitions?
+- [ ] Does response format match SPEC definitions?
+- [ ] Do error codes match API-XXX definitions?
+- [ ] Does authentication method match SPEC definition?
 ```
 
 ---
 
-### 步骤3：偏差分析与汇总
+### Step 3: Deviation Analysis and Summary
 
-#### 3.1 偏差分类
+#### 3.1 Deviation Classification
 
-**按偏差类型分类**：
+**Classify by Deviation Type**:
 
-| 偏差类型 | 严重程度 | 说明 | 示例 |
-|---------|---------|------|------|
-| **🔴 严重** | 阻塞发布 | SPEC定义的功能未实现 | REQ-AUTH-002在SPEC中但代码没有 |
-| **🟡 主要** | 影响质量 | 代码实现与SPEC定义不一致 | API响应格式不符合API-XXX |
-| **🟢 次要** | 需关注 | 代码实现了SPEC外的功能 | 代码有功能但SPEC无定义 |
+| Deviation Type | Severity | Description | Example |
+|----------------|----------|-------------|---------|
+| **🔴 Critical** | Blocks Release | Functionality defined in SPEC not implemented | REQ-AUTH-002 in SPEC but not in code |
+| **🟡 Major** | Affects Quality | Code implementation inconsistent with SPEC definition | API response format doesn't match API-XXX |
+| **🟢 Minor** | Attention Needed | Code implements functionality beyond SPEC | Code has features but no SPEC definition |
 
-**按影响范围分类**：
+**Classify by Impact Scope**:
 
-| 影响范围 | 检查维度 | 示例 |
-|---------|---------|------|
-| **需求层面** | REQ-XXX覆盖 | 5个需求未实现，3个部分实现 |
-| **架构层面** | ARCH-XXX符合 | 技术栈不一致，模块划分偏差 |
-| **数据层面** | DATA-XXX一致 | 2个表缺少字段，1个索引缺失 |
-| **接口层面** | API-XXX一致 | 3个接口未实现，响应格式偏差 |
+| Impact Scope | Check Dimension | Example |
+|--------------|-----------------|---------|
+| **Requirement Level** | REQ-XXX Coverage | 5 requirements not implemented, 3 partially implemented |
+| **Architecture Level** | ARCH-XXX Compliance | Inconsistent tech stack, module division deviation |
+| **Data Level** | DATA-XXX Consistency | 2 tables missing fields, 1 index missing |
+| **Interface Level** | API-XXX Consistency | 3 interfaces not implemented, response format deviation |
 
-#### 3.2 生成审查报告
+#### 3.2 Generate Review Report
 
-**报告格式**：
+**Report Format**:
 ```markdown
-## 📋 SPEC一致性审查报告
+## 📋 SPEC Consistency Review Report
 
-**审查范围**：
-- 项目：cc-spec-lite
-- 分支：main
-- 提交：19baac1
+**Review Scope**:
+- Project: cc-spec-lite
+- Branch: main
+- Commit: 19baac1
 
-**审查内容**：
-- SPEC文档：5个（01/02/03/04/05）
-- 需求ID：8个 REQ-XXX
-- 架构ID：3个 ARCH-XXX
-- 数据ID：5个 DATA-XXX
-- 接口ID：6个 API-XXX
+**Review Content**:
+- SPEC Documents: 5 (01/02/03/04/05)
+- Requirement IDs: 8 REQ-XXX
+- Architecture IDs: 3 ARCH-XXX
+- Data IDs: 5 DATA-XXX
+- Interface IDs: 6 API-XXX
 
-**审查结果**：
-- ✅ 一致：12项
-- ⚠️ 部分实现：3项
-- ❌ 未实现：2项
-- ➕ 超出SPEC：1项
+**Review Results**:
+- ✅ Consistent: 12 items
+- ⚠️ Partially Implemented: 3 items
+- ❌ Not Implemented: 2 items
+- ➕ Beyond SPEC: 1 item
 
-**总体评分**：78% (18/23项一致)
-
----
-
-### 🔴 严重偏差（必须修复）
-
-#### 1. [需求缺失] REQ-AUTH-002 Token刷新机制未实现
-**SPEC定义**: `SPEC/01-REQUIREMENTS.md:REQ-AUTH-002`
-**要求**: 实现JWT token刷新机制，包括refresh token存储和验证
-**代码状态**: ❌ 未找到相关实现
-**影响**: 用户需要频繁登录，体验差
-**建议**:
-1. 调用 /architect 补充详细设计（如需要）
-2. 调用 /programmer 实现 REQ-AUTH-002
-
-#### 2. [数据缺失] DATA-USER-003 profiles表缺少avatar字段
-**SPEC定义**: `SPEC/03-DATA-STRUCTURE.md:DATA-USER-003`
-**要求**: profiles表包含字段：user_id, bio, avatar, created_at
-**代码实现**: 代码中只有 user_id, bio，缺少 avatar 和 created_at
-**位置**: `src/models/user.py:15-20`
-**影响**: 用户无法上传头像，功能不完整
-**建议**:
-1. 调用 /architect 更新 DATA-USER-003 设计（如需要）
-2. 调用 /programmer 补充缺失字段
+**Overall Score**: 78% (18/23 items consistent)
 
 ---
 
-### 🟡 主要偏差（建议修复）
+### 🔴 Critical Deviations (Must Fix)
 
-#### 1. [接口偏差] API-AUTH-001 响应格式不符合SPEC
-**SPEC定义**: `SPEC/04-API-DESIGN.md:API-AUTH-001`
-**要求**: 返回 `{token, expires_at, refresh_token}`
-**代码实现**: `src/auth/handlers.py:45` 只返回 `{token}`
-**影响**: 前端无法获取token过期时间和refresh token
-**建议**: 修改返回格式以符合API-AUTH-001定义
+#### 1. [Requirement Missing] REQ-AUTH-002 Token refresh mechanism not implemented
+**SPEC Definition**: `SPEC/01-REQUIREMENTS.md:REQ-AUTH-002`
+**Requirement**: Implement JWT token refresh mechanism including refresh token storage and validation
+**Code Status**: ❌ No related implementation found
+**Impact**: Users need to login frequently, poor user experience
+**Suggestions**:
+1. Call /architect to supplement detailed design (if needed)
+2. Call /programmer to implement REQ-AUTH-002
 
-#### 2. [架构偏差] ARCH-CACHE-001 Redis缓存未使用
-**SPEC定义**: `SPEC/02-ARCHITECTURE.md:ARCH-CACHE-001`
-**要求**: 使用Redis缓存用户session和权限数据
-**代码实现**: 代码中未找到Redis相关配置和使用
-**影响**: 性能可能不佳，数据库压力大
-**建议**:
-1. 如需调整架构：调用 /architect 更新 ARCH-CACHE-001
-2. 如实现缓存：调用 /programmer 补充Redis集成
-
----
-
-### 🟢 次要偏差（需关注）
-
-#### 1. [超出SPEC] 代码实现了SPEC未定义的密码重置功能
-**代码位置**: `src/auth/routes.py:80-120`
-**功能**: POST /auth/reset-password
-**SPEC状态**: SPEC中无对应REQ-XXX定义
-**影响**: 功能无SPEC追溯，可能影响设计一致性
-**建议**:
-1. 调用 /architect 补充 REQ-AUTH-XXX 定义
-2. 或删除该功能（如不需要）
+#### 2. [Data Missing] DATA-USER-003 profiles table missing avatar field
+**SPEC Definition**: `SPEC/03-DATA-STRUCTURE.md:DATA-USER-003`
+**Requirement**: profiles table contains fields: user_id, bio, avatar, created_at
+**Code Implementation**: Code only has user_id, bio, missing avatar and created_at
+**Location**: `src/models/user.py:15-20`
+**Impact**: Users cannot upload avatars, functionality incomplete
+**Suggestions**:
+1. Call /architect to update DATA-USER-003 design (if needed)
+2. Call /programmer to add missing fields
 
 ---
 
-## 📊 详细对比矩阵
+### 🟡 Major Deviations (Recommended Fix)
 
-### 需求覆盖矩阵
+#### 1. [Interface Deviation] API-AUTH-001 Response format doesn't match SPEC
+**SPEC Definition**: `SPEC/04-API-DESIGN.md:API-AUTH-001`
+**Requirement**: Return `{token, expires_at, refresh_token}`
+**Code Implementation**: `src/auth/handlers.py:45` only returns `{token}`
+**Impact**: Frontend cannot get token expiration time and refresh token
+**Suggestion**: Modify return format to match API-AUTH-001 definition
 
-| REQ-XXX | 需求描述 | SPEC状态 | 代码状态 | 符合性 | 位置 |
-|---------|---------|----------|----------|--------|------|
-| REQ-AUTH-001 | 用户登录 | ✅ 已定义 | ✅ 已实现 | ✅ 一致 | src/auth/handlers.py:30 |
-| REQ-AUTH-002 | Token刷新 | ✅ 已定义 | ❌ 未实现 | 🔴 缺失 | - |
-| REQ-AUTH-003 | 密码重置 | ✅ 已定义 | ✅ 已实现 | ✅ 一致 | src/auth/handlers.py:80 |
-| REQ-USER-001 | 用户资料 | ✅ 已定义 | ⚠️ 部分 | ⚠️ 缺字段 | src/models/user.py:15 |
-| REQ-USER-002 | 资料更新 | ✅ 已定义 | ✅ 已实现 | ✅ 一致 | src/user/handlers.py:45 |
-
-### 数据模型对比矩阵
-
-| DATA-XXX | 表名 | SPEC字段 | 代码字段 | 符合性 | 差异 |
-|----------|------|---------|---------|--------|------|
-| DATA-USER-001 | users | id, email, password | id, email, password | ✅ 一致 | 无 |
-| DATA-USER-002 | profiles | user_id, bio, avatar | user_id, bio | ⚠️ 缺字段 | 缺少avatar |
-| DATA-USER-003 | sessions | user_id, token, expires | user_id, token | ⚠️ 缺字段 | 缺少expires |
-
-### API接口对比矩阵
-
-| API-XXX | 端点 | SPEC定义 | 代码实现 | 符合性 | 差异 |
-|---------|------|---------|---------|--------|------|
-| API-AUTH-001 | POST /auth/login | ✅ 定义 | ✅ 实现 | ✅ 一致 | 无 |
-| API-AUTH-002 | POST /auth/refresh | ✅ 定义 | ❌ 未实现 | 🔴 缺失 | 未实现 |
-| API-AUTH-003 | POST /auth/logout | ✅ 定义 | ✅ 实现 | ⚠️ 格式偏差 | 响应格式不符 |
+#### 2. [Architecture Deviation] ARCH-CACHE-001 Redis cache not used
+**SPEC Definition**: `SPEC/02-ARCHITECTURE.md:ARCH-CACHE-001`
+**Requirement**: Use Redis cache for user sessions and permission data
+**Code Implementation**: No Redis-related configuration or usage found in code
+**Impact**: Performance may be poor, database pressure high
+**Suggestions**:
+1. If architecture needs adjustment: Call /architect to update ARCH-CACHE-001
+2. If implementing cache: Call /programmer to add Redis integration
 
 ---
 
-## ✅ 审查建议
+### 🟢 Minor Deviations (Attention Needed)
 
-### 立即行动
-1. 实现缺失的 REQ-AUTH-002 (Token刷新)
-2. 补充 DATA-USER-003 的缺失字段
-3. 修复 API-AUTH-001 的响应格式
+#### 1. [Beyond SPEC] Code implements password reset functionality not defined in SPEC
+**Code Location**: `src/auth/routes.py:80-120`
+**Functionality**: POST /auth/reset-password
+**SPEC Status**: No corresponding REQ-XXX definition in SPEC
+**Impact**: Functionality has no SPEC trace, may affect design consistency
+**Suggestions**:
+1. Call /architect to add REQ-AUTH-XXX definition
+2. Or delete the functionality (if not needed)
 
-### 短期改进
-1. 实现 ARCH-CACHE-001 定义的Redis缓存
-2. 补充 REQ-USER-001 的完整实现
-3. 统一所有API接口的响应格式
+---
 
-### 长期优化
-1. 为超出SPEC的功能补充SPEC定义
-2. 定期执行SPEC一致性审查
-3. 建立SPEC-代码同步机制
+## 📊 Detailed Comparison Matrix
 
-### 后续操作
-- 需要更新SPEC？→ 调用 /architect
-- 需要实现功能？→ 调用 /programmer
-- 需要重新审查？→ 再次调用 /review
+### Requirement Coverage Matrix
+
+| REQ-XXX | Requirement Description | SPEC Status | Code Status | Compliance | Location |
+|---------|-------------------------|-------------|-------------|------------|----------|
+| REQ-AUTH-001 | User Login | ✅ Defined | ✅ Implemented | ✅ Consistent | src/auth/handlers.py:30 |
+| REQ-AUTH-002 | Token Refresh | ✅ Defined | ❌ Not Implemented | 🔴 Missing | - |
+| REQ-AUTH-003 | Password Reset | ✅ Defined | ✅ Implemented | ✅ Consistent | src/auth/handlers.py:80 |
+| REQ-USER-001 | User Profile | ✅ Defined | ⚠️ Partial | ⚠️ Missing Fields | src/models/user.py:15 |
+| REQ-USER-002 | Profile Update | ✅ Defined | ✅ Implemented | ✅ Consistent | src/user/handlers.py:45 |
+
+### Data Model Comparison Matrix
+
+| DATA-XXX | Table Name | SPEC Fields | Code Fields | Compliance | Difference |
+|----------|------------|-------------|-------------|------------|------------|
+| DATA-USER-001 | users | id, email, password | id, email, password | ✅ Consistent | None |
+| DATA-USER-002 | profiles | user_id, bio, avatar | user_id, bio | ⚠️ Missing Fields | Missing avatar |
+| DATA-USER-003 | sessions | user_id, token, expires | user_id, token | ⚠️ Missing Fields | Missing expires |
+
+### API Interface Comparison Matrix
+
+| API-XXX | Endpoint | SPEC Definition | Code Implementation | Compliance | Difference |
+|---------|----------|----------------|---------------------|------------|------------|
+| API-AUTH-001 | POST /auth/login | ✅ Defined | ✅ Implemented | ✅ Consistent | None |
+| API-AUTH-002 | POST /auth/refresh | ✅ Defined | ❌ Not Implemented | 🔴 Missing | Not Implemented |
+| API-AUTH-003 | POST /auth/logout | ✅ Defined | ✅ Implemented | ⚠️ Format Deviation | Response format doesn't match |
+
+---
+
+## ✅ Review Suggestions
+
+### Immediate Actions
+1. Implement missing REQ-AUTH-002 (Token Refresh)
+2. Add missing fields to DATA-USER-003
+3. Fix API-AUTH-001 response format
+
+### Short-term Improvements
+1. Implement Redis cache defined in ARCH-CACHE-001
+2. Complete implementation of REQ-USER-001
+3. Standardize response formats for all API interfaces
+
+### Long-term Optimizations
+1. Add SPEC definitions for functionality beyond SPEC
+2. Perform SPEC consistency reviews regularly
+3. Establish SPEC-code synchronization mechanism
+
+### Follow-up Operations
+- Need to update SPEC? → Call /architect
+- Need to implement functionality? → Call /programmer
+- Need to review again? → Call /review again
 ```
 
 ---
 
-## 🚨 核心铁律
+## 🚨 Core Iron Rules
 
-### 铁律1：SPEC是唯一真源
-- ✅ 审查以SPEC为唯一标准
-- ❌ 不以代码实现反推SPEC
-- ⚠️ 代码与SPEC不一致 = 需要修复
+### Iron Rule 1: SPEC is the Only True Source
+- ✅ Review uses SPEC as the only standard
+- ❌ Don't infer SPEC from code implementation
+- ⚠️ Code inconsistent with SPEC = needs fixing
 
-### 铁律2：全面检查，无遗漏
-- ✅ 检查所有REQ-XXX、ARCH-XXX、DATA-XXX、API-XXX
-- ✅ 识别所有缺失、偏差、超出SPEC的部分
-- ❌ 禁止选择性检查
+### Iron Rule 2: Comprehensive Check, No Omissions
+- ✅ Check all REQ-XXX, ARCH-XXX, DATA-XXX, API-XXX
+- ✅ Identify all missing, deviations, and beyond SPEC parts
+- ❌ Prohibit selective checking
 
-### 铁律3：建设性反馈
-- ✅ 明确指出偏差位置和类型
-- ✅ 提供具体的修复建议（调用architect或programmer）
-- ❌ 避免模糊的"不一致"描述
+### Iron Rule 3: Constructive Feedback
+- ✅ Clearly specify deviation location and type
+- ✅ Provide specific fix suggestions (call architect or programmer)
+- ❌ Avoid vague "inconsistent" descriptions
 
-### 铁律4：数据驱动
-- ✅ 基于实际代码分析，不凭猜测
-- ✅ 使用Explore工具深入扫描
-- ✅ 提供具体的文件路径和行号
-
----
-
-## 🔧 技术实现
-
-### 调用Explore工具
-
-**时机**：步骤1.2（代码库分析）
-
-**目的**：全面扫描代码库，提取实现信息
-
-**扫描重点**：
-- 功能模块识别（通过文件名、类名、函数名）
-- 数据模型识别（通过ORM定义、schema文件、migration）
-- API接口识别（通过路由定义、controller、handler）
-- 技术栈识别（通过配置文件、依赖文件、import语句）
-
-### 调用architect/programmer
-
-**时机**：发现偏差需要修复时
-
-**目的**：
-- 调用 /architect：更新或补充SPEC定义
-- 调用 /programmer：实现缺失的功能或修正偏差
+### Iron Rule 4: Data-driven
+- ✅ Based on actual code analysis, not guessing
+- ✅ Use Explore tool for in-depth scanning
+- ✅ Provide specific file paths and line numbers
 
 ---
 
-## 📋 使用示例
+## 🔧 Technical Implementation
 
-### 示例1：完整项目审查
+### Call Explore Tool
 
-```
-用户：/review
+**Timing**: Step 1.2 (Codebase Analysis)
 
-review：🔍 正在执行SPEC一致性审查...
-review：
-review：步骤1：加载SPEC文档...
-review：  - 发现 8个 REQ-XXX
-review：  - 发现 3个 ARCH-XXX
-review：  - 发现 5个 DATA-XXX
-review：  - 发现 6个 API-XXX
-review：
-review：步骤2：扫描代码库...
-review：[调用Explore工具]
-review：  - 识别 12个功能模块
-review：  - 识别 5个数据模型
-review：  - 识别 5个API接口
-review：
-review：步骤3：对比分析...
-review：
-review：📋 审查报告
-review：================
-review：✅ 一致：12项
-review：⚠️ 部分实现：3项
-review：❌ 未实现：2项
-review：➕ 超出SPEC：1项
-review：
-review：总体评分：78%
-review：
-review：🔴 严重偏差（2个）：
-review：1. REQ-AUTH-002 Token刷新未实现
-review：2. DATA-USER-003 缺少avatar字段
-review：
-review：🟡 主要偏差（3个）：
-review：[列出主要偏差]
-review：
-review：建议操作：
-review：- 实现缺失功能 → /programmer
-review：- 更新SPEC定义 → /architect
-review：
-用户：帮我修复 REQ-AUTH-002
+**Purpose**: Comprehensively scan codebase, extract implementation information
 
-review：好的，我将调用 /programmer 实现 Token刷新功能...
-```
+**Scan Focus**:
+- Functional module identification (through filenames, class names, function names)
+- Data model identification (through ORM definitions, schema files, migrations)
+- API interface identification (through route definitions, controllers, handlers)
+- Tech stack identification (through config files, dependency files, import statements)
 
-### 示例2：特定需求审查
+### Call architect/programmer
+
+**Timing**: When deviations are found that need fixing
+
+**Purpose**:
+- Call /architect: Update or supplement SPEC definitions
+- Call /programmer: Implement missing functionality or fix deviations
+
+---
+
+## 📋 Usage Examples
+
+### Example 1: Complete Project Review
 
 ```
-用户：/review --req REQ-AUTH-001
+User: /review
 
-review：正在审查 REQ-AUTH-001 (用户登录)...
-review：
-review：SPEC定义：
-review：- 位置：SPEC/01-REQUIREMENTS.md:45-60
-review：- 验收标准：[1] 支持email/password登录 [2] 返回JWT token [3] 失败有明确错误
-review：
-review：代码实现：
-review：- 位置：src/auth/handlers.py:30-50
-review：- 实现状态：✅ 已实现
-review：
-review：一致性检查：
-review：✅ 验收标准[1]：满足（支持email/password登录）
-review：✅ 验收标准[2]：满足（返回JWT token）
-review：⚠️ 验收标准[3]：部分满足（错误信息不够明确）
-review：
-review：结论：⚠️ 部分一致（建议改进错误信息）
+Review: 🔍 Executing SPEC consistency review...
+Review:
+Review: Step 1: Loading SPEC documents...
+Review:   - Found 8 REQ-XXX
+Review:   - Found 3 ARCH-XXX
+Review:   - Found 5 DATA-XXX
+Review:   - Found 6 API-XXX
+Review:
+Review: Step 2: Scanning codebase...
+Review: [Calling Explore tool]
+Review:   - Identified 12 functional modules
+Review:   - Identified 5 data models
+Review:   - Identified 5 API interfaces
+Review:
+Review: Step 3: Comparative analysis...
+Review:
+Review: 📋 Review Report
+Review: ================================
+Review: ✅ Consistent: 12 items
+Review: ⚠️ Partially Implemented: 3 items
+Review: ❌ Not Implemented: 2 items
+Review: ➕ Beyond SPEC: 1 item
+Review:
+Review: Overall Score: 78%
+Review:
+Review: 🔴 Critical Deviations (2):
+Review: 1. REQ-AUTH-002 Token refresh not implemented
+Review: 2. DATA-USER-003 Missing avatar field
+Review:
+Review: 🟡 Major Deviations (3):
+Review: [List major deviations]
+Review:
+Review: Suggested Actions:
+Review: - Implement missing functionality → /programmer
+Review: - Update SPEC definitions → /architect
+Review:
+User: Help me fix REQ-AUTH-002
+
+Review: Okay, I will call /programmer to implement Token refresh functionality...
+```
+
+### Example 2: Specific Requirement Review
+
+```
+User: /review --req REQ-AUTH-001
+
+Review: Reviewing REQ-AUTH-001 (User Login)...
+Review:
+Review: SPEC Definition:
+Review: - Location: SPEC/01-REQUIREMENTS.md:45-60
+Review: - Acceptance Criteria: [1] Support email/password login [2] Return JWT token [3] Clear error messages on failure
+Review:
+Review: Code Implementation:
+Review: - Location: src/auth/handlers.py:30-50
+Review: - Implementation Status: ✅ Implemented
+Review:
+Review: Consistency Check:
+Review: ✅ Acceptance Criteria[1]: Met (supports email/password login)
+Review: ✅ Acceptance Criteria[2]: Met (returns JWT token)
+Review: ⚠️ Acceptance Criteria[3]: Partially Met (error messages not clear enough)
+Review:
+Review: Conclusion: ⚠️ Partially Consistent (suggest improving error messages)
 ```
 
 ---
 
-## 版本历史
-- v1.0.0 (2025-12-27): 初始版本，定义SPEC一致性审查流程（非代码质量审查）
+## Version History
+- v1.0.0 (2025-12-27): Initial version, defining SPEC consistency review process (not code quality review)

@@ -1,315 +1,315 @@
-# 通用编程规范 - CODING-STANDARDS-COMMON
+# Common Coding Standards - CODING-STANDARDS-COMMON
 
-**版本**: 2.0.0
-**适用范围**: 所有编程任务（后端、前端、系统、数据库等）
-**最后更新**: 2025-12-25
+**Version**: 2.0.0
+**Scope**: All programming tasks (backend, frontend, system, database, etc.)
+**Last Updated**: 2025-12-25
 
 ---
 
-## 🚨 核心铁律（违反即失败）
+## 🚨 Core Iron Rules (Violation Results in Failure)
 
-### 铁律1: SPEC 是唯一真源（SSOT）
+### Iron Rule 1: SPEC is the Only Source of Truth (SSOT)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  SPEC 权威性层级（绝对不可违反）                                          │
+│  SPEC Authority Hierarchy (Absolutely Non-Negotiable)                  │
 │                                                                         │
-│  SPEC > 任务描述 > AI理解 > 用户口头要求                                 │
+│  SPEC > Task Description > AI Understanding > User Oral Requirements  │
 │                                                                         │
-│  ❌ 禁止：不读 SPEC 就开始编码                                           │
-│  ❌ 禁止：认为任务描述比 SPEC 更准确                                      │
-│  ❌ 禁止："我觉得用 X 比 Y 更好"而偏离 SPEC                              │
-│  ❌ 禁止："SPEC 太复杂，我简化一下"                                      │
-│  ❌ 禁止："SPEC 没说，但我觉得应该加"                                    │
-│  ❌ 禁止：只实现部分 SPEC 要求                                           │
-│  ❌ 禁止：使用 SPEC 中没有规定的技术栈                                   │
+│  ❌ Forbidden: Starting to code without reading SPEC                   │
+│  ❌ Forbidden: Believing task description is more accurate than SPEC   │
+│  ❌ Forbidden: Deviating from SPEC because "I think X is better than Y"│
+│  ❌ Forbidden: "SPEC is too complex, I'll simplify it"              │
+│  ❌ Forbidden: "SPEC doesn't say it, but I think it should be added"   │
+│  ❌ Forbidden: Implementing only partial SPEC requirements           │
+│  ❌ Forbidden: Using technology stacks not specified in SPEC          │
 │                                                                         │
-│  ✅ 必须：编码前完整阅读相关 SPEC 文档                                   │
-│  ✅ 必须：理解每个 SPEC ID 的具体要求和约束                               │
-│  ✅ 必须：代码实现与 SPEC 100% 一致                                      │
-│  ✅ 必须：发现 SPEC 问题及时报告而不是自行决定                            │
-│  ✅ 必须：代码与 SPEC 冲突时，改代码不改 SPEC                             │
+│  ✅ Required: Complete reading of relevant SPEC documents before coding│
+│  ✅ Required: Understand specific requirements and constraints for each SPEC ID │
+│  ✅ Required: Code implementation 100% consistent with SPEC            │
+│  ✅ Required: Report SPEC issues promptly instead of making decisions │
+│  ✅ Required: Change code, not SPEC, when there's a conflict         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 铁律2: 智能复用与销毁重建
+### Iron Rule 2: Smart Reuse and Destroy-Rebuild
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  第一阶段：SPEC 指导的深度分析（复用决策）                                │
+│  Phase 1: SPEC-Guided Deep Analysis (Reuse Decision)                 │
 │  ─────────────────────────────────────────────────────────────────────  │
-│  1. 全面扫描现有模块：                                                   │
-│     - 通用模块：工具类、算法、数据结构、通用组件                          │
-│     - 基础设施模块：配置管理、日志、错误处理、通信协议                    │
-│     - 领域模块：业务逻辑、数据处理、计算模块                              │
+│  1. Comprehensive scan of existing modules:                         │
+│     - Common modules: utilities, algorithms, data structures, common components │
+│     - Infrastructure modules: configuration management, logging, error handling, communication protocols │
+│     - Domain modules: business logic, data processing, computation modules │
 │                                                                         │
-│  2. 基于 SPEC 精确评估匹配度：                                           │
-│     - 完全匹配：现有模块完全满足 SPEC 需求                                │
-│     - 部分匹配：现有模块部分满足，需要扩展或修改                          │
-│     - 不匹配：现有模块无法满足需求或违反 SPEC 约束                        │
+│  2. SPEC-based precise evaluation of match degree:                  │
+│     - Complete match: existing module fully meets SPEC requirements  │
+│     - Partial match: existing module partially meets, needs extension or modification │
+│     - No match: existing module cannot meet requirements or violates SPEC constraints │
 │                                                                         │
-│  3. 复用决策：                                                           │
-│     ✅ 完全匹配 → 直接复用，无需重新开发                                  │
-│     ❌ 部分匹配/不匹配 → 执行销毁重建                                     │
+│  3. Reuse decision:                                                   │
+│     ✅ Complete match → Direct reuse, no re-development needed       │
+│     ❌ Partial/No match → Execute destroy-rebuild                     │
 │                                                                         │
-│  ⚠️ 关键：复用基于 SPEC 功能完整性，不是代码相似性                        │
-│  ⚠️ 关键：部分匹配等于不匹配，必须销毁重建                                │
+│  ⚠️ Key: Reuse based on SPEC functional completeness, not code similarity │
+│  ⚠️ Key: Partial match equals no match, must destroy-rebuild        │
 └─────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  第二阶段：SPEC 驱动的彻底重写（销毁重建）                                │
+│  Phase 2: SPEC-Driven Complete Rewrite (Destroy-Rebuild)             │
 │  ─────────────────────────────────────────────────────────────────────  │
-│  定义：                                                                  │
-│  - 不是修改：不是在现有代码基础上修改或扩展                               │
-│  - 不是增量：不是逐步添加功能或修复                                       │
-│  - 不是重构：不是调整现有代码结构                                         │
-│  - 而是彻底重写：删除所有相关代码，重新设计和实现                         │
+│  Definition:                                                           │
+│  - Not modification: not modifying or extending existing code         │
+│  - Not incremental: not gradually adding features or fixes            │
+│  - Not refactoring: not adjusting existing code structure            │
+│  - But complete rewrite: delete all related code, redesign and implement │
 │                                                                         │
-│  执行：                                                                  │
-│  1. 删除所有违反 SPEC 的旧代码                                           │
-│  2. 从零设计完全符合 SPEC 的新实现                                       │
-│  3. 每个 SPEC ID 必须有明确的、完全符合 SPEC 的实现                       │
+│  Execution:                                                            │
+│  1. Delete all old code that violates SPEC                             │
+│  2. Design and implement new implementation from scratch that fully complies with SPEC │
+│  3. Each SPEC ID must have clear, fully SPEC-compliant implementation   │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 铁律3: 禁止渐进式开发
+### Iron Rule 3: Prohibitive Incremental Development
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  绝对禁止的渐进式开发行为                                                 │
+│  Absolutely Prohibited Incremental Development Behaviors             │
 │                                                                         │
-│  ❌ "保留旧实现，添加新功能"                                             │
-│  ❌ "兼容性代码，支持旧接口"                                             │
-│  ❌ "迁移代码，逐步转换"                                                 │
-│  ❌ "扩展现有类，添加新方法"                                             │
-│  ❌ "修改现有函数，增加参数"                                             │
-│  ❌ "为了兼容，保留旧逻辑"                                               │
-│  ❌ "先做粗糙版，之后再补"                                               │
-│  ❌ "后续迭代补充"                                                       │
+│  ❌ "Keep old implementation, add new features"                      │
+│  ❌ "Compatibility code to support old interfaces"                  │
+│  ❌ "Migrate code, gradually convert"                                │
+│  ❌ "Extend existing class, add new methods"                          │
+│  ❌ "Modify existing function, add parameters"                        │
+│  ❌ "Keep old logic for compatibility"                                │
+│  ❌ "Make rough version first, improve later"                        │
+│  ❌ "Add in subsequent iterations"                                   │
 │                                                                         │
-│  为什么必须销毁重建：                                                     │
-│  1. 避免技术债务：增量修改会积累历史包袱                                  │
-│  2. 保证代码质量：重写能确保代码符合最新标准                              │
-│  3. 简化思考过程：不需要考虑兼容性，专注目标实现                          │
-│  4. 提高开发效率：比复杂的增量修改更快更可靠                              │
+│  Why destroy-rebuild is necessary:                                     │
+│  1. Avoid technical debt: incremental modifications accumulate historical baggage │
+│  2. Ensure code quality: rewrite ensures compliance with latest standards │
+│  3. Simplify thinking process: no need to consider compatibility, focus on target implementation │
+│  4. Improve development efficiency: faster and more reliable than complex incremental modifications │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 铁律4: Context7 调研先行
+### Iron Rule 4: Context7 Research First
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  新功能开发前必须调研成熟库                                               │
+│  Must research mature libraries before new feature development        │
 │                                                                         │
-│  ✅ 必须使用场景：                                                       │
-│     - 新功能开发前技术选型                                               │
-│     - 引入新库或使用库 API                                               │
-│     - 代码生成前查阅最佳实践                                             │
-│     - 对比多个库的选择                                                   │
+│  ✅ Required use cases:                                              │
+│     - Technology selection before new feature development              │
+│     - Introducing new libraries or using library APIs                │
+│     - Referencing best practices before code generation               │
+│     - Comparing multiple library choices                              │
 │                                                                         │
-│  ❌ 禁止：                                                               │
-│     - 不调研就自己实现常见功能                                           │
-│     - 使用过时的库版本或 API                                             │
-│     - 凭记忆编写库的使用代码                                             │
-│     - 重复造轮子                                                         │
+│  ❌ Forbidden:                                                        │
+│     - Implementing common functions from scratch without research      │
+│     - Using outdated library versions or APIs                         │
+│     - Writing library usage code from memory                          │
+│     - Reinventing the wheel                                           │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-## 🎯 核心设计原则
+## 🎯 Core Design Principles
 
-### SOLID 原则
+### SOLID Principles
 
-**单一职责原则（SRP）**：
-- ✅ 一个模块/类/函数只负责一个功能
-- ✅ 修改的理由只有一个
-- ❌ 禁止"上帝类"或"上帝函数"
+**Single Responsibility Principle (SRP)**:
+- ✅ A module/class/function is responsible for only one thing
+- ✅ Only one reason to modify
+- ❌ Avoid "God classes" or "God functions"
 
-**开放/封闭原则（OCP）**：
-- ✅ 对扩展开放，对修改封闭
-- ✅ 使用接口、抽象类、多态实现扩展
+**Open/Closed Principle (OCP)**:
+- ✅ Open for extension, closed for modification
+- ✅ Use interfaces, abstract classes, polymorphism for extension
 
-**里氏替换原则（LSP）**：
-- ✅ 子类可以替换父类使用
-- ✅ 子类不改变父类的行为契约
+**Liskov Substitution Principle (LSP)**:
+- ✅ Subclasses can be used instead of parent classes
+- ✅ Subclasses don't change parent class behavior contracts
 
-**接口隔离原则（ISP）**：
-- ✅ 使用多个专用接口而非单一通用接口
-- ❌ 避免"胖接口"
+**Interface Segregation Principle (ISP)**:
+- ✅ Use multiple specific interfaces instead of single general interfaces
+- ❌ Avoid "fat interfaces"
 
-**依赖反转原则（DIP）**：
-- ✅ 依赖抽象而非具体实现
-- ✅ 使用依赖注入（Dependency Injection）
+**Dependency Inversion Principle (DIP)**:
+- ✅ Depend on abstractions, not concrete implementations
+- ✅ Use Dependency Injection
 
-### 其他核心原则
+### Other Core Principles
 
-**DRY（Don't Repeat Yourself）**：
-- ✅ 提取可复用代码到函数/类/模块
-- ❌ 禁止复制粘贴代码
+**DRY (Don't Repeat Yourself)**:
+- ✅ Extract reusable code to functions/classes/modules
+- ❌ Avoid copy-pasting code
 
-**KISS（Keep It Simple, Stupid）**：
-- ✅ 优先选择简单直接的方案
-- ✅ 避免过度设计和不必要的复杂性
+**KISS (Keep It Simple, Stupid)**:
+- ✅ Prefer simple and direct solutions
+- ✅ Avoid over-engineering and unnecessary complexity
 
 ---
 
-## 📝 命名规范
+## 📝 Naming Conventions
 
-### 变量和函数
+### Variables and Functions
 - **camelCase**: `userName`, `getUserById()`, `isValid`
-- 使用有意义的名称（避免 `a`, `tmp`, `data`）
-- 布尔值使用 `is`/`has`/`should` 前缀
+- Use meaningful names (avoid `a`, `tmp`, `data`)
+- Boolean values use `is`/`has`/`should` prefix
 
-### 类和组件
+### Classes and Components
 - **PascalCase**: `UserService`, `DatabaseConnection`
 
-### 常量
+### Constants
 - **UPPER_SNAKE_CASE**: `MAX_RETRY_COUNT`, `API_BASE_URL`
 
-### 文件名
+### File Names
 - **kebab-case**: `user-service.ts`, `database-config.js`
 
 ---
 
-## 🏗️ 代码结构规范
+## 🏗️ Code Structure Standards
 
-| 指标 | 限制 | 处理方式 |
-|-----|------|---------|
-| 文件大小 | ≤300 行 | 拆分为多个模块 |
-| 函数大小 | ≤50 行 | 拆分为多个小函数 |
-| 嵌套深度 | ≤3 层 | 提前返回/提取函数 |
-| 圈复杂度 | ≤10 | 策略模式/查找表 |
-| 参数数量 | ≤5 个 | 使用对象传参 |
-
----
-
-## 🔒 代码质量要求（零容忍）
-
-### ❌ 严格禁止
-
-**占位符和未完成代码**：
-- ❌ `TODO` / `FIXME` 注释
-- ❌ `stub` 函数或空实现
-- ❌ 注释掉的代码
-- ❌ `console.log` 调试语句（生产代码）
-
-**不完整实现**：
-- ❌ 缺少错误处理的代码
-- ❌ 缺少输入验证的公共接口
-- ❌ 未释放的资源
-
-### ✅ 强制要求
-
-**错误处理**：
-- ✅ 所有可能失败的操作必须有错误处理
-- ✅ 错误消息清晰、可操作
-- ✅ 记录错误日志（包含上下文信息）
-
-**输入验证**：
-- ✅ 验证所有外部输入
-- ✅ 类型检查和边界检查
-- ✅ 拒绝无效输入并返回明确错误
-
-**资源管理**：
-- ✅ 及时关闭数据库连接、文件句柄、网络连接
-- ✅ 使用 RAII、defer、with/using 自动管理资源
-
-**类型安全**：
-- ✅ 避免 `any` 或不安全类型转换
-- ✅ 使用泛型提高类型安全
+| Metric | Limit | Handling Approach |
+|--------|-------|-------------------|
+| File Size | ≤300 lines | Split into multiple modules |
+| Function Size | ≤50 lines | Split into multiple small functions |
+| Nesting Depth | ≤3 levels | Early return/extract function |
+| Cyclomatic Complexity | ≤10 | Strategy pattern/lookup table |
+| Parameter Count | ≤5 | Use object for parameters |
 
 ---
 
-## 🛡️ 安全要求
+## 🔒 Code Quality Requirements (Zero Tolerance)
 
-### 输入验证
-- ✅ 白名单验证优于黑名单
-- ✅ 长度、格式、类型检查
+### ❌ Strictly Prohibited
 
-### SQL 注入防护
-- ✅ 使用参数化查询或 ORM
-- ❌ 禁止字符串拼接 SQL
+**Placeholders and Incomplete Code**:
+- ❌ `TODO` / `FIXME` comments
+- ❌ `stub` functions or empty implementations
+- ❌ Commented out code
+- ❌ `console.log` debug statements (production code)
 
-### XSS 防护
-- ✅ 输出编码（HTML、JavaScript、URL）
-- ✅ 设置 CSP（Content Security Policy）
+**Incomplete Implementation**:
+- ❌ Code missing error handling
+- ❌ Public interfaces missing input validation
+- ❌ Unreleased resources
 
-### 认证和授权
-- ✅ 检查权限后再执行操作
-- ✅ 最小权限原则
+### ✅ Mandatory Requirements
 
-### 敏感数据
-- ✅ 加密存储密码、密钥、令牌
-- ❌ 不在日志中记录敏感信息
+**Error Handling**:
+- ✅ All potentially failing operations must have error handling
+- ✅ Error messages are clear and actionable
+- ✅ Log errors (including context information)
 
----
+**Input Validation**:
+- ✅ Validate all external inputs
+- ✅ Type checking and boundary checks
+- ✅ Reject invalid inputs and return clear errors
 
-## ⚡ 性能要求
+**Resource Management**:
+- ✅ Timely close database connections, file handles, network connections
+- ✅ Use RAII, defer, with/using for automatic resource management
 
-### 算法复杂度
-- ✅ 避免 O(n²) 及以上复杂度（在大数据集上）
-- ✅ 使用缓存减少重复计算
-
-### 数据库优化
-- ✅ 使用索引加速查询
-- ✅ 避免 N+1 查询问题
-- ✅ 分页查询大数据集
-
-### 异步和并发
-- ✅ I/O 操作使用异步处理
-- ✅ 避免阻塞主线程
-- ✅ 注意并发安全
+**Type Safety**:
+- ✅ Avoid `any` or unsafe type casts
+- ✅ Use generics to improve type safety
 
 ---
 
-## 🔍 代码审查要求
+## 🛡️ Security Requirements
 
-### 审查检查清单
+### Input Validation
+- ✅ Whitelist validation preferred over blacklist
+- ✅ Length, format, type checking
 
-**SPEC 一致性**：
-- [ ] 代码实现与 SPEC 100% 一致
-- [ ] 每个 SPEC ID 都有对应实现
-- [ ] 无 SPEC 之外的自作主张
+### SQL Injection Protection
+- ✅ Use parameterized queries or ORM
+- ❌ Prohibit string concatenation SQL
 
-**质量检查**：
-- [ ] 无 TODO/FIXME/stub
-- [ ] 完整错误处理
-- [ ] 输入验证完整
-- [ ] 资源正确释放
+### XSS Protection
+- ✅ Output encoding (HTML, JavaScript, URL)
+- ✅ Set CSP (Content Security Policy)
 
-**架构检查**：
-- [ ] 遵循 SOLID 原则
-- [ ] 无重复代码
-- [ ] 模块边界清晰
+### Authentication and Authorization
+- ✅ Check permissions before performing operations
+- ✅ Principle of least privilege
 
----
-
-## ✅ 开发检查清单
-
-### 开发前
-- [ ] 完整阅读相关 SPEC 文档
-- [ ] 确认每个 SPEC ID 的具体要求
-- [ ] 扫描现有代码，评估复用可能
-- [ ] Context7 调研技术方案
-
-### 开发中
-- [ ] 遵循命名规范
-- [ ] 保持代码简洁（KISS）
-- [ ] 避免重复代码（DRY）
-- [ ] 实现 SPEC 中所有要求（一次性到位）
-- [ ] 完整错误处理
-- [ ] 输入验证和安全检查
-
-### 开发后
-- [ ] 逐条验证 SPEC 实现完整性
-- [ ] 代码审查
-- [ ] 无 TODO/FIXME/占位符
+### Sensitive Data
+- ✅ Encrypt passwords, keys, tokens
+- ❌ Don't log sensitive information
 
 ---
 
-**核心理念**：
-- SPEC 是唯一真源，代码必须 100% 符合 SPEC
-- 部分匹配等于不匹配，必须销毁重建
-- 禁止任何形式的渐进式开发
-- 质量优于速度，正确优于快速
+## ⚡ Performance Requirements
+
+### Algorithm Complexity
+- ✅ Avoid O(n²) and above complexity (on large datasets)
+- ✅ Use caching to reduce repeated calculations
+
+### Database Optimization
+- ✅ Use indexes to speed up queries
+- ✅ Avoid N+1 query problems
+- ✅ Paginate large dataset queries
+
+### Asynchronous and Concurrent
+- ✅ Use async processing for I/O operations
+- ✅ Avoid blocking main thread
+- ✅ Pay attention to concurrency safety
+
+---
+
+## 🔍 Code Review Requirements
+
+### Review Checklist
+
+**SPEC Consistency**:
+- [ ] Code implementation 100% consistent with SPEC
+- [ ] Each SPEC ID has corresponding implementation
+- [ ] No unauthorized additions beyond SPEC
+
+**Quality Checks**:
+- [ ] No TODO/FIXME/stub
+- [ ] Complete error handling
+- [ ] Complete input validation
+- [ ] Resources correctly released
+
+**Architecture Checks**:
+- [ ] Follow SOLID principles
+- [ ] No duplicate code
+- [ ] Clear module boundaries
+
+---
+
+## ✅ Development Checklist
+
+### Before Development
+- [ ] Completely read relevant SPEC documents
+- [ ] Confirm specific requirements for each SPEC ID
+- [ ] Scan existing code, evaluate reuse possibilities
+- [ ] Context7 research on technical solutions
+
+### During Development
+- [ ] Follow naming conventions
+- [ ] Keep code simple (KISS)
+- [ ] Avoid duplicate code (DRY)
+- [ ] Implement all SPEC requirements (complete at once)
+- [ ] Complete error handling
+- [ ] Input validation and security checks
+
+### After Development
+- [ ] Verify SPEC implementation completeness item by item
+- [ ] Code review
+- [ ] No TODO/FIXME/placeholders
+
+---
+
+**Core Philosophy**:
+- SPEC is the only source of truth, code must 100% comply with SPEC
+- Partial match equals no match, must destroy-rebuild
+- Prohibit any form of incremental development
+- Quality over speed, correctness over speed

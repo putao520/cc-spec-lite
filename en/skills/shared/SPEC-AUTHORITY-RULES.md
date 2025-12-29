@@ -1,93 +1,93 @@
-# SPEC 绝对权威原则（SSOT - Single Source of Truth）
+# SPEC Absolute Authority Principles (SSOT - Single Source of Truth)
 
-> 本文档定义SPEC权威原则，被所有技能引用作为单一权威源
+> This document defines SPEC authority principles, referenced by all skills as the single authoritative source
 
 ---
 
-## 核心原则
+## Core Principles
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  SPEC 定义什么 → 就做什么                                                │
-│  SPEC 怎么定义 → 就怎么做                                                │
-│  SPEC 没定义的 → 不能假设                                                │
+│  What SPEC defines → is what we do                                      │
+│  How SPEC defines → is how we do it                                    │
+│  What SPEC doesn't define → cannot be assumed                          │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-## SPEC 优先级
+## SPEC Priority
 
 ```
-SPEC > 任务描述 > AI理解 > 用户口头要求
+SPEC > Task Description > AI Understanding > User Verbal Requests
 ```
 
-- 任何与SPEC冲突的理解都必须以SPEC为准
-- 禁止"我觉得这样更好"的任何偏离
+- Any understanding conflicting with SPEC must follow SPEC
+- Prohibit any deviation for "I think this is better"
 
-## SPEC 验证流程
+## SPEC Verification Process
 
-1. **开发前必须完整读取相关SPEC文档**
-2. **每个REQ-XXX、ARCH-XXX、DATA-XXX、API-XXX都必须100%理解**
-3. **发现SPEC矛盾或缺失时必须停止，报告澄清**
+1. **Must completely read relevant SPEC documents before development**
+2. **Must 100% understand each REQ-XXX, ARCH-XXX, DATA-XXX, API-XXX**
+3. **Must stop and report for clarification when discovering SPEC contradictions or omissions**
 
-## SPEC 对应实现
+## SPEC to Implementation Mapping
 
-- 每个SPEC ID必须有明确的代码实现
-- 禁止选择性遵守、简化、扩展SPEC要求
-- 代码与SPEC冲突时，改代码不改SPEC
+- Each SPEC ID must have clear code implementation
+- Prohibit selective compliance, simplification, or extension of SPEC requirements
+- When code conflicts with SPEC, change code not SPEC
 
-## 强制遵守规则
+## Mandatory Compliance Rules
 
-### 1. 接口方式由 SPEC 决定
+### 1. Interface Method Determined by SPEC
 
-- SPEC 定义 WebSocket → 必须用 WebSocket
-- SPEC 定义 REST API → 必须用 REST API
-- SPEC 定义 gRPC → 必须用 gRPC
-- **禁止**：因为"某种方式更好/更容易"就擅自更换接口方式
+- SPEC defines WebSocket → Must use WebSocket
+- SPEC defines REST API → Must use REST API
+- SPEC defines gRPC → Must use gRPC
+- **Prohibited**: Change interface method because "some approach is better/easier"
 
-### 2. API 端点由 SPEC 决定
+### 2. API Endpoints Determined by SPEC
 
-- 只能请求 04-API-DESIGN.md 中定义的端点
-- **禁止**：假设/发明 SPEC 中不存在的 API
-- **禁止**：因为"这个 API 应该存在"就在代码中使用它
+- Only request endpoints defined in 04-API-DESIGN.md
+- **Prohibited**: Assume/invent APIs not in SPEC
+- **Prohibited**: Use an API in code because "this API should exist"
 
-### 3. 数据结构由 SPEC 决定
+### 3. Data Structure Determined by SPEC
 
-- 请求/响应格式必须与 SPEC 定义一致
-- **禁止**：假设与 SPEC 不同的字段名或结构
+- Request/response formats must match SPEC definitions
+- **Prohibited**: Assume field names or structures different from SPEC
 
-## 发现 SPEC 问题时的处理
+## Handling SPEC Issues
 
-| 情况 | 处理方式 |
-|------|----------|
-| 需要的 API 不存在 | 停止，报告 SPEC 缺陷，等待 architect 补充 |
-| SPEC 设计不合理 | 停止，报告问题，等待用户决策 |
-| SPEC 内部矛盾 | 停止，报告矛盾，等待澄清 |
-| "我觉得应该这样做" | 无效，执行 SPEC 定义 |
+| Situation | Handling |
+|-----------|----------|
+| Required API doesn't exist | Stop, report SPEC defect, wait for architect to supplement |
+| SPEC design unreasonable | Stop, report issue, wait for user decision |
+| SPEC internal contradiction | Stop, report contradiction, wait for clarification |
+| "I think we should do this" | Invalid, execute SPEC definition |
 
-## 禁止的行为
+## Prohibited Behaviors
 
-- ❌ **擅自变通**："SPEC 说用 A，但 B 更好" → 禁止
-- ❌ **擅自假设**："这个应该存在" → 禁止
-- ❌ **擅自简化**："太复杂，简化一下" → 禁止
-- ❌ **擅自扩展**："SPEC 没说，但我觉得应该加" → 禁止
-- ❌ **事后合理化**："代码写完了，让 SPEC 配合代码" → 禁止
-- ❌ **选择性遵守**："这条不重要，跳过" → 禁止
+- ❌ **Unauthorized adaptation**: "SPEC says use A, but B is better" → Prohibited
+- ❌ **Unauthorized assumption**: "This should exist" → Prohibited
+- ❌ **Unauthorized simplification**: "Too complex, simplify it" → Prohibited
+- ❌ **Unauthorized extension**: "SPEC doesn't say, but I think we should add" → Prohibited
+- ❌ **Post-hoc rationalization**: "Code is done, make SPEC match code" → Prohibited
+- ❌ **Selective compliance**: "This rule is unimportant, skip it" → Prohibited
 
-## 代码必须标注 SPEC 依据
+## Code Must Specify SPEC Basis
 
-每个实现必须明确标注其 SPEC 来源：
+Each implementation must clearly specify its SPEC source:
 
 ```python
-# 实现 REQ-AUTH-001: 用户登录功能
-# 遵循 API-AUTH-001: POST /api/auth/login
+# Implement REQ-AUTH-001: User login functionality
+# Follow API-AUTH-001: POST /api/auth/login
 def login(username: str, password: str) -> Token:
     ...
 ```
 
 ```typescript
 /**
- * 实现 REQ-USER-001: 用户列表查询
- * 遵循 API-USER-001: GET /api/users
+ * Implement REQ-USER-001: User list query
+ * Follow API-USER-001: GET /api/users
  */
 async function getUsers(): Promise<User[]> {
     ...
@@ -96,4 +96,4 @@ async function getUsers(): Promise<User[]> {
 
 ---
 
-*本规范被以下技能引用：architect, programmer*
+*This specification is referenced by the following skills: architect, programmer*

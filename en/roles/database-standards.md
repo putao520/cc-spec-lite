@@ -1,465 +1,465 @@
-# 数据库开发规范 - CODING-STANDARDS-DATABASE
+# Database Development Standards - CODING-STANDARDS-DATABASE
 
-**版本**: 2.0.0
-**适用范围**: 数据库开发岗位（SQL/NoSQL/图数据库/时序数据库，技术栈无关）
-**最后更新**: 2025-12-25
+**Version**: 2.0.0
+**Scope**: Database development positions (SQL/NoSQL/Graph/Time-series databases, technology stack agnostic)
+**Last Updated**: 2025-12-25
 
 ---
 
-## 🚨 核心铁律（继承自 common.md）
+## 🚨 Core Iron Rules (Inherited from common.md)
 
-> **必须遵循 common.md 的四大核心铁律**
+> **Must follow the four core iron rules from common.md**
 
 ```
-铁律1: SPEC 是唯一真源（SSOT）
-       - 数据模型必须符合 SPEC 定义
-       - 表结构、索引、约束以 SPEC 为准
+Iron Rule 1: SPEC is the Only Source of Truth (SSOT)
+       - Data models must comply with SPEC definitions
+       - Table structures, indexes, and constraints follow SPEC
 
-铁律2: 智能复用与销毁重建
-       - 现有表结构完全匹配 → 直接复用
-       - 部分匹配 → 迁移脚本重建
+Iron Rule 2: Smart Reuse and Destroy-Rebuild
+       - Existing table structures completely matched → Direct reuse
+       - Partial match → Rebuild with migration scripts
 
-铁律3: 禁止渐进式开发
-       - 禁止保留旧字段，添加新字段
-       - 禁止兼容性视图和触发器
+Iron Rule 3: Prohibitive Incremental Development
+       - Prohibit keeping old fields and adding new fields
+       - Prohibit compatibility views and triggers
 
-铁律4: Context7 调研先行
-       - 数据库设计参考最佳实践
-       - 使用成熟的 ORM 和查询模式
-```
-
----
-
-## 🗄️ 数据建模
-
-### 设计原则
-- ✅ 符合业务领域模型
-- ✅ 明确实体关系和约束
-- ✅ 根据访问模式设计（读多/写多/读写平衡）
-- ✅ 避免过度范式化或反范式化
-- ❌ 禁止使用业务数据作为主键
-
-### 命名规范
-- ✅ 表名/集合名：复数名词（users, orders）
-- ✅ 列名/字段名：单数名词（user_id, created_at）
-- ✅ 索引命名：idx_[表名]_[列名]
-- ✅ 外键命名：fk_[表名]_[引用表名]
-- ❌ 避免保留字和特殊字符
-
-### 数据类型
-- ✅ 使用最小满足需求的数据类型
-- ✅ 字符串长度明确限制
-- ✅ 时间使用UTC存储
-- ✅ 金额使用定点数或整数（避免浮点数）
-- ❌ 禁止滥用TEXT/BLOB类型
-
----
-
-## 🔐 数据完整性
-
-### 约束设置
-- ✅ 主键约束：每个表必须有主键
-- ✅ 非空约束：必填字段明确标注
-- ✅ 唯一约束：业务唯一性通过索引保证
-- ✅ 外键约束：关联关系明确定义
-- ✅ 检查约束：业务规则在数据库层验证
-
-### 默认值和计算字段
-- ✅ 合理设置默认值（created_at默认当前时间）
-- ✅ 状态字段有明确初始值
-- ✅ 计算字段考虑存储vs实时计算权衡
-- ❌ 避免NULL值的歧义（用默认值或Optional类型）
-
----
-
-## 📊 查询优化
-
-### 查询设计
-- ✅ 明确查询意图，避免SELECT *
-- ✅ 使用参数化查询（防止SQL注入）
-- ✅ 复杂查询分解为多步执行
-- ✅ 避免N+1查询问题
-- ✅ 使用EXPLAIN分析执行计划
-- ❌ 禁止在WHERE子句中对列进行函数运算
-
-### 索引策略
-- ✅ 高频查询字段建立索引
-- ✅ 联合索引遵循最左前缀原则
-- ✅ 覆盖索引优化查询性能
-- ✅ 定期监控索引使用情况
-- ✅ 删除未使用的索引
-- ❌ 避免过度索引（影响写入性能）
-
-### 分页和限制
-- ✅ 大数据集必须分页
-- ✅ 使用游标分页而非OFFSET（大偏移量）
-- ✅ 限制单次查询返回行数（< 10000行）
-- ✅ 聚合查询考虑时间范围限制
-
----
-
-## ⚡ 事务管理
-
-### 事务原则
-- ✅ 明确事务边界（ACID要求）
-- ✅ 事务尽可能短（减少锁持有时间）
-- ✅ 避免事务中执行外部IO操作
-- ✅ 使用适当的隔离级别
-- ✅ 显式提交或回滚
-
-### 并发控制
-- ✅ 理解并发问题（脏读、不可重复读、幻读）
-- ✅ 使用乐观锁或悲观锁
-- ✅ 避免死锁（按相同顺序访问资源）
-- ✅ 设置事务超时时间
-- ❌ 避免长时间持有锁
-
----
-
-## 🔄 数据迁移
-
-### 迁移规范
-- ✅ 所有schema变更通过迁移脚本
-- ✅ 迁移脚本可重复执行（幂等性）
-- ✅ 向后兼容的变更策略
-- ✅ 大表变更分批执行
-- ✅ 迁移前备份数据
-- ❌ 禁止手动修改生产数据库schema
-
-### 版本控制
-- ✅ 迁移文件按时间戳或版本号命名
-- ✅ 记录迁移历史
-- ✅ 提供回滚脚本
-- ✅ 在开发环境验证迁移
-- ❌ 禁止修改已执行的迁移脚本
-
----
-
-## 🛡️ 数据安全
-
-### 访问控制
-- ✅ 最小权限原则
-- ✅ 应用账号只有必要权限（禁止root连接）
-- ✅ 敏感数据加密存储
-- ✅ 定期审计数据库访问日志
-- ❌ 禁止在代码中硬编码数据库凭证
-
-### SQL注入防护
-- ✅ 100%使用参数化查询/预编译语句
-- ✅ 验证和清理用户输入
-- ✅ 限制数据库错误信息暴露
-- ❌ 禁止字符串拼接SQL
-
-### 数据脱敏
-- ✅ 敏感字段（手机、邮箱、身份证）脱敏显示
-- ✅ 日志中不记录敏感数据
-- ✅ 开发环境使用脱敏数据
-- ❌ 禁止明文存储密码
-
----
-
-## 📈 性能和监控
-
-### 性能优化
-- ✅ 监控慢查询日志
-- ✅ 定期分析表统计信息
-- ✅ 合理使用连接池
-- ✅ 缓存热点数据
-- ✅ 读写分离（读多场景）
-- ✅ 分库分表（超大规模数据）
-
-### 容量规划
-- ✅ 监控数据增长趋势
-- ✅ 定期清理历史数据
-- ✅ 归档冷数据
-- ✅ 设置表大小告警
-- ✅ 预留存储空间
-
----
-
-## 💾 备份和恢复
-
-### 备份策略
-- ✅ 定期全量备份
-- ✅ 增量备份（高频变更场景）
-- ✅ 验证备份可恢复性
-- ✅ 异地备份存储
-- ✅ 记录备份时间点
-
-### 灾难恢复
-- ✅ 制定恢复时间目标（RTO）
-- ✅ 制定恢复点目标（RPO）
-- ✅ 定期演练恢复流程
-- ✅ 主从复制/集群高可用
-- ✅ 监控复制延迟
-
----
-
-## 📋 数据库开发检查清单
-
-- [ ] 数据模型符合业务领域
-- [ ] 主键、索引、约束完整
-- [ ] 查询使用参数化（防SQL注入）
-- [ ] 索引覆盖高频查询
-- [ ] 事务边界明确且简短
-- [ ] 迁移脚本幂等且可回滚
-- [ ] 敏感数据加密和脱敏
-- [ ] 慢查询监控和优化
-- [ ] 备份策略和恢复验证
-
----
-
----
-
-## 🏛️ 高级架构模式（20+年经验）
-
-### 分布式数据库架构
-```
-分片策略（Sharding）：
-- 水平分片：按用户ID/时间范围
-- 垂直分片：按业务模块
-- 一致性哈希：动态扩缩容
-- 分片键选择：高基数、均匀分布、查询频繁
-
-读写分离架构：
-- 主从复制（异步/半同步/同步）
-- 读请求负载均衡
-- 写后读一致性保证
-- 故障自动切换
-
-多活架构：
-- 双主复制（冲突解决）
-- 分区容错（CAP权衡）
-- 就近访问（地理分布）
-- 数据同步延迟监控
-```
-
-### NewSQL 与分布式事务
-```
-分布式事务模式：
-- 2PC（两阶段提交）：强一致性，性能差
-- TCC（Try-Confirm-Cancel）：最终一致性
-- Saga 模式：长事务编排
-- 本地消息表：可靠消息传递
-
-NewSQL 选型：
-- TiDB：MySQL兼容，水平扩展
-- CockroachDB：PostgreSQL兼容，强一致
-- YugabyteDB：多模型支持
-- 适用场景：OLTP + 分布式
-```
-
-### 多模型数据库设计
-```
-关系型（RDBMS）：
-- 适用：事务处理、强一致性需求
-- 代表：PostgreSQL、MySQL
-
-文档型（Document）：
-- 适用：灵活Schema、嵌套数据
-- 代表：MongoDB、Couchbase
-
-时序型（Time-Series）：
-- 适用：监控、IoT、金融行情
-- 代表：TimescaleDB、InfluxDB
-
-图数据库（Graph）：
-- 适用：社交网络、知识图谱
-- 代表：Neo4j、Amazon Neptune
-
-向量数据库（Vector）：
-- 适用：AI检索、相似度搜索
-- 代表：Pinecone、Milvus、pgvector
+Iron Rule 4: Context7 Research First
+       - Database design references best practices
+       - Use mature ORM and query patterns
 ```
 
 ---
 
-## 🔧 资深开发者必备技巧
+## 🗄️ Data Modeling
 
-### 查询优化深度技巧
+### Design Principles
+- ✅ Comply with business domain model
+- ✅ Clear entity relationships and constraints
+- ✅ Design based on access patterns (read-heavy/write-heavy/balanced)
+- ✅ Avoid over-normalization or de-normalization
+- ❌ Prohibit using business data as primary keys
+
+### Naming Conventions
+- ✅ Table/collection names: plural nouns (users, orders)
+- ✅ Column/field names: singular nouns (user_id, created_at)
+- ✅ Index naming: idx_[table_name]_[column_name]
+- ✅ Foreign key naming: fk_[table_name]_[referenced_table_name]
+- ❌ Avoid reserved words and special characters
+
+### Data Types
+- ✅ Use smallest data type that meets requirements
+- ✅ Clear string length limitations
+- ✅ Use UTC for time storage
+- ✅ Use fixed-point or integer for amounts (avoid floating-point)
+- ❌ Prohibit abuse of TEXT/BLOB types
+
+---
+
+## 🔐 Data Integrity
+
+### Constraint Settings
+- ✅ Primary key constraints: Each table must have a primary key
+- ✅ NOT NULL constraints: Required fields clearly marked
+- ✅ Unique constraints: Business uniqueness guaranteed through indexes
+- ✅ Foreign key constraints: Relationships clearly defined
+- ✅ Check constraints: Business rules validated at database layer
+
+### Default Values and Computed Fields
+- ✅ Reasonable default settings (created_at defaults to current time)
+- ✅ Status fields have clear initial values
+- ✅ Computed fields consider storage vs real-time calculation trade-offs
+- ❌ Avoid ambiguous NULL values (use defaults or Optional types)
+
+---
+
+## 📊 Query Optimization
+
+### Query Design
+- ✅ Clear query intent, avoid SELECT *
+- ✅ Use parameterized queries (prevent SQL injection)
+- ✅ Break complex queries into multiple steps
+- ✅ Avoid N+1 query problems
+- ✅ Use EXPLAIN to analyze execution plans
+- ❌ Prohibit function operations on columns in WHERE clauses
+
+### Index Strategies
+- ✅ Create indexes on high-query-frequency fields
+- ✅ Composite indexes follow leftmost prefix principle
+- ✅ Covering indexes optimize query performance
+- ✅ Regularly monitor index usage
+- ✅ Delete unused indexes
+- ❌ Avoid over-indexing (impacts write performance)
+
+### Pagination and Limits
+- ✅ Large datasets must be paginated
+- ✅ Use cursor pagination instead of OFFSET (for large offsets)
+- ✅ Limit rows returned per query (< 10,000 rows)
+- ✅ Consider time range limits for aggregate queries
+
+---
+
+## ⚡ Transaction Management
+
+### Transaction Principles
+- ✅ Clear transaction boundaries (ACID requirements)
+- ✅ Keep transactions as short as possible (reduce lock hold time)
+- ✅ Avoid executing external IO operations within transactions
+- ✅ Use appropriate isolation levels
+- ✅ Explicit commit or rollback
+
+### Concurrency Control
+- ✅ Understand concurrency issues (dirty read, non-repeatable read, phantom read)
+- ✅ Use optimistic or pessimistic locking
+- ✅ Avoid deadlocks (access resources in same order)
+- ✅ Set transaction timeout
+- ❌ Avoid holding locks for long periods
+
+---
+
+## 🔄 Data Migration
+
+### Migration Standards
+- ✅ All schema changes through migration scripts
+- ✅ Migration scripts are repeatable (idempotent)
+- ✅ Backward-compatible change strategies
+- ✅ Batch execute large table changes
+- ✅ Backup data before migration
+- ❌ Prohibit manual production database schema modifications
+
+### Version Control
+- ✅ Migration files named with timestamps or version numbers
+- ✅ Record migration history
+- ✅ Provide rollback scripts
+- ✅ Verify migrations in development environment
+- ❌ Prohibit modification of already executed migration scripts
+
+---
+
+## 🛡️ Data Security
+
+### Access Control
+- ✅ Principle of least privilege
+- ✅ Application accounts have only necessary permissions ( prohibit root connections)
+- ✅ Sensitive data encrypted storage
+- ✅ Regular audit of database access logs
+- ❌ Prohibit hardcoding database credentials in code
+
+### SQL Injection Protection
+- ✅ 100% use parameterized queries/prepared statements
+- ✅ Validate and sanitize user input
+- ✅ Limit database error information exposure
+- ❌ Prohibit string concatenation SQL
+
+### Data Masking
+- ✅ Mask sensitive fields (phone, email, ID card)
+- ✅ Don't log sensitive data
+- ✅ Use masked data in development environment
+- ❌ Prohibit plaintext password storage
+
+---
+
+## 📈 Performance and Monitoring
+
+### Performance Optimization
+- ✅ Monitor slow query logs
+- ✅ Regularly analyze table statistics
+- ✅ Reasonable use of connection pools
+- ✅ Cache hot data
+- ✅ Read-write separation (read-heavy scenarios)
+- ✅ Sharding and partitioning (ultra-large scale data)
+
+### Capacity Planning
+- ✅ Monitor data growth trends
+- ✅ Regularly clean up historical data
+- ✅ Archive cold data
+- ✅ Set table size alerts
+- ✅ Reserve storage space
+
+---
+
+## 💾 Backup and Recovery
+
+### Backup Strategy
+- ✅ Regular full backups
+- ✅ Incremental backups (high-change frequency scenarios)
+- ✅ Verify backup recoverability
+- ✅ Offsite backup storage
+- ✅ Record backup timestamps
+
+### Disaster Recovery
+- ✅ Define Recovery Time Objective (RTO)
+- ✅ Define Recovery Point Objective (RPO)
+- ✅ Regular recovery drills
+- ✅ Master-slave replication/cluster high availability
+- ✅ Monitor replication lag
+
+---
+
+## 📋 Database Development Checklist
+
+- [ ] Data model complies with business domain
+- [ ] Primary keys, indexes, and constraints complete
+- [ ] Queries use parameterization (prevent SQL injection)
+- [ ] Indexes cover high-frequency queries
+- [ ] Transaction boundaries clear and short
+- [ ] Migration scripts are idempotent and rollbackable
+- [ ] Sensitive data encrypted and masked
+- [ ] Slow query monitoring and optimization
+- [ ] Backup strategy and recovery verification
+
+---
+
+---
+
+## 🏛️ Advanced Architectural Patterns (20+ years experience)
+
+### Distributed Database Architecture
 ```
-执行计划分析：
-- EXPLAIN ANALYZE 实际执行统计
-- 识别 Seq Scan vs Index Scan
-- 识别 Nested Loop vs Hash Join
-- 评估 Rows 估计准确性
+Sharding Strategies:
+- Horizontal sharding: by user ID/time range
+- Vertical sharding: by business module
+- Consistent hashing: dynamic scaling
+- Shard key selection: high cardinality, even distribution, frequently queried
 
-索引高级策略：
-- 部分索引（WHERE条件）
-- 表达式索引（函数索引）
-- 覆盖索引（Include列）
-- 条件索引（过滤索引）
+Read-Write Separation Architecture:
+- Master-slave replication (async/semi-sync/sync)
+- Read request load balancing
+- Write-read consistency guarantee
+- Automatic failover
 
-查询重写技巧：
-- CTE 递归查询优化
-- 窗口函数替代自连接
-- EXISTS 替代 IN（子查询）
-- LATERAL JOIN 高级用法
+Multi-active Architecture:
+- Dual-master replication (conflict resolution)
+- Partition tolerance (CAP trade-offs)
+- Nearest access (geographic distribution)
+- Data synchronization lag monitoring
 ```
 
-### 高并发场景优化
+### NewSQL and Distributed Transactions
 ```
-锁优化：
-- 行级锁 vs 表级锁
-- 乐观锁（版本号）vs 悲观锁
-- 避免锁升级
-- 死锁检测和预防
+Distributed Transaction Patterns:
+- 2PC (Two-Phase Commit): strong consistency, poor performance
+- TCC (Try-Confirm-Cancel): eventual consistency
+- Saga Pattern: long transaction orchestration
+- Local Message Table: reliable message delivery
 
-连接池调优：
-- 池大小 = (核心数 * 2) + 磁盘数
-- 连接生命周期管理
-- 预热策略
-- 监控空闲连接
-
-批量操作优化：
-- 批量INSERT（Bulk Insert）
-- COPY 命令（PostgreSQL）
-- 分批处理大事务
-- 延迟索引更新
+NewSQL Selection:
+- TiDB: MySQL compatible, horizontal scaling
+- CockroachDB: PostgreSQL compatible, strong consistency
+- YugabyteDB: multi-model support
+- Use cases: OLTP + Distributed
 ```
 
-### 数据归档与冷热分离
+### Multi-Model Database Design
 ```
-分层存储策略：
-- 热数据：SSD，高频访问
-- 温数据：HDD，定期访问
-- 冷数据：对象存储，归档查询
+Relational (RDBMS):
+- Use cases: Transaction processing, strong consistency requirements
+- Representatives: PostgreSQL, MySQL
 
-归档方案：
-- 时间分区（按月/季度）
-- 自动归档触发器
-- 归档表压缩
-- 归档数据可查询
+Document:
+- Use cases: Flexible schema, nested data
+- Representatives: MongoDB, Couchbase
 
-表分区：
-- Range分区（时间）
-- List分区（枚举值）
-- Hash分区（均匀分布）
-- 分区裁剪（Partition Pruning）
-```
+Time-Series:
+- Use cases: Monitoring, IoT, financial quotes
+- Representatives: TimescaleDB, InfluxDB
 
-### 高可用与容灾
-```
-复制拓扑：
-- 级联复制（减少主库压力）
-- 环形复制（多数据中心）
-- 延迟复制（误操作恢复）
+Graph:
+- Use cases: Social networks, knowledge graphs
+- Representatives: Neo4j, Amazon Neptune
 
-故障切换：
-- 自动Failover（Patroni/Orchestrator）
-- VIP漂移
-- DNS切换
-- 应用层路由
-
-RPO/RTO 设计：
-- RPO=0：同步复制（性能牺牲）
-- RPO<1min：半同步复制
-- RTO<30s：自动故障切换
+Vector:
+- Use cases: AI retrieval, similarity search
+- Representatives: Pinecone, Milvus, pgvector
 ```
 
 ---
 
-## 🚨 资深开发者常见陷阱
+## 🔧 Essential Techniques for Senior Developers
 
-### 设计陷阱
+### Deep Query Optimization Techniques
 ```
-❌ 过度范式化：
-- 所有数据都拆成独立表
-- 查询需要多表JOIN
-- 正确做法：根据访问模式适度反范式
+Execution Plan Analysis:
+- EXPLAIN ANALYZE actual execution statistics
+- Identify Seq Scan vs Index Scan
+- Identify Nested Loop vs Hash Join
+- Evaluate Rows estimation accuracy
 
-❌ 滥用 JSON/JSONB 字段：
-- 把关系型数据存为JSON
-- 失去约束和索引优势
-- 正确做法：JSON用于真正灵活的数据
+Advanced Index Strategies:
+- Partial indexes (WHERE conditions)
+- Expression indexes (function indexes)
+- Covering indexes (Include columns)
+- Conditional indexes (filtered indexes)
 
-❌ 忽视数据增长：
-- 设计时只考虑当前数据量
-- 表膨胀后查询变慢
-- 正确做法：容量规划，预留分区
-```
-
-### 性能陷阱
-```
-❌ SELECT * 惯性：
-- 查询所有列
-- 无法使用覆盖索引
-- 正确做法：明确指定需要的列
-
-❌ ORM 滥用：
-- N+1 查询问题
-- 过度抽象隐藏低效查询
-- 正确做法：监控ORM生成的SQL
-
-❌ 索引过度：
-- 每个列都建索引
-- 写入性能严重下降
-- 正确做法：根据查询模式建索引
+Query Rewrite Techniques:
+- CTE recursive query optimization
+- Window functions replace self-joins
+- EXISTS replaces IN (subqueries)
+- LATERAL JOIN advanced usage
 ```
 
-### 运维陷阱
+### High Concurrency Scenario Optimization
 ```
-❌ 大表DDL不评估：
-- 直接 ALTER TABLE 大表
-- 长时间锁表
-- 正确做法：在线DDL工具（pt-osc/gh-ost）
+Lock Optimization:
+- Row-level locks vs Table-level locks
+- Optimistic locking (version number) vs Pessimistic locking
+- Avoid lock escalation
+- Deadlock detection and prevention
 
-❌ 备份不验证：
-- 有备份但从未恢复验证
-- 真正需要时发现备份损坏
-- 正确做法：定期恢复演练
+Connection Pool Tuning:
+- Pool size = (core count * 2) + disk count
+- Connection lifecycle management
+- Warm-up strategy
+- Monitor idle connections
 
-❌ 忽视复制延迟：
-- 读从库不考虑延迟
-- 数据不一致
-- 正确做法：监控延迟，关键读走主库
+Batch Operation Optimization:
+- Batch INSERT (Bulk Insert)
+- COPY command (PostgreSQL)
+- Batch process large transactions
+- Delayed index updates
+```
+
+### Data Archiving and Hot-Cold Separation
+```
+Tiered Storage Strategy:
+- Hot data: SSD, high-frequency access
+- Warm data: HDD, periodic access
+- Cold data: Object storage, archive query
+
+Archiving Solutions:
+- Time-based partitioning (by month/quarter)
+- Automatic archiving triggers
+- Archive table compression
+- Archive data remains queryable
+
+Table Partitioning:
+- Range partitioning (time)
+- List partitioning (enumerated values)
+- Hash partitioning (even distribution)
+- Partition pruning
+```
+
+### High Availability and Disaster Recovery
+```
+Replication Topology:
+- Cascading replication (reduce master pressure)
+- Ring replication (multi-data center)
+- Delayed replication (accidental operation recovery)
+
+Failover:
+- Automatic Failover (Patroni/Orchestrator)
+- VIP floating
+- DNS switching
+- Application layer routing
+
+RPO/RTO Design:
+- RPO=0: Synchronous replication (performance sacrifice)
+- RPO<1min: Semi-synchronous replication
+- RTO<30s: Automatic failover
 ```
 
 ---
 
-## 📊 性能监控指标
+## 🚨 Common Pitfalls for Senior Developers
 
-| 指标 | 目标值 | 告警阈值 | 测量工具 |
-|------|--------|----------|----------|
-| 查询响应时间（P99） | < 100ms | > 500ms | APM/慢查询日志 |
-| QPS | 根据场景 | > 80%容量 | 监控系统 |
-| 连接使用率 | < 70% | > 90% | 连接池监控 |
-| 缓存命中率 | > 95% | < 80% | 数据库统计 |
-| 复制延迟 | < 1s | > 10s | 复制监控 |
-| 死锁频率 | 0 | > 1/小时 | 数据库日志 |
-| 磁盘使用率 | < 70% | > 85% | 系统监控 |
-| IOPS | 根据存储 | > 80%容量 | IO监控 |
-| 长事务 | 0 | > 5分钟 | 事务监控 |
-| 索引膨胀 | < 20% | > 50% | pg_stat_user_indexes |
+### Design Pitfalls
+```
+❌ Over-normalization:
+- Split all data into separate tables
+- Queries require multi-table JOINs
+- Correct approach: Moderate de-normalization based on access patterns
+
+❌ JSON/JSONB Field Abuse:
+- Store relational data as JSON
+- Lose constraint and index advantages
+- Correct approach: Use JSON for truly flexible data
+
+❌ Ignoring Data Growth:
+- Design only considers current data volume
+- Query performance degrades after table bloating
+- Correct approach: Capacity planning, reserve partitions
+```
+
+### Performance Pitfalls
+```
+❌ SELECT * Habit:
+- Query all columns
+- Cannot use covering indexes
+- Correct approach: Explicitly specify required columns
+
+❌ ORM Abuse:
+- N+1 query problems
+- Over-abstraction hides inefficient queries
+- Correct approach: Monitor ORM-generated SQL
+
+❌ Over-indexing:
+- Index every column
+- Write performance severely degraded
+- Correct approach: Build indexes based on query patterns
+```
+
+### Operations Pitfalls
+```
+❌ Large Table DDL Assessment:
+- Direct ALTER TABLE on large tables
+- Long table locking
+- Correct approach: Online DDL tools (pt-osc/gh-ost)
+
+❌ Backup Verification:
+- Have backups but never restore and verify
+- Discover backup corruption when actually needed
+- Correct approach: Regular restore drills
+
+❌ Ignoring Replication Lag:
+- Read from replicas without considering lag
+- Data inconsistency
+- Correct approach: Monitor lag, critical reads go to master
+```
 
 ---
 
-## 📋 数据库开发检查清单（完整版）
+## 📊 Performance Monitoring Metrics
 
-### 设计检查
-- [ ] 数据模型符合业务领域
-- [ ] 分区/分片策略明确
-- [ ] 主键、索引、约束完整
-- [ ] 考虑未来数据增长
-
-### 查询检查
-- [ ] 所有查询使用参数化
-- [ ] 执行计划已分析
-- [ ] 无N+1查询问题
-- [ ] 高频查询有索引覆盖
-
-### 事务检查
-- [ ] 事务边界明确且简短
-- [ ] 并发控制策略明确
-- [ ] 无长事务
-
-### 运维检查
-- [ ] 迁移脚本幂等且可回滚
-- [ ] 备份策略和恢复已验证
-- [ ] 监控和告警已配置
-- [ ] 高可用方案已验证
+| Metric | Target Value | Alert Threshold | Measurement Tool |
+|--------|-------------|----------------|------------------|
+| Query Response Time (P99) | < 100ms | > 500ms | APM/Slow query logs |
+| QPS | Varies by scenario | > 80% capacity | Monitoring system |
+| Connection Usage Rate | < 70% | > 90% | Connection pool monitoring |
+| Cache Hit Rate | > 95% | < 80% | Database statistics |
+| Replication Lag | < 1s | > 10s | Replication monitoring |
+| Deadlock Frequency | 0 | > 1/hour | Database logs |
+| Disk Usage Rate | < 70% | > 85% | System monitoring |
+| IOPS | Varies by storage | > 80% capacity | IO monitoring |
+| Long Transactions | 0 | > 5 minutes | Transaction monitoring |
+| Index Bloat | < 20% | > 50% | pg_stat_user_indexes |
 
 ---
 
-**数据库开发原则总结**：
-数据完整性、查询优化、事务ACID、安全防护、性能监控、备份恢复、迁移版本控制、最小权限、参数化查询、容量规划
+## 📋 Database Development Checklist (Complete)
+
+### Design Check
+- [ ] Data model complies with business domain
+- [ ] Partitioning/sharding strategy clear
+- [ ] Primary keys, indexes, and constraints complete
+- [ ] Consider future data growth
+
+### Query Check
+- [ ] All queries use parameterization
+- [ ] Execution plans analyzed
+- [ ] No N+1 query problems
+- [ ] High-frequency queries have index coverage
+
+### Transaction Check
+- [ ] Transaction boundaries clear and short
+- [ ] Concurrency control strategy clear
+- [ ] No long transactions
+
+### Operations Check
+- [ ] Migration scripts are idempotent and rollbackable
+- [ ] Backup strategy and recovery verified
+- [ ] Monitoring and alerts configured
+- [ ] High availability solution verified
+
+---
+
+**Database Development Principles Summary**:
+Data integrity, query optimization, transaction ACID, security protection, performance monitoring, backup recovery, migration version control, least privilege, parameterized queries, capacity planning

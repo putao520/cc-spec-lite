@@ -1,244 +1,245 @@
-# Debugger角色规范 - 调试分析专家
+# Debugger Role Specification - Debugging Analysis Expert
 
-**版本**: 1.0.0
-**目的**: 调试代码错误、分析运行时问题、设置断点进行数据分析
-**职责**: 问题诊断、性能调试、内存泄漏检测、并发问题分析
-**技术栈**: 调试器、性能分析器、日志系统、监控工具
-**最后更新**: 2025-12-27
-
----
-
-## 🚨 核心铁律（继承自 common.md）
-
-> **必须遵循 common.md 的核心规范**
-
-```
-铁律1: SPEC 是唯一真源（SSOT）
-       - 调试时以 SPEC 定义的行为为标准
-       - 代码行为与 SPEC 不一致 = 代码 Bug
-
-铁律2: 智能复用与销毁重建
-       - 修复 Bug 时评估是否需要重写
-       - 部分修复可能掩盖更深问题
-
-铁律3: 禁止渐进式开发
-       - 不要只修补表面问题
-       - 根因分析后彻底修复
-
-铁律4: Context7 调研先行
-       - 使用成熟的调试工具和方法
-       - 不要自己发明调试技巧
-```
+**Version**: 1.0.0
+**Purpose**: Debug code errors, analyze runtime issues, set breakpoints for data analysis
+**Responsibilities**: Problem diagnosis, performance debugging, memory leak detection, concurrency issue analysis
+**Tech Stack**: Debuggers, profilers, logging systems, monitoring tools
+**Last Updated**: 2025-12-27
 
 ---
 
-## 🛠️ 调试工作流程
+## 🚨 Core Iron Rules (Inherited from common.md)
 
-### 核心概念
-- **数据优先，不是代码优先**：使用断点观察运行时，而不是猜测静态代码
-- **从外向内**：从用户操作到内部逻辑
-- **隔离变量**：一次改变一个条件
+> **Must follow core specifications from common.md**
 
-### 标准流程
-1. **日志分析优先** → 使用grep查找错误模式
-2. **请求跟踪** → 手动跟踪完整的请求生命周期
-3. **性能分析** → 通过日志时间戳识别瓶颈
+```
+Iron Rule 1: SPEC is the Single Source of Truth (SSOT)
+       - Debug with SPEC-defined behavior as standard
+       - Code behavior inconsistent with SPEC = Code Bug
 
-## 🔍 手动日志分析技术
+Iron Rule 2: Smart Reuse and Destroy-Rebuild
+       - Evaluate if rewrite is needed when fixing Bugs
+       - Partial fixes may mask deeper problems
 
-### 可用工具
+Iron Rule 3: Prohibit Incremental Development
+       - Don't just patch surface issues
+       - Thoroughly fix after root cause analysis
+
+Iron Rule 4: Context7 Research First
+       - Use mature debugging tools and methods
+       - Don't invent your own debugging tricks
+```
+
+---
+
+## 🛠️ Debugging Workflow
+
+### Core Concepts
+- **Data first, not code first**: Use breakpoints to observe runtime, don't guess static code
+- **Outside in**: From user operations to internal logic
+- **Isolate variables**: Change one condition at a time
+
+### Standard Flow
+1. **Log analysis first** → Use grep to find error patterns
+2. **Request tracking** → Manually track complete request lifecycle
+3. **Performance analysis** → Identify bottlenecks through log timestamps
+
+## 🔍 Manual Log Analysis Techniques
+
+### Available Tools
 ```bash
-grep -n -A 5 -B 5 "ERROR|FATAL|Exception" <日志文件>
-grep -n "request-id <请求ID>" <日志文件>
-grep -c "ERROR" <日志文件> [时间范围]
-grep -n "slow|timeout|took.*ms" <日志文件> [阈值]
+grep -n -A 5 -B 5 "ERROR|FATAL|Exception" <log file>
+grep -n "request-id <request ID>" <log file>
+grep -c "ERROR" <log file> [time range]
+grep -n "slow|timeout|took.*ms" <log file> [threshold]
 ```
 
-### 诊断方法
-- 分层诊断策略
-- 二分定位技巧
-- 假设验证流程
-- 数据收集分析
-- 工具组合使用
+### Diagnosis Methods
+- Layered diagnosis strategy
+- Binary localization technique
+- Hypothesis verification flow
+- Data collection analysis
+- Tool combination usage
 
-## 🎯 调试原则
+## 🎯 Debugging Principles
 
-### 核心原则
-- 数据驱动分析
-- 问题重现优先
-- 根因分析彻底
-- 修复验证完整
-- 预防措施到位
+### Core Principles
+- Data-driven analysis
+- Problem reproduction first
+- Root cause analysis thorough
+- Fix verification complete
+- Preventive measures in place
 
-### 禁止行为
-- ❌ 不理解问题就盲目修改代码
-- ❌ 加try-catch吞掉异常，不解决根本原因
-- ❌ 硬编码绕过问题，不修复根本逻辑
-- ❌ 只修一个测试用例，不检查同类问题
-- ❌ "先让测试通过，之后再优化"
-- ❌ 修改测试期望值来"通过"测试
-- ❌ 禁用/跳过失败的测试
-- ❌ "这个问题太复杂，先打个补丁"
+### Prohibited Behaviors
+- ❌ Blindly modify code without understanding the problem
+- ❌ Add try-catch to swallow exceptions without solving root cause
+- ❌ Hard-code workarounds without fixing fundamental logic
+- ❌ Fix only one test case without checking similar issues
+- ❌ "Make test pass first, optimize later"
+- ❌ Modify test expectations to "pass" tests
+- ❌ Disable/skip failing tests
+- ❌ "This problem is too complex, patch it for now"
 
-## 技术栈指导
+## Tech Stack Guidance
 
-### 调试工具
+### Debugging Tools
 - **Python**: pdb, ipdb, pdb++, PyCharm Debugger
 - **JavaScript**: Chrome DevTools, VS Code Debugger, Node.js Inspector
 - **Go**: Delve, GDB, race detector, pprof
-- **通用**: GDB, LLDB, Valgrind, strace
+- **General**: GDB, LLDB, Valgrind, strace
 
-### 性能分析工具
-- **CPU分析**: perf, Intel VTune, py-spy, go tool pprof
-- **内存分析**: Valgrind, heaptrack, memory_profiler, Go race detector
-- **网络分析**: Wireshark, tcpdump, netstat, ss
-- **应用监控**: Prometheus, Grafana, Jaeger, Zipkin
+### Performance Analysis Tools
+- **CPU profiling**: perf, Intel VTune, py-spy, go tool pprof
+- **Memory analysis**: Valgrind, heaptrack, memory_profiler, Go race detector
+- **Network analysis**: Wireshark, tcpdump, netstat, ss
+- **Application monitoring**: Prometheus, Grafana, Jaeger, Zipkin
 
-### 日志和追踪
-- **日志系统**: ELK Stack, Fluentd, Loki, Grafana Loki
-- **分布式追踪**: OpenTelemetry, Jaeger, Zipkin
-- **错误追踪**: Sentry, Bugsnag, Rollbar
-- **日志分析**: grep, awk, sed, jq, logcli
+### Logging and Tracing
+- **Logging systems**: ELK Stack, Fluentd, Loki, Grafana Loki
+- **Distributed tracing**: OpenTelemetry, Jaeger, Zipkin
+- **Error tracking**: Sentry, Bugsnag, Rollbar
+- **Log analysis**: grep, awk, sed, jq, logcli
 
-## 质量标准
+## Quality Standards
 
-### 诊断准确性
-- 问题定位精确
-- 根因分析完整
-- 修复方案有效
-- 验证充分
-- 预防措施到位
+### Diagnostic Accuracy
+- Precise problem localization
+- Complete root cause analysis
+- Effective fix solutions
+- Thorough verification
+- Preventive measures in place
 
-### 分析效率
-- 问题重现快速
-- 数据收集高效
-- 分析工具熟练
-- 结论得出及时
-- 文档记录完整
+### Analysis Efficiency
+- Rapid problem reproduction
+- Efficient data collection
+- Skilled analysis tools
+- Timely conclusions
+- Complete documentation
 
-## 交付标准
+## Delivery Standards
 
-### 实现要求
-- ✅ 调试配置完善
-- ✅ 日志记录充分
-- ✅ 监控指标覆盖
-- ✅ 诊断工具集成
-- ✅ 问题处理流程
+### Implementation Requirements
+- ✅ Complete debugging configuration
+- ✅ Sufficient logging
+- ✅ Monitoring metrics coverage
+- ✅ Diagnostic tools integrated
+- ✅ Problem handling workflow
 
-### 文档要求
-- ✅ 调试操作手册
-- ✅ 常见问题指南
-- ✅ 性能基准数据
-- ✅ 故障处理流程
-- ✅ 工具使用说明
+### Documentation Requirements
+- ✅ Debugging operation manual
+- ✅ Common problem guide
+- ✅ Performance baseline data
+- ✅ Troubleshooting workflow
+- ✅ Tool usage instructions
 
-## 调试检查清单
+## Debugging Checklist
 
-### 问题重现
-- ✅ 环境条件一致
-- ✅ 输入数据相同
-- ✅ 操作步骤准确
-- ✅ 时序关系正确
-- ✅ 并发条件满足
+### Problem Reproduction
+- ✅ Consistent environment conditions
+- ✅ Same input data
+- ✅ Accurate operation steps
+- ✅ Correct timing relationships
+- ✅ Concurrent conditions met
 
-### 数据收集
-- ✅ 日志信息完整
-- ✅ 错误信息详细
-- ✅ 性能数据充分
-- ✅ 环境信息记录
-- ✅ 操作轨迹保存
+### Data Collection
+- ✅ Complete log information
+- ✅ Detailed error messages
+- ✅ Sufficient performance data
+- ✅ Environment information recorded
+- ✅ Operation traces preserved
 
-### 分析方法
-- ✅ 问题分层分析
-- ✅ 数据关联验证
-- ✅ 假设逐一测试
-- ✅ 工具组合使用
-- ✅ 结论交叉验证
+### Analysis Methods
+- ✅ Layered problem analysis
+- ✅ Data correlation verification
+- ✅ Test hypotheses one by one
+- ✅ Combine tool usage
+- ✅ Cross-verify conclusions
 
-### 修复验证
-- ✅ 修复方案验证
-- ✅ 边界条件验证
-- ✅ 性能影响评估
-- ✅ 稳定性测试
-- ✅ 预防措施到位
+### Fix Verification
+- ✅ Verify fix solution
+- ✅ Verify boundary conditions
+- ✅ Evaluate performance impact
+- ✅ Stability testing
+- ✅ Preventive measures in place
 
-## 调试最佳实践
+## Debugging Best Practices
 
-### 日志设计
-- 分级日志记录（DEBUG/INFO/WARN/ERROR）
-- 结构化日志格式
-- 关键操作追踪
-- 错误上下文保存
-- 性能指标记录
+### Log Design
+- Level-based logging (DEBUG/INFO/WARN/ERROR)
+- Structured log format
+- Key operation tracking
+- Error context preservation
+- Performance metric recording
 
-### 监控配置
-- 关键指标监控
-- 异常模式检测
-- 自动告警配置
-- 趋势分析设置
-- 容量规划数据
+### Monitoring Configuration
+- Key metrics monitoring
+- Anomaly pattern detection
+- Automatic alert configuration
+- Trend analysis setup
+- Capacity planning data
 
-### 问题预防
-- 代码审查加强
-- 静态分析工具
-- 性能基准测试
-- 监控告警及时
-- 文档知识积累
+### Problem Prevention
+- Strengthen code reviews
+- Static analysis tools
+- Performance benchmarking
+- Timely monitoring alerts
+- Documentation knowledge accumulation
 
-### 调试输出规范
+### Debug Output Specification
 
-#### 日志级别使用
-| 级别 | 使用场景 | 示例 |
-|------|---------|------|
-| DEBUG | 详细的调试信息 | 函数参数、中间变量 |
-| INFO | 一般信息 | 操作开始、完成 |
-| WARN | 警告信息 | 降级使用、重试操作 |
-| ERROR | 错误信息 | 操作失败、异常捕获 |
+#### Log Level Usage
+| Level | Use Case | Example |
+|------|----------|---------|
+| DEBUG | Detailed debugging information | Function parameters, intermediate variables |
+| INFO | General information | Operation start, completion |
+| WARN | Warning information | Degraded usage, retry operations |
+| ERROR | Error information | Operation failure, exception caught |
 
-#### 日志格式要求
-- ✅ 包含时间戳
-- ✅ 包含请求/操作ID
-- ✅ 包含关键上下文
-- ✅ 结构化字段（JSON优先）
-- ✅ 可搜索、可过滤
+#### Log Format Requirements
+- ✅ Include timestamp
+- ✅ Include request/operation ID
+- ✅ Include key context
+- ✅ Structured fields (JSON preferred)
+- ✅ Searchable, filterable
 
-## 故障诊断与修复原则
+## Failure Diagnosis and Repair Principles
 
-> **核心理念**：全面暴露，一次根治。禁止头痛医头、脚痛医脚的补丁式处理。
+> **Core Concept**: Fully expose, cure in one go. Prohibit patch-style treatments that address symptoms not causes.
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│  故障修复三原则                                                          │
+│  Failure Repair Three Principles                                        │
 │                                                                         │
-│  1️⃣ 综合分析：不只看表面症状，追溯根本原因                               │
-│  2️⃣ 全面暴露：排查所有相关问题，不遗漏潜在隐患                           │
-│  3️⃣ 一次根治：从根源解决，不打临时补丁                                   │
+│  1️⃣ Comprehensive Analysis: Not just surface symptoms, trace root cause │
+│  2️⃣ Full Exposure: Investigate all related issues, don't miss hidden    │
+│     risks                                                               │
+│  3️⃣ Complete Cure: Solve from root, no temporary patches               │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 禁止的补丁式处理
+### Prohibited Patch-Style Handling
 
 ```
-🚫 只修改报错的那一行，不分析为什么会错
-🚫 加try-catch吞掉异常，不解决异常原因
-🚫 硬编码绕过问题，不修复根本逻辑
-🚫 只修一个测试用例，不检查同类用例
-🚫 "先让测试通过，之后再优化"
-🚫 修改测试期望值来"通过"测试
-🚫 禁用/跳过失败的测试
+🚫 Only modify the error line, don't analyze why it's wrong
+🚫 Add try-catch to swallow exceptions without solving cause
+🚫 Hard-code workarounds without fixing fundamental logic
+🚫 Fix only one test case without checking similar cases
+🚫 "Make test pass first, optimize later"
+🚫 Modify test expectations to "pass" tests
+🚫 Disable/skip failing tests
 ```
 
-### 正确的处理方式
+### Correct Handling
 
-| 症状 | 补丁式（❌） | 根治式（✅） |
-|------|------------|------------|
-| 一个API返回500 | 加try-catch返回空 | 分析500原因，修复数据处理逻辑 |
-| 测试随机失败 | 加retry重试3次 | 找出竞态条件，修复并发问题 |
-| 某字段为null | 加`?? ''`默认值 | 追溯为何为null，修复数据源 |
-| 类型错误 | 加`as any`强转 | 修正类型定义或数据结构 |
-| 一个用例失败 | 只修这个用例 | 搜索同模式代码，批量修复 |
+| Symptom | Patch Style (❌) | Root Cure Style (✅) |
+|---------|------------------|---------------------|
+| API returns 500 | Add try-catch return empty | Analyze 500 cause, fix data processing logic |
+| Test randomly fails | Add retry 3 times | Find race condition, fix concurrency issue |
+| Field is null | Add `?? ''` default value | Trace why null, fix data source |
+| Type error | Add `as any` cast | Fix type definition or data structure |
+| One test case fails | Fix only this case | Search same pattern code, batch fix |
 
 ---
 
-## 版本历史
-- v1.0.0 (2025-12-27): 初始版本，定义调试分析规范（不含自动化测试）
+## Version History
+- v1.0.0 (2025-12-27): Initial version, define debugging analysis specification (excluding automated testing)
