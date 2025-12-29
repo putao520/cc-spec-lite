@@ -12,10 +12,9 @@ Provides a complete **system-level specification framework** for AI-assisted sof
 
 ```bash
 npm install -g @putao520/cc-spec-lite
-cc-spec install
 ```
 
-That's it! You're ready to use:
+That's it! Installation runs automatically. You're ready to use:
 
 ```bash
 /spec-init        # Initialize project SPEC
@@ -31,8 +30,9 @@ That's it! You're ready to use:
 
 ```bash
 npm install -g @putao520/cc-spec-lite
-cc-spec install
 ```
+
+Installation runs automatically and detects your system language.
 
 ### Install from source
 
@@ -40,16 +40,13 @@ cc-spec install
 git clone https://github.com/putao520/cc-spec-lite.git
 cd cc-spec-lite
 npm install -g .
-cc-spec install
 ```
-
----
 
 ### Language Options
 
-**Auto-detection** (Recommended):
+**Auto-detection** (Default):
 ```bash
-cc-spec install
+npm install -g @putao520/cc-spec-lite
 # Automatically detects from OS locale
 # zh-CN, zh-TW, zh-HK, zh-SG → Chinese
 # Other locales → English
@@ -57,8 +54,9 @@ cc-spec install
 
 **Manual selection**:
 ```bash
-cc-spec install --lang en    # English
-cc-spec install --lang zh    # Chinese
+npm install -g @putao520/cc-spec-lite
+cc-spec install --lang en    # Force English
+cc-spec install --lang zh    # Force Chinese
 ```
 
 **Switch languages**:
@@ -163,8 +161,9 @@ cc-spec install --lang zh --force
 
 ```bash
 npm update -g @putao520/cc-spec-lite
-cc-spec update
 ```
+
+The update runs automatically.
 
 ### Something's not working?
 
