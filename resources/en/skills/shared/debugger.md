@@ -241,5 +241,3 @@ grep -n "slow|timeout|took.*ms" <log file> [threshold]
 
 ---
 
-## Version History
-- v1.0.0 (2025-12-27): Initial version, define debugging analysis specification (excluding automated testing)

@@ -5,22 +5,24 @@ argument-hint: [review scope(all/REQ-XXX)]
 
 # SPEC Review Command
 
-## Core Functionality
+## Core Responsibilities
 
-**Comprehensively review SPEC completeness and code implementation consistency**
+**Thin entry point for SPEC review, detect project status and call /spec-review skill**
 
-- Verify all requirements have clear acceptance criteria
-- Check code implementation consistency with SPEC
-- Generate completeness report
+- ❌ **Don't implement** specific review logic
+- ❌ **Don't do** code analysis
+- ✅ **Only detect** project status
+- ✅ **Only collect** review parameters
+- ✅ **Only call** /spec-review skill
 
 ---
 
 ## Execution Flow
 
-### Phase 0: Automatic Scanning
+### Phase 0: Project Status Detection (Automatic)
 
 ```bash
-echo "=== SPEC Review Started ==="
+echo "=== SPEC Review Starting ==="
 
 # 1. Check SPEC/ directory
 if [ ! -d "SPEC" ]; then
@@ -29,7 +31,13 @@ if [ ! -d "SPEC" ]; then
     exit 1
 fi
 
-# 2. Count SPEC files
+# 2. Check if spec command is available
+if ! command -v spec &> /dev/null; then
+    echo "⚠️  spec CLI not installed"
+    echo "Trying built-in review logic..."
+fi
+
+# 3. Count SPEC files
 req_count=$(grep -c "REQ-" SPEC/01-REQUIREMENTS.md 2>/dev/null || echo 0)
 arch_count=$(grep -c "ARCH-" SPEC/02-ARCHITECTURE.md 2>/dev/null || echo 0)
 data_count=$(grep -c "DATA-" SPEC/03-DATA-STRUCTURE.md 2>/dev/null || echo 0)
@@ -44,488 +52,134 @@ echo "- Interfaces (API-XXX): $api_count"
 
 ---
 
-### Phase 1: Format Validation
+### Phase 1: Collect Review Parameters
 
+**If user provides parameters**:
 ```bash
-# Run format validation
-spec validate SPEC/ 2>&1
-
-if [ $? -ne 0 ]; then
-    echo "⚠️ SPEC Format Validation Failed"
-    echo "Please fix format issues first"
-    exit 1
-fi
-
-echo "✅ SPEC Format Validation Passed"
+# Example: /spec-audit REQ-AUTH-001
+SCOPE="$1"  # REQ-AUTH-001
 ```
 
-**Check Items:**
-
-| Check Item | Verification Content | Failure Handling |
-|-----------|----------------------|------------------|
-| File Completeness | 6 core files exist | Prompt for missing files |
-| VERSION Format | v{major}.{minor}.{patch} | Prompt for format error |
-| ID Format | REQ-XXX/ARCH-XXX/DATA-XXX/API-XXX | Prompt for ID format error |
-| Document Structure | Title hierarchy, list format correct | Prompt for structure issues |
-
----
-
-### Phase 2: Requirement Completeness Review
-
-**Check each REQ-XXX individually:**
-
-#### 2.1 Acceptance Criteria Check
-
-```markdown
-**Review Item: Each requirement has clear acceptance criteria**
-
-Traverse all REQ-XXX in 01-REQUIREMENTS.md:
-
-**REQ-XXX - [Requirement Name]**
-- ✅ Has acceptance criteria
-- ❌ Missing acceptance criteria → [Prompt to supplement]
-
-**Example of missing acceptance criteria:**
-❌ "User login" (no acceptance criteria)
-✅ "User login"
-   - Acceptance Criteria:
-     - Support email and phone login
-     - Lock account after 3 password failures
-     - Return JWT Token on successful login
-```
-
-#### 2.2 Priority Check
-
-```markdown
-**Review Item: Each requirement has clear priority**
-
-**REQ-XXX - [Requirement Name]**
-- ✅ Has priority marker (P0/P1/P2)
-- ❌ Missing priority → [Prompt to supplement]
-
-**Priority Definition:**
-- P0: Core functionality, must implement
-- P1: Important functionality, should implement
-- P2: Minor functionality, can be postponed
-```
-
-#### 2.3 Traceability Check
-
-```markdown
-**Review Item: Each requirement can be traced to code**
-
-Check method:
-1. Search for corresponding implementation in codebase
-2. Check Git commit history for references
-
-**REQ-XXX - [Requirement Name]**
-- ✅ Code implemented (src/xxx/yyy.ts:123)
-- ⚠️ Code partially implemented (missing ZZZ feature)
-- ❌ Code not implemented → [Prompt if implementation needed]
+**If user doesn't provide parameters**:
+```bash
+# Default: full review
+SCOPE="full"
 ```
 
 ---
 
-### Phase 3: Architecture Consistency Review
+### Phase 2: Call /spec-review Skill
 
-**Check consistency between ARCH-XXX and actual code architecture:**
-
-#### 3.1 Module Implementation Check
-
+**Parameters to pass to skill**:
 ```markdown
-**Review Item: Are architecture modules implemented**
+# SPEC Review Request
 
-**ARCH-XXX - [Module Name]**
-- ✅ Code directory exists (src/modules/xxx/)
-- ✅ Module interface complete (index.ts exports all APIs)
-- ❌ Module not found → [Prompt if creation needed]
-```
+**Review Scope**: $SCOPE
+**Project Path**: $(pwd)
+**SPEC Statistics**:
+- Requirements: $req_count
+- Architecture: $arch_count
+- Data: $data_count
+- Interfaces: $api_count
 
-#### 3.2 Technology Stack Consistency
+**Review Dimensions**:
+1. ✅ Format completeness
+2. ✅ Requirement completeness (acceptance criteria)
+3. ✅ Architecture consistency
+4. ✅ Data model consistency
+5. ✅ API interface consistency
+6. ✅ CLAUDE.md compliance
+7. ✅ Product-level contract file review
+8. ✅ Test case quality review
 
-```markdown
-**Review Item: Does actual technology stack match SPEC**
-
-**SPEC Definition:**
-- Backend Framework: NestJS
-- Database: PostgreSQL
-- ORM: Prisma
-
-**Actual Check:**
-- ✅ package.json contains @nestjs/core
-- ✅ package.json contains @prisma/client
-- ❌ PostgreSQL-related configuration not found → [Prompt to fix]
-```
-
-#### 3.3 Dependency Relationship Verification
-
-```markdown
-**Review Item: Are inter-module dependencies consistent with SPEC**
-
-**ARCH-001** - User Module
-- SPEC dependency: Authentication module
-- Actual code check:
-  - ✅ import { auth } from '../auth'
-  - ❌ Dependency not found → [Prompt to fix]
+Please execute complete review and generate report.
 ```
 
 ---
 
-### Phase 4: Data Model Review
+### Phase 3: Present Review Results
 
-**Check consistency between DATA-XXX and database schema:**
-
-#### 4.1 Table Structure Check
-
+**Receive output from /spec-review skill**:
 ```markdown
-**Review Item: Are database tables consistent with SPEC**
+✅ SPEC Review Complete!
 
-**DATA-USER-001** - users table
-- SPEC Definition: fields id, email, password_hash, created_at
-- Actual check:
-  - Prisma schema: ✅ Contains all fields
-  - Database table: ⚠️ Missing index idx_email
-  - Suggestion: Run migration to add index
-```
+**Review Results**:
+- Format completeness: ✅ 100%
+- Requirement completeness: ⚠️ 85%
+- Architecture consistency: ✅ 90%
+- Data consistency: ⚠️ 75%
+- API consistency: ✅ 95%
+- CLAUDE.md compliance: ✅ 100%
+- Contract file consistency: ⚠️ 80%
+- Test case coverage: ⚠️ 60%
 
-#### 4.2 Relationship Completeness
+**Overall Score: 85%**
 
-```markdown
-**Review Item: Are foreign key relationships correctly established**
+**Detailed Report**: Generated /tmp/claude-reports/SPEC-REVIEW-REPORT.md
 
-**DATA-ORDER-001** - orders table
-- SPEC Definition: Associated with users (user_id)
-- Actual check:
-  - ✅ Foreign key constraint exists
-  - ✅ Cascade delete configuration correct
-```
-
-#### 4.3 Index Verification
-
-```markdown
-**Review Item: Required query indexes exist**
-
-**DATA-PRODUCT-001** - products table
-- SPEC Definition: Indexes idx_category, idx_price
-- Actual check:
-  - ✅ idx_category exists
-  - ❌ idx_price missing → [Performance risk, prompt to add]
+**Next Steps**:
+1. 🔧 Fix issues: Use /architect to correct SPEC
+2. 💻 Complete implementation: Use /programmer to add code
+3. 🧋 Review again: Use /spec-audit again
 ```
 
 ---
 
-### Phase 5: CLAUDE.md Compliance Review
-
-**Check if CLAUDE.md content follows "SPEC pointer" positioning:**
-
-#### 5.1 Content Nature Check
+## Completion Message
 
 ```markdown
-**Principle: CLAUDE.md = SPEC pointer, not design document**
+✅ SPEC Review Complete!
 
-**✅ Allowed Content:**
-- SPEC location instructions (./SPEC/ or ../SPEC/)
-- Project-specific constraints and development process references
-- Role分工 description (brief)
-- References to processes and standards (point to authoritative documents)
+**Review Dimensions**:
+- ✅ Format completeness
+- ✅ Requirement completeness
+- ✅ Architecture consistency
+- ✅ Data consistency
+- ✅ API consistency
+- ✅ CLAUDE.md compliance
+- ✅ Product-level contract file review
+- ✅ Test case quality review
 
-**❌ Forbidden Content (must be in SPEC):**
-- Functional requirement definitions
-- Module list and responsibility tables
-- Technology stack detailed descriptions
-- Data model definitions (table structures, field lists)
-- API interface definitions (endpoints, request/response formats)
-- ID format definitions (REQ-XXX, ARCH-XXX, etc.)
-- Architecture principles and design pattern descriptions
-- Detailed workflow steps
-```
-
-#### 5.2 Violation Content Detection
-
-```markdown
-**Detection Method:**
-1. Search for requirement definition keywords ("需求", "功能", "REQ-")
-2. Search for architecture design content (module lists, technology stack tables)
-3. Search for data model definitions (table structures, field lists)
-4. Search for API definitions (endpoints, interface formats)
-
-**CLAUDE.md - Compliance Check:**
-- ✅ Contains only SPEC location instructions
-- ✅ Contains only specific constraint descriptions
-- ⚠️ Contains process descriptions (should reference rather than define)
-- ❌ Contains requirement definitions → [Suggest moving to SPEC/01-REQUIREMENTS.md]
-- ❌ Contains module list table → [Suggest moving to SPEC/02-ARCHITECTURE.md]
-- ❌ Contains data model table → [Suggest moving to SPEC/03-DATA-STRUCTURE.md]
-- ❌ Contains API endpoint list → [Suggest moving to SPEC/04-API-DESIGN.md]
-```
-
-#### 5.3 Correct Examples
-
-```markdown
-**✅ Correct CLAUDE.md (Business Project):**
-```markdown
-## SPEC Location
-- ./SPEC/
-
-## Product-level SPEC Location (if applicable)
-- ../SPEC/
-```
-
-**✅ Correct CLAUDE.md (Framework Project, e.g., cc-spec-lite):**
-```markdown
-## SPEC Location
-- ./SPEC/
-
-## Framework Positioning
-This is a SPEC-driven development framework, defining development processes and standards.
-
-For detailed specifications, see:
-- skills/ directory: Skill definitions
-- commands/ directory: Custom commands
-- roles/ directory: Role specifications
-
-User projects should use simplified CLAUDE.md (SPEC location only).
-```
-
-**❌ Incorrect CLAUDE.md Example:**
-```markdown
-## Functional Requirements
-- REQ-AUTH-001: User login
-- REQ-AUTH-002: User registration
-
-## Module List
-| Module | Responsibility |
-|-------|---------------|
-| auth  | Authentication |
-| user  | User Management |
-
-## Data Model
-- users table: id, email, password
-```
-
-**Suggestion: Move the above content to corresponding SPEC files**
+**Next Steps**:
+1. 📝 View detailed report
+2. 🔧 Use /architect to correct SPEC
+3. 💻 Use /programmer to add code
 ```
 
 ---
 
-### Phase 6: API Consistency Review
+## Collaboration with Skills
 
-**Check consistency between API-XXX and actual route definitions:**
-
-#### 6.1 Interface Implementation Check
-
-```markdown
-**Review Item: Are API interfaces implemented**
-
-**API-USER-001** - POST /api/users/register
-- SPEC Definition: Create user
-- Actual check:
-  - ✅ Route registered (src/routes/users.ts:15)
-  - ✅ Request parameters match SPEC
-  - ❌ Response format mismatch → SPEC requires code/message, actual returns status
 ```
-
-#### 6.2 Error Code Coverage
-
-```markdown
-**Review Item: Are defined error codes all implemented**
-
-**API-ORDER-001** - GET /api/orders/:id
-- SPEC Definition error codes:
-  - 404: Order not found
-  - 403: No permission to access
-- Actual check:
-  - ✅ 404 implemented
-  - ❌ 403 not implemented → [Prompt to supplement]
-```
-
-#### 6.3 Authentication Authorization Check
-
-```markdown
-**Review Item: Are authenticated interfaces all protected**
-
-**API-PAYMENT-001** - POST /api/payments
-- SPEC Requirement: Requires Bearer Token authentication
-- Actual check:
-  - ✅ Has @UseGuards(AuthGuard) decorator
-  - ✅ Token verification logic correct
+/spec-audit (command)
+    ↓ (detect project status)
+    ↓ (collect review parameters)
+    ↓
+/spec-review (skill)
+    ↓ (execute core review logic)
+    ↓ (generate detailed report)
+    ↓
+Return to /spec-audit (present results)
 ```
 
 ---
 
-### Phase 7: Generate Review Report
+## Prohibited Actions
 
-```markdown
-# SPEC Review Report
-
-Generated at: $(date)
-
-## 📊 Overall Score
-
-| Dimension | Score | Status |
-|-----------|-------|--------|
-| Format Completeness | 100% | ✅ |
-| Requirement Completeness | 85% | ⚠️ |
-| Architecture Consistency | 90% | ✅ |
-| Data Consistency | 75% | ⚠️ |
-| API Consistency | 95% | ✅ |
-| CLAUDE.md Compliance | 100% | ✅ |
-
-**Overall Score: 89%**
-
----
-
-## ✅ Passed Items
-
-**Format Validation:**
-- ✅ All file formats correct
-- ✅ ID formats compliant
-- ✅ VERSION format correct
-
-**Architecture Consistency:**
-- ✅ All ARCH-XXX modules implemented
-- ✅ Technology stack matches SPEC
-
-**API Consistency:**
-- ✅ 95% of APIs implemented
-- ✅ Error code definitions complete
-
----
-
-## ⚠️ Warning Items
-
-**Requirement Completeness:**
-- ⚠️ REQ-USER-005 missing acceptance criteria
-- ⚠️ REQ-ORDER-003 priority not defined
-
-**Data Consistency:**
-- ⚠️ DATA-PRODUCT-001 missing idx_price index
-- ⚠️ DATA-ORDER-001 foreign key cascade rules not implemented
-
----
-
-## ❌ Failed Items
-
-**Requirement Implementation Incomplete:**
-- ❌ REQ-CHECKOUT-001 code not implemented
-- ❌ REQ-PAYMENT-002 code partially implemented (missing refund functionality)
-
-**Suggestions:**
-1. Supplement missing acceptance criteria
-2. Implement incomplete requirements
-3. Add missing database indexes
-4. Fix API response format inconsistencies
-
----
-
-## 📋 Problem List
-
-| ID | Type | Severity | Description | Suggestion |
-|----|------|----------|-------------|------------|
-| 1 | Requirement | Medium | REQ-USER-005 missing acceptance criteria | Supplement acceptance criteria |
-| 2 | Requirement | High | REQ-CHECKOUT-001 not implemented | Implement this feature |
-| 3 | Data | Medium | DATA-PRODUCT-001 missing index | Add idx_price |
-| 4 | API | Medium | API-USER-001 response format mismatch | Correct to code/message |
-
----
-
-## 🎯 Improvement Suggestions
-
-1. **Requirement Completeness**
-   - Supplement acceptance criteria for all requirements
-   - Clarify priorities for all requirements
-   - Implement all unfinished requirements
-
-2. **Data Consistency**
-   - Run database migration to add missing indexes
-   - Implement all foreign key constraints
-
-3. **API Consistency**
-   - Fix response format inconsistency issues
-   - Supplement missing error code handling
-
-4. **Documentation Updates**
-   - Update SPEC promptly to reflect latest implementation
-   - Ensure SPEC and code remain synchronized
-```
-
----
-
-## Completion Prompt
-
-```markdown
-✅ SPEC Review Completed!
-
-**Review Results:**
-- Format Completeness: ✅ 100%
-- Requirement Completeness: ⚠️ 85%
-- Architecture Consistency: ✅ 90%
-- Data Consistency: ⚠️ 75%
-- API Consistency: ✅ 95%
-- CLAUDE.md Compliance: ✅ 100%
-
-**Overall Score: 89%**
-
-**Next Steps:**
-1. 📝 View complete report: SPEC-AUDIT-REPORT.md generated
-2. 🔧 Fix issues: Use /architect to correct SPEC
-3. 💻 Complete implementation: Use /programmer to supplement code
-
-**Priority Suggestions:**
-1. Supplement missing acceptance criteria
-2. Implement unfinished requirements
-3. Add missing database indexes
-```
-
----
-
-## Collaboration with Other Commands
-
-```
-/spec-audit
-    ↓ (discover issues and gaps)
-/architect
-    ↓ (correct SPEC)
-/programmer
-    ↓ (supplement implementation)
-/spec-audit (review again, verify improvements)
-```
-
----
-
-## Review Standards
-
-### Passing Criteria (all ✅)
-
-- Format Completeness = 100%
-- Requirement Completeness ≥ 90%
-- Architecture Consistency ≥ 90%
-- Data Consistency ≥ 90%
-- API Consistency ≥ 90%
-- CLAUDE.md Compliance = 100% (content follows SPEC pointer positioning)
-
-### Excellence Criteria
-
-- All dimensions ≥ 95%
-- No warnings or failed items
-- All requirements implemented
+- ❌ **Prohibit implementing specific review logic** - Leave to /spec-review skill
+- ❌ **Prohibit duplicate code** - All review logic in skill
+- ❌ **Prohibit generating reports** - Reports generated by skill
+- ✅ **Only thin entry** - Detect status + call skill + present results
 
 ---
 
 ## Core Principles
 
-**cc-spec-lite Simplified Version**
+**spec-audit = Thin Entry Layer**
 
-- ✅ Review only requirement completeness
-- ✅ Check only code-SPEC consistency
-- ✅ Review CLAUDE.md content compliance (must be SPEC pointer, no length limit)
-- ❌ No test coverage management
-- ❌ No code quality management
-- ❌ No delivery standards
+- Detect project status
+- Collect review parameters
+- Call /spec-review skill
+- Present review results
 
-**CLAUDE.md Audit Focus:**
-- ✅ Content nature: Whether it contains content that should be in SPEC
-- ❌ No file length check: Framework projects can be long, business projects should be brief
-- ✅ Content type: Requirements, architecture, data models, API definitions must be in SPEC
-
-For testing, quality, and delivery related features, please use the full version cc-spec.
+All specific review logic is implemented in /spec-review skill.

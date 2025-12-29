@@ -457,6 +457,3 @@ Error handling:
 
 *This document is the foundational specification for skill collaboration, all skill implementations must follow the interfaces and collaboration mechanisms defined in this document.*
 
-## Version History
-- v1.1 (2025-12-26): Implement balanced automation checkpoint mechanism, reduce manual intervention while maintaining safety guarantees
-- v1.0 (2025-12-25): Initial version, define user-driven skill collaboration interface specification

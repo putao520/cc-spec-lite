@@ -458,5 +458,3 @@ spec-init: Next step: Review SPEC → /programmer to start development
 
 ---
 
-## Version History
-- v1.0.0 (2025-12-27): Initial version, defines SPEC initialization process

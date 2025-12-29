@@ -1,21 +1,23 @@
-# REVIEW Skill Specification - SPEC Consistency Review Expert
+# SPEC-REVIEW Skill Specification - SPEC Consistency Review Expert
 
-**Version**: 1.0.0
+**Version**: 2.0.0
 **Purpose**: Review consistency between SPEC definitions and code implementation, identify deviations and omissions
-**Responsibilities**: SPEC-code alignment checks, requirement coverage analysis, architectural compliance verification
-**Last Updated**: 2025-12-27
+**Responsibilities**: SPEC-code alignment checks, requirement coverage analysis, architectural compliance verification, contract file review, test case quality review
+**Last Updated**: 2025-12-29
 
 ---
 
 ## 🎯 Skill Positioning
 
-**Core Value**: Ensure that requirements, architecture, and data models defined in SPEC are completely consistent with code implementation
+**Core Value**: Ensure that requirements, architecture, data models, contract files defined in SPEC are completely consistent with code implementation
 
 **Applicable Scenarios**:
 1. ✅ **Post-development Verification**: Check if all requirements defined in SPEC are completely implemented
 2. ✅ **Regular SPEC Audits**: Verify if code evolution has deviated from original design
 3. ✅ **PR Review Pre-check**: Verify SPEC compliance before code merging
 4. ✅ **Project Health Check**: Evaluate the synchronization degree between SPEC and code
+5. ✅ **Product-level Contract Review**: Verify completeness and consistency of API/data model/configuration definitions
+6. ✅ **Test Quality Review**: Verify test case coverage of SPEC requirements
 
 ---
 
@@ -199,7 +201,132 @@ Output format:
 
 ---
 
-### Step 3: Deviation Analysis and Summary
+### Step 3: Product-Level Contract File Review
+
+#### 3.1 API Contract Completeness Check
+
+**Check product-level API definition files**:
+```markdown
+## API Contract File Review
+
+### OpenAPI/Swagger Specification Check
+- [ ] Is there a complete OpenAPI/Swagger definition file?
+- [ ] Are all API-XXX defined in OpenAPI?
+- [ ] Are request/response schemas complete?
+- [ ] Do error code definitions cover all scenarios?
+- [ ] Is authentication/authorization clearly defined?
+
+### GraphQL Schema Check (if applicable)
+- [ ] Does Schema file match SPEC/04-API-DESIGN.md?
+- [ ] Are all Query/Mutation/Subscription defined?
+- [ ] Are type definitions complete?
+- [ ] Are Resolvers correctly implemented?
+```
+
+#### 3.2 Data Model Contract Check
+
+**Check database schema definition files**:
+```markdown
+## Data Model Contract Review
+
+### Prisma/TypeORM/Sequelize ORM Check
+- [ ] Does Schema file match SPEC/03-DATA-STRUCTURE.md?
+- [ ] Are all DATA-XXX tables defined?
+- [ ] Are field types, constraints, indexes complete?
+- [ ] Are relationships (foreign keys) correctly defined?
+
+### Migration File Check
+- [ ] Are database migration files in sync with SPEC?
+- [ ] Are there unapplied migrations?
+- [ ] Are migrations reversible?
+- [ ] Are index definitions reflected in migrations?
+```
+
+#### 3.3 Configuration File Contract Check
+
+**Check environment variables and configuration files**:
+```markdown
+## Configuration File Contract Review
+
+### Environment Variable Definition Check
+- [ ] Does .env.example contain all required variables?
+- [ ] Do variable names follow conventions?
+- [ ] Are there sensitive information leakage risks?
+- [ ] Are default values reasonable?
+
+### Configuration File Schema Check
+- [ ] Does configuration file have JSON Schema validation?
+- [ ] Are all configuration items defined in SPEC?
+- [ ] Are environment-specific configurations correct?
+```
+
+---
+
+### Step 4: Test Case Quality Review
+
+#### 4.1 Test Coverage Analysis
+
+**Check if test cases cover SPEC requirements**:
+```markdown
+## Test Coverage Review
+
+### Requirement-Level Test Coverage
+| REQ-XXX | Requirement | Unit Test | Integration Test | E2E Test | Coverage |
+|---------|------------|-----------|-----------------|----------|----------|
+| REQ-AUTH-001 | User login | ✅ | ✅ | ✅ | 100% |
+| REQ-AUTH-002 | Token refresh | ✅ | ❌ | ❌ | 33% |
+| REQ-USER-001 | User profile | ⚠️ | ✅ | ❌ | 66% |
+
+**Scoring Criteria**:
+- ✅ Complete coverage: Unit + Integration + E2E
+- ⚠️ Partial coverage: Only unit tests
+- ❌ No coverage: No tests
+```
+
+#### 4.2 Test Case Quality Check
+
+**Check quality of test cases**:
+```markdown
+## Test Case Quality Review
+
+### Unit Test Quality
+- [ ] Do test cases cover normal scenarios?
+- [ ] Do test cases cover edge cases?
+- [ ] Do test cases cover exception scenarios?
+- [ ] Are Mocks used correctly?
+- [ ] Are tests independent (no dependencies)?
+
+### Integration Test Quality
+- [ ] Do API interface tests cover all endpoints?
+- [ ] Do database integration tests verify transactions?
+- [ ] Do external service integrations use Test Doubles?
+
+### E2E Test Quality
+- [ ] Are critical user flows covered?
+- [ ] Is test data realistic?
+- [ ] Is test environment consistent with production?
+```
+
+#### 4.3 Acceptance Criteria Verification
+
+**Check if tests verify acceptance criteria in SPEC**:
+```markdown
+## Acceptance Criteria Test Coverage
+
+**REQ-AUTH-001 - User Login**
+Acceptance criteria:
+1. Support email and phone login → ✅ Test covered
+2. Lock account after 3 failed passwords → ✅ Test covered
+3. Return JWT Token on successful login → ❌ Missing Token validation test
+
+**Missing Tests**:
+- JWT Token format validation
+- Token expiration handling
+```
+
+---
+
+### Step 5: Deviation Analysis and Summary
 
 #### 3.1 Deviation Classification
 
@@ -480,5 +607,3 @@ Review: Conclusion: ⚠️ Partially Consistent (suggest improving error message
 
 ---
 
-## Version History
-- v1.0.0 (2025-12-27): Initial version, defining SPEC consistency review process (not code quality review)
