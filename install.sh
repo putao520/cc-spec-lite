@@ -57,21 +57,6 @@ print_info() {
     echo -e "${BLUE}ℹ $1${NC}"
 }
 
-# Detect OS
-detect_os() {
-    if [[ "$OSTYPE" == "linux-gnu"* ]]; then
-        echo "linux"
-    elif [[ "$OSTYPE" == "darwin"* ]]; then
-        echo "macos"
-    elif [[ "$OSTYPE" == "msys" || "$OSTYPE" == "cygwin" ]]; then
-        echo "windows"
-    else
-        echo "unknown"
-    fi
-}
-
-OS=$(detect_os)
-
 #############################################################################
 # Language Selection
 #############################################################################
@@ -87,11 +72,11 @@ select_language() {
     case $lang_choice in
         2)
             LANG="zh"
-            print_info "已选择中文"
+            print_info "已选择中文 / Selected Chinese"
             ;;
         *)
             LANG="en"
-            print_info "Selected English"
+            print_info "Selected English / 已选择英文"
             ;;
     esac
 }
@@ -164,6 +149,14 @@ backup_existing() {
             cp -r "$INSTALL_DIR/commands" "$BACKUP_DIR/" 2>/dev/null || true
         fi
 
+        if [[ -d "$INSTALL_DIR/scripts" ]]; then
+            cp -r "$INSTALL_DIR/scripts" "$BACKUP_DIR/" 2>/dev/null || true
+        fi
+
+        if [[ -d "$INSTALL_DIR/roles" ]]; then
+            cp -r "$INSTALL_DIR/roles" "$BACKUP_DIR/" 2>/dev/null || true
+        fi
+
         print_success "Backup created: $BACKUP_DIR"
     fi
 }
@@ -175,66 +168,72 @@ backup_existing() {
 install_files() {
     print_info "Installing cc-spec-lite files..."
 
-    # Create target directories
-    mkdir -p "$INSTALL_DIR/skills"
-    mkdir -p "$INSTALL_DIR/commands"
+    # Language directory
+    LANG_DIR="${LANG}"
 
-    # Copy files based on language
-    if [[ "$LANG" == "zh" ]]; then
-        # Chinese version
-        print_info "Installing Chinese version..."
-
-        # Copy skills
-        if [[ -d "skills-zh" ]]; then
-            cp -r skills-zh/* "$INSTALL_DIR/skills/"
-        else
-            print_warning "Chinese skills not found, using English"
-            cp -r skills/* "$INSTALL_DIR/skills/"
-        fi
-
-        # Copy commands
-        if [[ -d "commands-zh" ]]; then
-            cp -r commands-zh/* "$INSTALL_DIR/commands/"
-        else
-            print_warning "Chinese commands not found, using English"
-            cp -r commands/* "$INSTALL_DIR/commands/"
-        fi
-
-        # Copy CLAUDE.md (Chinese)
-        if [[ -f "CLAUDE-zh.md" ]]; then
-            cp CLAUDE-zh.md "$INSTALL_DIR/CLAUDE.md"
-        else
-            cp CLAUDE.md "$INSTALL_DIR/CLAUDE.md"
-        fi
-    else
-        # English version (default)
-        print_info "Installing English version..."
-
-        # Copy skills
-        cp -r skills/* "$INSTALL_DIR/skills/"
-
-        # Copy commands
-        cp -r commands/* "$INSTALL_DIR/commands/"
-
-        # Copy CLAUDE.md
-        cp CLAUDE.md "$INSTALL_DIR/CLAUDE.md"
+    # Check if language directory exists
+    if [[ ! -d "$LANG_DIR" ]]; then
+        print_error "Language directory not found: $LANG_DIR"
+        exit 1
     fi
 
-    # Copy scripts (always install)
-    if [[ -d "scripts" ]]; then
-        mkdir -p "$INSTALL_DIR/scripts"
-        cp -r scripts/* "$INSTALL_DIR/scripts/"
+    print_info "Installing from: ${LANG_DIR}/"
 
-        # Set execute permissions
+    # Copy CLAUDE.md
+    if [[ -f "$LANG_DIR/CLAUDE.md" ]]; then
+        cp "$LANG_DIR/CLAUDE.md" "$INSTALL_DIR/CLAUDE.md"
+        print_success "Installed CLAUDE.md"
+    else
+        print_error "CLAUDE.md not found in ${LANG_DIR}/"
+        exit 1
+    fi
+
+    # Copy skills
+    if [[ -d "$LANG_DIR/skills" ]]; then
+        mkdir -p "$INSTALL_DIR/skills"
+        cp -r "$LANG_DIR/skills/"* "$INSTALL_DIR/skills/"
+        print_success "Installed skills"
+    else
+        print_warning "No skills directory found"
+    fi
+
+    # Copy commands
+    if [[ -d "$LANG_DIR/commands" ]]; then
+        mkdir -p "$INSTALL_DIR/commands"
+        cp -r "$LANG_DIR/commands/"* "$INSTALL_DIR/commands/"
+        # Fix permissions for command files
+        chmod 644 "$INSTALL_DIR/commands"/*.md 2>/dev/null || true
+        print_success "Installed commands"
+    else
+        print_warning "No commands directory found"
+    fi
+
+    # Copy scripts
+    if [[ -d "$LANG_DIR/scripts" ]]; then
+        mkdir -p "$INSTALL_DIR/scripts"
+        cp -r "$LANG_DIR/scripts/"* "$INSTALL_DIR/scripts/"
+        # Set execute permissions for scripts
         find "$INSTALL_DIR/scripts" -type f -name "*.sh" -exec chmod +x {} \;
+        find "$INSTALL_DIR/scripts" -type f -name "*.ps1" -exec chmod +x {} \; 2>/dev/null || true
+        print_success "Installed scripts"
+    else
+        print_warning "No scripts directory found"
     fi
 
     # Copy roles (if exists)
-    if [[ -d "roles" ]]; then
-        cp -r roles "$INSTALL_DIR/"
+    if [[ -d "$LANG_DIR/roles" ]]; then
+        cp -r "$LANG_DIR/roles" "$INSTALL_DIR/"
+        print_success "Installed roles"
     fi
 
-    print_success "Files installed successfully"
+    # Copy hooks (if exists)
+    if [[ -d "$LANG_DIR/hooks" ]]; then
+        mkdir -p "$INSTALL_DIR/hooks"
+        cp -r "$LANG_DIR/hooks/"* "$INSTALL_DIR/hooks/"
+        print_success "Installed hooks"
+    fi
+
+    print_success "All files installed successfully"
 }
 
 #############################################################################
@@ -245,17 +244,17 @@ update_mode() {
     print_info "Update mode: checking for updates..."
 
     # Get latest version from GitHub
-    LATEST_VERSION=$(curl -s "https://api.github.com/repos/putao520/cc-spec-lite/releases/latest" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/')
+    LATEST_VERSION=$(curl -s "https://api.github.com/repos/putao520/cc-spec-lite/releases/latest" | grep '"tag_name"' | sed -E 's/.*"([^"]+)".*/\1/' || echo "unknown")
 
-    if [[ -z "$LATEST_VERSION" ]]; then
-        print_warning "Unable to check for updates"
-    else
+    if [[ "$LATEST_VERSION" != "unknown" ]]; then
         print_info "Current version: ${VERSION}"
         print_info "Latest version: ${LATEST_VERSION}"
 
         if [[ "$VERSION" != "$LATEST_VERSION" ]]; then
             print_info "Update available!"
         fi
+    else
+        print_warning "Unable to check for updates"
     fi
 
     backup_existing
@@ -271,12 +270,14 @@ update_mode() {
 verify_installation() {
     print_info "Verifying installation..."
 
+    local errors=0
+
     # Check CLAUDE.md
     if [[ -f "$INSTALL_DIR/CLAUDE.md" ]]; then
         print_success "CLAUDE.md installed"
     else
         print_error "CLAUDE.md not found"
-        return 1
+        ((errors++))
     fi
 
     # Check skills
@@ -285,7 +286,7 @@ verify_installation() {
         print_success "Skills installed: ${SKILL_COUNT} skills"
     else
         print_error "No skills found"
-        return 1
+        ((errors++))
     fi
 
     # Check commands
@@ -296,12 +297,23 @@ verify_installation() {
         print_warning "No commands found"
     fi
 
+    # Check scripts
+    if [[ -d "$INSTALL_DIR/scripts" ]] && [[ -n "$(ls -A $INSTALL_DIR/scripts)" ]]; then
+        SCRIPT_COUNT=$(find "$INSTALL_DIR/scripts" -type f | wc -l)
+        print_success "Scripts installed: ${SCRIPT_COUNT} files"
+    else
+        print_warning "No scripts found"
+    fi
+
     # Check aiw
     if command -v aiw &> /dev/null; then
-        print_success "aiw is available"
+        AIW_VERSION=$(aiw --version 2>/dev/null | grep -oP '\d+\.\d+\.\d+' || echo "unknown")
+        print_success "aiw is available (v${AIW_VERSION})"
     else
         print_warning "aiw not found - some features may not work"
     fi
+
+    return $errors
 }
 
 #############################################################################
@@ -321,8 +333,13 @@ Options:
 
 Examples:
     $0                 # Interactive installation
-    $0 --lang zh       # Install Chinese version
+    $0 --lang en       # Install English version
+    $0 --lang zh       # 安装中文版本
     $0 --update        # Update existing installation
+
+Languages:
+    en                 English (default)
+    zh                 简体中文
 
 EOF
 }
@@ -372,8 +389,28 @@ main() {
         exit 1
     fi
 
+    # Validate language choice
+    if [[ -n "$LANG" && "$LANG" != "en" && "$LANG" != "zh" ]]; then
+        print_error "Invalid language: $LANG"
+        echo "Supported languages: en, zh"
+        exit 1
+    fi
+
     # Update mode
     if [[ "$UPDATE_MODE" == true ]]; then
+        if [[ -z "$LANG" ]]; then
+            # Detect current language from existing installation
+            if [[ -f "$INSTALL_DIR/CLAUDE.md" ]]; then
+                if grep -q "文档定位" "$INSTALL_DIR/CLAUDE.md"; then
+                    LANG="zh"
+                else
+                    LANG="en"
+                fi
+                print_info "Detected language: $LANG"
+            else
+                LANG="en"
+            fi
+        fi
         update_mode
         verify_installation
         exit 0
@@ -394,21 +431,27 @@ main() {
     install_files
 
     # Verify installation
-    verify_installation
-
-    # Print completion message
-    echo ""
-    echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
-    echo -e "${GREEN}║  Installation completed successfully!                       ║${NC}"
-    echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
-    echo ""
-    print_info "Next steps:"
-    echo "  1. Restart Claude Code"
-    echo "  2. Use /spec-init to initialize your project"
-    echo ""
-    print_info "Documentation: ${REPO_URL}"
-    print_info "Backup location: ${BACKUP_DIR}"
-    echo ""
+    if verify_installation; then
+        # Print completion message
+        echo ""
+        echo -e "${GREEN}╔════════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${GREEN}║  Installation completed successfully!                       ║${NC}"
+        echo -e "${GREEN}╚════════════════════════════════════════════════════════════╝${NC}"
+        echo ""
+        print_info "Language: ${LANG}"
+        print_info "Installation directory: ${INSTALL_DIR}"
+        print_info "Backup location: ${BACKUP_DIR}"
+        echo ""
+        print_info "Next steps:"
+        echo "  1. Restart Claude Code"
+        echo "  2. Use /spec-init to initialize your project"
+        echo ""
+        print_info "Documentation: ${REPO_URL}"
+        echo ""
+    else
+        print_error "Installation verification failed with ${errors} error(s)"
+        exit 1
+    fi
 }
 
 # Run main function

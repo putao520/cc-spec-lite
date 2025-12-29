@@ -1,10 +1,14 @@
 # CC-SPEC-Lite
 
 > A lightweight SPEC-driven development framework for Claude Code
+>
+> 轻量级的 SPEC 驱动开发框架
 
 CC-SPEC-Lite provides a streamlined, professional approach to AI-assisted software development with design-first workflow, role-based skills, and automation scripts.
 
-## Table of Contents
+**Multi-language Support / 多语言支持**: English (en) and 简体中文 (zh)
+
+## Table of Contents / 目录
 
 - [What is CC-SPEC-Lite?](#what-is-cc-spec-lite)
 - [Features](#features)
@@ -77,6 +81,37 @@ git init
 ```
 
 📖 **Detailed guide**: See [Quick Start](#quick-start) below
+
+---
+
+## Project Structure / 项目结构
+
+```
+cc-spec-lite/
+├── en/                      # English version / 英文版
+│   ├── CLAUDE.md           # Global development rules
+│   ├── skills/             # AI skill definitions
+│   ├── commands/           # Custom commands
+│   ├── scripts/            # Automation scripts
+│   ├── roles/              # Role-based standards
+│   └── hooks/              # Git hooks (optional)
+│
+├── zh/                      # Chinese version / 中文版
+│   ├── CLAUDE.md           # 全局开发规范
+│   ├── skills/             # AI 技能定义
+│   ├── commands/           # 自定义命令
+│   ├── scripts/            # 自动化脚本
+│   ├── roles/              # 角色规范
+│   └── hooks/              # Git 钩子（可选）
+│
+├── install.sh              # Installation script / 安装脚本
+├── README.md               # This file / 本文件
+└── LICENSE                 # MIT License
+```
+
+**Installation Target / 安装目标**:
+- Files are copied from `en/` or `zh/` to `~/.claude/`
+- 文件从 `en/` 或 `zh/` 复制到 `~/.claude/`
 
 ---
 
