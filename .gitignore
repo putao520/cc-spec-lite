@@ -1,42 +1,21 @@
-# OS
+# Build outputs
+*.log
+*.tmp
+
+# Backup directories
+backup/
+
+# OS files
 .DS_Store
 Thumbs.db
 
-# Editor
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
-*~
 
-# Logs
-*.log
-logs/
-
-# Temp files
-tmp/
-temp/
+# Temporary files
+/tmp/
 *.tmp
-
-# Claude Code session files
-projects/
-todos/
-file-history/
-debug/
-session-env/
-statsig/
-telemetry/
-plugins/
-*.jsonl
-stats-cache.json
-.credentials.json
-
-# Node (if applicable)
-node_modules/
-npm-debug.log*
-
-# Python (if applicable)
-__pycache__/
-*.py[cod]
-.env
-.venv/
+*.bak

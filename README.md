@@ -103,40 +103,50 @@ For comprehensive testing, quality, and delivery features, use the full **cc-spe
   - macOS: Bash or Zsh (native)
   - Windows: PowerShell 5.1+, Git Bash, or WSL
 
-### Method 1: Via Plugin Marketplace (Recommended)
+### Quick Install (Recommended)
 
 ```bash
-# Add marketplace
-claude plugin marketplace add putao520/cc-spec-lite
+# Clone and run installer
+git clone https://github.com/putao520/cc-spec-lite.git
+cd cc-spec-lite
+./install.sh
 
-# Install plugin
-claude plugin install cc-spec-lite@cc-spec-lite
+# Or specify language directly
+./install.sh --lang en    # English (default)
+./install.sh --lang zh    # 简体中文
 ```
 
-### Method 2: Manual Installation
+**The installer will:**
+- ✅ Let you choose language (English/中文)
+- ✅ Automatically install AI Warden CLI (aiw) if needed
+- ✅ Backup your existing configuration
+- ✅ Install all files to `~/.claude/`
+- ✅ Set proper file permissions
+
+### Update Existing Installation
+
+```bash
+cd cc-spec-lite
+./install.sh --update
+```
+
+### Manual Installation
 
 ```bash
 # Clone repository
 git clone https://github.com/putao520/cc-spec-lite.git
 
 # Copy to Claude config directory
-cp -r cc-spec-lite/* ~/.claude/
+cp -r cc-spec-lite/skills/* ~/.claude/skills/
+cp -r cc-spec-lite/commands/* ~/.claude/commands/
+cp -r cc-spec-lite/scripts/* ~/.claude/scripts/
+cp cc-spec-lite/CLAUDE.md ~/.claude/
 
-# Verify installation
-ls ~/.claude/skills/
+# Install AI Warden CLI (required)
+npm install -g @putao520/agentic-warden
 ```
 
-### Method 3: Development Installation
-
-```bash
-# Clone for development
-git clone https://github.com/putao520/cc-spec-lite.git
-cd cc-spec-lite
-
-# Create symbolic link (optional, for active development)
-ln -sf $(pwd)/skills ~/.claude/skills
-ln -sf $(pwd)/scripts ~/.claude/scripts
-ln -sf $(pwd)/roles ~/.claude/roles
+### Development Installation
 ```
 
 ### Verification
