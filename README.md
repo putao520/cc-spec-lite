@@ -1,72 +1,60 @@
 # CC-SPEC-Lite
 
 > A lightweight SPEC-driven development framework for Claude Code
->
-> 轻量级的 SPEC 驱动开发框架
 
-**What problem does it solve? / 解决什么问题？**
+**What problem does it solve?**
 
 Provides a complete **system-level specification framework** for AI-assisted software development in **Chinese environments**, ensuring long-term consistency across requirements, architecture, and implementation.
 
-为**中文开发环境**下的AI辅助软件提供完整的**系统级规范框架**，确保需求、架构、实现之间的长期一致性。
+---
 
-CC-SPEC-Lite provides a streamlined, professional approach to AI-assisted software development with design-first workflow, role-based skills, and automation scripts.
+## Table of Contents
 
-**Multi-language Support / 多语言支持**: English (en) and 简体中文 (zh)
+- [Quick Start](#quick-start)
+- [Installation](#installation)
+- [Uninstallation](#uninstallation)
+- [Usage](#usage)
+- [Features](#features)
+- [Comparison](#comparison)
+- [FAQ](#faq)
+- [Contributing](#contributing)
 
 ---
 
-## Table of Contents / 目录
+## Quick Start
 
-- [Quick Start / 快速开始](#quick-start--快速开始)
-- [Installation / 安装](#installation--安装)
-- [Uninstallation / 卸载](#uninstallation--卸载)
-- [Usage / 使用](#usage--使用)
-- [Features / 功能特性](#features--功能特性)
-- [How It Compares / 与其他方案对比](#how-it-compares--与其他方案对比)
-- [FAQ / 常见问题](#faq--常见问题)
-- [Contributing / 贡献](#contributing--贡献)
-
----
-
-## Quick Start / 快速开始
-
-### 3-Minute Setup / 3分钟设置
+### 3-Minute Setup
 
 ```bash
-# Step 1: Install via npm / 通过 npm 安装
+# Step 1: Install via npm
 npm install -g @putao520/cc-spec-lite
 
-# Step 2: Run installer / 运行安装程序
+# Step 2: Run installer
 cc-spec install
 
-# Step 3: Start using / 开始使用
+# Step 3: Start using
 cd my-project
-/spec-init           # Initialize SPEC / 初始化 SPEC
+/spec-init           # Initialize SPEC
 ```
 
-**What happens / 发生什么**:
-- ✅ Auto-detects your system language (Chinese/English)
-- ✅ 自动检测系统语言（中文/英文）
+**What happens**:
+- ✅ Auto-detects your system language (Chinese → zh, Others → en)
 - ✅ Backs up your existing `~/.claude/` configuration
-- ✅ 备份你现有的 `~/.claude/` 配置
 - ✅ Installs all necessary files
-- ✅ 安装所有必要文件
 - ✅ Sets up AI Warden CLI (aiw)
-- ✅ 设置 AI Warden CLI (aiw)
 
 ---
 
-## Installation / 安装
+## Installation
 
-### Method 1: Install from npm / 方式1: 从 npm 安装
+### Method 1: Install from npm
 
 ```bash
 npm install -g @putao520/cc-spec-lite
 cc-spec install
 ```
 
-### Method 2: Install from source / 方式2: 从源码安装
+### Method 2: Install from source
 
 ```bash
 git clone https://github.com/putao520/cc-spec-lite.git
@@ -77,66 +65,63 @@ cc-spec install
 
 ---
 
-### Language Options / 语言选项
+### Language Options
 
-**Auto-detection / 自动检测** (Recommended / 推荐):
+**Auto-detection** (Recommended):
 ```bash
 cc-spec install
 # Automatically detects system locale
-# 中国大陆 → 中文版
-# 其他地区 → 英文版
+# China (zh_CN) → Chinese version
+# Other regions → English version
 ```
 
-**Manual selection / 手动选择**:
+**Manual selection**:
 ```bash
-# English version / 英文版
+# English version
 cc-spec install --lang en
 
-# Chinese version / 中文版
+# Chinese version
 cc-spec install --lang zh
 ```
 
 ---
 
-### Language Switching / 语言切换
+### Language Switching
 
 ```bash
-# Switch to Chinese / 切换到中文
+# Switch to Chinese
 cc-spec install --lang zh --force
 
-# Switch to English / 切换到英文
+# Switch to English
 cc-spec install --lang en --force
 ```
 
-**What happens / 发生什么**:
+**What happens**:
 - Shows current installed language
-- 显示当前已安装语言
 - Asks: Keep current / Switch / Cancel
-- 询问：保持当前 / 切换 / 取消
 - Backs up before switching
-- 切换前自动备份
 
 ---
 
-### All Commands / 所有命令
+### All Commands
 
 ```bash
-# Install / 安装
+# Install
 cc-spec install [options]
-  -l, --lang <en|zh>     Language (default: auto-detect / 默认自动检测)
-  -f, --force           Force reinstall / 强制重新安装
-  --skip-aiw           Skip aiw check / 跳过 aiw 检查
+  -l, --lang <en|zh>     Language (default: auto-detect)
+  -f, --force           Force reinstall (allows language switching)
+  --skip-aiw           Skip aiw check
 
-# Uninstall / 卸载
+# Uninstall
 cc-spec uninstall
 
-# Update / 更新
+# Update
 cc-spec update
 
-# Check status / 检查状态
+# Check status
 cc-spec status
 
-# Quick aliases / 快捷命令
+# Quick aliases
 spec-install          # Same as 'cc-spec install'
 spec-status          # Same as 'cc-spec status'
 spec-update          # Same as 'cc-spec update'
@@ -144,68 +129,67 @@ spec-update          # Same as 'cc-spec update'
 
 ---
 
-### What Gets Installed / 安装内容
+### What Gets Installed
 
 Files are copied to `~/.claude/`:
 
-| Directory | Contents | 内容 |
-|-----------|----------|------|
-| `skills/` | Architect, Programmer, Testing skills | 架构师、程序员、测试技能 |
-| `commands/` | /spec-init, /spec-audit | SPEC初始化、审查命令 |
-| `scripts/` | Git hooks, AI CLI runners | Git钩子、AI CLI运行器 |
-| `roles/` | Coding standards | 编码规范 |
-| `CLAUDE.md` | Global development rules | 全局开发规范 |
+| Directory | Contents |
+|-----------|----------|
+| `skills/` | Architect, Programmer, Testing skills |
+| `commands/` | /spec-init, /spec-audit |
+| `scripts/` | Git hooks, AI CLI runners |
+| `roles/` | Coding standards |
+| `CLAUDE.md` | Global development rules |
 
-**Platform-specific paths / 平台特定路径**:
+**Platform-specific paths**:
 - **Linux/macOS**: `~/.claude/`
 - **Windows**: `C:\Users\YourName\.claude\`
 
 ---
 
-### Backup and Restore / 备份和恢复
+### Backup and Restore
 
-**Automatic backup on install / 安装时自动备份**:
+**Automatic backup on install**:
 ```
 ~/.claude/backup/cc-spec-lite-2025-12-29T14-30-00/
 └── (Complete backup of pre-installation files)
 ```
 
-**Restore on uninstall / 卸载时可恢复**:
+**Restore on uninstall**:
 ```bash
 cc-spec uninstall
 # Asks: Restore pre-installation backup?
-# 询问：是否恢复安装前备份？
 ```
 
 ---
 
-## Uninstallation / 卸载
+## Uninstallation
 
-### Standard Uninstall / 标准卸载
+### Standard Uninstall
 
 ```bash
 cc-spec uninstall
 ```
 
-**Prompts you / 提示你**:
-1. Confirm uninstall / 确认卸载
-2. Restore backup (if available) / 恢复备份（如果有）
+**Prompts you**:
+1. Confirm uninstall
+2. Restore backup (if available)
 
-**What gets removed / 删除内容**:
+**What gets removed**:
 - ✅ Skills, commands, scripts, roles
 - ✅ CLAUDE.md
 - ✅ Backup info file
-- ❌ Backup directory (kept for safety / 保留以防万一)
+- ❌ Backup directory (kept for safety)
 
-### Clean Uninstall (Remove backups) / 完全卸载（删除备份）
+### Clean Uninstall (Remove backups)
 
 ```bash
-# After standard uninstall / 在标准卸载后
+# After standard uninstall
 rm -rf ~/.claude/backup/cc-spec-lite-*    # Linux/macOS
 rmdir /s "%USERPROFILE%\.claude\backup\cc-spec-lite-*"  # Windows
 ```
 
-### Remove npm Package / 删除 npm 包
+### Remove npm Package
 
 ```bash
 npm uninstall -g @putao520/cc-spec-lite
@@ -213,65 +197,64 @@ npm uninstall -g @putao520/cc-spec-lite
 
 ---
 
-## Usage / 使用
+## Usage
 
-### Basic Workflow / 基本工作流
+### Basic Workflow
 
 ```
-1. /spec-init        → Initialize project SPEC / 初始化项目 SPEC
-2. /architect        → Design architecture / 设计架构
-3. /programmer       → Write code / 编写代码
-4. /spec-audit       → Validate completeness / 验证完整性
+1. Initialize: /spec-init → Create project SPEC
+2. Design: Discuss requirements with Claude → Auto invokes architect skill
+3. Develop: Say "Start development" → Auto invokes programmer skill
+4. Validate: /spec-audit → Verify SPEC completeness
 ```
 
-### Example Project / 示例项目
+**Key Point**: You don't manually invoke `/architect` or `/programmer`. Claude Code automatically selects the appropriate skill based on conversation context.
+
+### Example Project
 
 ```bash
-# Create project / 创建项目
+# Create project
 mkdir my-app
 cd my-app
 git init
 
-# Initialize SPEC / 初始化 SPEC
+# Initialize SPEC
 /spec-init
 # Answer questions about your project
-# 回答关于你的项目的问题
 
-# Review generated SPEC / 查看生成的 SPEC
+# Review generated SPEC
 cat SPEC/01-REQUIREMENTS.md
 
-# Start development / 开始开发
-/programmer
-# Implement features based on SPEC
-# 基于 SPEC 实现功能
+# Start development - just say "Let's implement this"
+# Claude Code will automatically use programmer skill
 ```
 
+### Available Skills
+
+These are **automatically invoked** by Claude Code based on context:
+
+| Skill | Purpose |
+|-------|---------|
+| `architect` | System design and SPEC management |
+| `programmer` | Code implementation |
+| `readme` | Documentation |
+| `testing` | E2E and integration tests |
+| `devloop` | SPEC-test validation loop |
+
+### Custom Commands
+
+These are **explicit commands** you invoke:
+
+| Command | Purpose |
+|---------|---------|
+| `/spec-init` | Interactive SPEC initialization |
+| `/spec-audit` | Verify SPEC completeness |
+
 ---
 
-### Available Skills / 可用技能
+### Scripts
 
-| Skill | Purpose | 用途 |
-|-------|---------|------|
-| `/architect` | System design and SPEC management | 系统设计和SPEC管理 |
-| `/programmer` | Code implementation | 代码实现 |
-| `/readme` | Documentation | 文档编写 |
-| `/testing` | E2E and integration tests | E2E和集成测试 |
-| `/devloop` | SPEC-test validation loop | SPEC-测试验证循环 |
-
----
-
-### Custom Commands / 自定义命令
-
-| Command | Purpose | 用途 |
-|---------|---------|------|
-| `/spec-init` | Interactive SPEC initialization | 交互式SPEC初始化 |
-| `/spec-audit` | Verify SPEC completeness | 验证SPEC完整性 |
-
----
-
-### Scripts / 脚本
-
-**AI CLI Runner / AI CLI 运行器**:
+**AI CLI Runner**:
 ```bash
 # Linux/macOS
 ~/.claude/scripts/ai-cli-runner.sh backend 'REQ-AUTH-001' 'Implement authentication'
@@ -280,146 +263,122 @@ cat SPEC/01-REQUIREMENTS.md
 ~\.claude\scripts\ai-cli-runner.ps1 backend 'REQ-AUTH-001' 'Implement authentication'
 ```
 
-**Git Utilities / Git 工具**:
+**Git Utilities**:
 ```bash
-# Commit with SPEC reference / 带 SPEC 引用的提交
+# Commit with SPEC reference
 ~/.claude/scripts/commit-and-close.sh --message "feat: Add login [REQ-AUTH-001]" --issue 123
 
-# Update SPEC status / 更新 SPEC 状态
+# Update SPEC status
 ~/.claude/scripts/update-spec-status.sh REQ-AUTH-001 implemented
 ```
 
 ---
 
-## Features / 功能特性
+## Features
 
-### Core Capabilities / 核心能力
+### Core Capabilities
 
-- ✅ **SPEC-Driven Development / SPEC 驱动开发**
-  - Single source of truth / 单一真实源
-  - Structured requirements / 结构化需求
-  - Traceable changes / 可追溯变更
+- ✅ **SPEC-Driven Development**
+  - Single source of truth
+  - Structured requirements
+  - Traceable changes
 
-- ✅ **Role-Based Skills / 基于角色的技能**
-  - Architect for design / 架构师负责设计
-  - Programmer for implementation / 程序员负责实现
-  - Automatic code review / 自动代码审查
+- ✅ **Role-Based Skills**
+  - Architect for design
+  - Programmer for implementation
+  - Automatic code review
 
-- ✅ **Cross-Platform / 跨平台**
+- ✅ **Cross-Platform**
   - Linux, macOS, Windows support
-  - 自动检测系统语言
+  - Auto-detects system language
   - Native Bash and PowerShell scripts
-  - 原生 Bash 和 PowerShell 脚本
 
-- ✅ **Safe Installation / 安全安装**
+- ✅ **Safe Installation**
   - Automatic backup before install
-  - 安装前自动备份
   - Restore option on uninstall
-  - 卸载时可恢复
 
 ---
 
-## How It Compares / 与其他方案对比
+## Comparison
 
-### Problem Domain Comparison / 问题域对比
+### Problem Domain
 
-| Problem / 问题 | OpenSpec | cc-spec-lite |
-|---------------|----------|--------------|
-| **Scope / 覆盖范围** | Task-level requirements / 任务级需求 | System-level specifications / 系统级规范 |
-| **Target Audience / 目标用户** | Individual features / 单个功能 | Long-term projects / 长期项目 |
-| **Primary Use Case / 主要场景** | "Describe one feature" / "描述单个功能" | "Maintain system consistency" / "维护系统一致性" |
-| **Language Support / 语言支持** | English-focused / 英文为主 | Full bilingual / 完整中英双语 |
-| **Development Environment / 开发环境** | International / 国际环境 | Chinese developers / 中文开发者 |
-| **Specification Scope / 规范范围** | Feature requirements / 功能需求 | Requirements + Architecture + Data + API / 需求+架构+数据+API |
-| **Role Separation / 角色分工** | ❌ Not covered / 未覆盖 | ✅ Architect ↔ Programmer ↔ Testing |
-| **Long-term Maintenance / 长期维护** | ⚠️ Per-feature / 按功能 | ✅ System-level SSOT / 系统级单一真源 |
-| **AI CLI Integration / AI CLI集成** | ❌ None / 无 | ✅ aiw with role injection / aiw角色注入 |
+| Dimension | OpenSpec | cc-spec-lite |
+|-----------|----------|--------------|
+| **Coverage** | Task-level requirements | System-level specifications |
+| **Target** | Individual features | Long-term projects |
+| **Primary Use** | Feature description | System consistency |
+| **Language** | English-focused | Full bilingual |
+| **Environment** | International | Chinese developers |
+| **Spec Scope** | Feature requirements | Requirements + Architecture + Data + API |
+| **Roles** | Not covered | Architect ↔ Programmer ↔ Testing |
+| **Maintenance** | Per-feature | System-level SSOT |
+| **AI CLI** | None | aiw with role injection |
 
-### Why cc-spec-lite is a Complete Solution / 为什么cc-spec-lite是完整方案
+### Specification Documents
 
-**cc-spec-lite covers everything OpenSpec does, plus:**
-**cc-spec-lite 覆盖OpenSpec的所有功能，并且：**
-
-- ✅ **Broader scope / 更广的覆盖**: Task-level + System-level / 任务级 + 系统级
-- ✅ **Chinese-native / 中文优先**: Full bilingual support / 完整双语支持
-- ✅ **Long-term focus / 长期导向**: System consistency, not just feature description / 系统一致性，不仅是功能描述
-- ✅ **Role-based collaboration / 基于角色协作**: Architect ↔ Programmer ↔ Testing / 架构师 ↔ 程序员 ↔ 测试
-- ✅ **AI CLI integration / AI CLI集成**: Native aiw support with role injection / 原生aiw支持与角色注入
-- ✅ **Safe installation / 安全安装**: Backup & restore mechanism / 备份恢复机制
-
-**OpenSpec can do, cc-spec-lite does better:**
-**OpenSpec能做的，cc-spec-lite做得更好：**
-
-| OpenSpec Task | cc-spec-lite Equivalent | Advantage / 优势 |
-|--------------|------------------------|-----------------|
-| Feature description / 功能描述 | `01-REQUIREMENTS.md [REQ-XXX]` | Structured + Traceable / 结构化 + 可追溯 |
-| Interface design / 接口设计 | `04-API-DESIGN.md [API-XXX]` | Complete error codes / 完整错误码 |
-| Data modeling / 数据建模 | `03-DATA-STRUCTURE.md [DATA-XXX]` | Indexes + Relations / 索引 + 关系 |
-| Architecture / 架构 | `02-ARCHITECTURE.md [ARCH-XXX]` | Module dependencies / 模块依赖 |
-
-**Conclusion / 结论**:
-> cc-spec-lite = OpenSpec (task-level) + System-level SPEC + Multi-role collaboration + Chinese environment support
->
-> cc-spec-lite = OpenSpec（任务级）+ 系统级SPEC + 多角色协作 + 中文环境支持
->
-> **No need for OpenSpec when using cc-spec-lite / 使用cc-spec-lite时无需OpenSpec**
+| OpenSpec | cc-spec-lite |
+|----------|--------------|
+| Feature spec | `01-REQUIREMENTS.md` (REQ-XXX) |
+| (No equivalent) | `02-ARCHITECTURE.md` (ARCH-XXX) |
+| (No equivalent) | `03-DATA-STRUCTURE.md` (DATA-XXX) |
+| Interface spec | `04-API-DESIGN.md` (API-XXX) |
+| (No equivalent) | `05-UI-DESIGN.md` (UI-XXX) |
 
 ---
 
-## FAQ / 常见问题
+## FAQ
 
-### How do I switch languages? / 如何切换语言？
+### How do I switch languages?
 
 ```bash
-cc-spec install --lang zh --force   # Switch to Chinese / 切换到中文
-cc-spec install --lang en --force   # Switch to English / 切换到英文
+cc-spec install --lang zh --force   # Switch to Chinese
+cc-spec install --lang en --force   # Switch to English
 ```
 
-### Will I lose my existing configuration? / 会丢失现有配置吗？
+### Will I lose my existing configuration?
 
-**No / 不会**. The installer automatically backs up your existing `~/.claude/` before installing. On uninstall, you can choose to restore the backup.
-安装程序会在安装前自动备份你现有的 `~/.claude/`。卸载时你可以选择恢复备份。
+**No**. The installer automatically backs up your existing `~/.claude/` before installing. On uninstall, you can choose to restore the backup.
 
-### Where are files installed? / 文件安装在哪里？
+### Where are files installed?
 
 | Platform | Location |
 |----------|----------|
 | Linux/macOS | `~/.claude/` |
 | Windows | `C:\Users\YourName\.claude\` |
 
-### How do I update? / 如何更新？
+### How do I update?
 
 ```bash
 npm update -g @putao520/cc-spec-lite
 cc-spec update
 ```
 
-### What is AI Warden CLI (aiw)? / 什么是 AI Warden CLI (aiw)？
+### What is AI Warden CLI (aiw)?
 
 AI Warden CLI is a required dependency for running AI agents with role-based context. It will be automatically installed during cc-spec-lite setup.
-AI Warden CLI 是运行带角色上下文的 AI 代理的必需依赖。它会在 cc-spec-lite 设置期间自动安装。
 
-**Install manually / 手动安装**:
+**Install manually**:
 ```bash
 npm install -g @putao520/agentic-warden
 ```
 
-### Skills not found after installation? / 安装后找不到技能？
+### Skills not found after installation?
 
 ```bash
-# Verify installation / 验证安装
+# Verify installation
 cc-spec status
 
-# Check files / 检查文件
+# Check files
 ls -la ~/.claude/skills/    # Linux/macOS
 dir %USERPROFILE%\.claude\skills\   # Windows
 
-# Restart Claude Code / 重启 Claude Code
+# Restart Claude Code
 ```
 
 ---
 
-## Requirements / 系统要求
+## Requirements
 
 - **Node.js** >= 14.0.0
 - **npm** >= 6.0.0
@@ -428,43 +387,39 @@ dir %USERPROFILE%\.claude\skills\   # Windows
 
 ---
 
-## Contributing / 贡献
+## Contributing
 
 Contributions are welcome! Please follow these guidelines:
 
-欢迎贡献！请遵循以下准则：
+1. Fork the repository
+2. Create a feature branch
+3. Follow SPEC-driven development workflow
+4. Submit a pull request
 
-1. Fork the repository / Fork 仓库
-2. Create a feature branch / 创建功能分支
-3. Follow SPEC-driven development workflow / 遵循 SPEC 驱动开发流程
-4. Submit a pull request / 提交 PR
-
-**Development workflow / 开发工作流**:
+**Development workflow**:
 ```bash
-# Initialize project SPEC / 初始化项目 SPEC
+# Initialize project SPEC
 /spec-init
 
-# Design your changes / 设计变更
+# Design your changes
 /architect
 
-# Implement / 实现
-/programmer
+# Implement
+# Just say "Let's implement this" - Claude Code auto-invokes programmer
 
-# Validate / 验证
+# Validate
 /spec-audit
 ```
 
 ---
 
-## License / 许可证
+## License
 
 Distributed under the MIT License. See [LICENSE](LICENSE) for more information.
 
-基于 MIT 许可证分发。详见 [LICENSE](LICENSE)。
-
 ---
 
-## Links / 链接
+## Links
 
 - **GitHub**: https://github.com/putao520/cc-spec-lite
 - **Issues**: https://github.com/putao520/cc-spec-lite/issues
