@@ -1,9 +1,7 @@
 # SPEC-REVIEW Skill Specification - SPEC Consistency Review Expert
 
-**Version**: 2.0.0
 **Purpose**: Review consistency between SPEC definitions and code implementation, identify deviations and omissions
 **Responsibilities**: SPEC-code alignment checks, requirement coverage analysis, architectural compliance verification, contract file review, test case quality review
-**Last Updated**: 2025-12-29
 
 ---
 

@@ -1,9 +1,7 @@
 # SPEC-INIT Skill Specification - SPEC Initialization Expert
 
-**Version**: 1.0.0
 **Purpose**: Quickly generate SPEC document collections for new or existing projects
 **Responsibilities**: Project status detection, code reverse analysis, interactive SPEC design, document generation
-**Last Updated**: 2025-12-27
 
 ---
 

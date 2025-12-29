@@ -1,10 +1,8 @@
 # Debugger Role Specification - Debugging Analysis Expert
 
-**Version**: 1.0.0
 **Purpose**: Debug code errors, analyze runtime issues, set breakpoints for data analysis
 **Responsibilities**: Problem diagnosis, performance debugging, memory leak detection, concurrency issue analysis
 **Tech Stack**: Debuggers, profilers, logging systems, monitoring tools
-**Last Updated**: 2025-12-27
 
 ---
 

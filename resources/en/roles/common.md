@@ -1,8 +1,6 @@
 # Common Coding Standards - CODING-STANDARDS-COMMON
 
-**Version**: 2.0.0
 **Scope**: All programming tasks (backend, frontend, system, database, etc.)
-**Last Updated**: 2025-12-25
 
 ---
 

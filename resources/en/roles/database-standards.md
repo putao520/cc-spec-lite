@@ -1,8 +1,6 @@
 # Database Development Standards - CODING-STANDARDS-DATABASE
 
-**Version**: 2.0.0
 **Scope**: Database development positions (SQL/NoSQL/Graph/Time-series databases, technology stack agnostic)
-**Last Updated**: 2025-12-25
 
 ---
 

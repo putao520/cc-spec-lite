@@ -1,8 +1,6 @@
 # Frontend Development Standards - CODING-STANDARDS-FRONTEND
 
-**Version**: 2.0.0
 **Scope**: Frontend development positions (Web/Mobile/Desktop applications, technology stack agnostic)
-**Last Updated**: 2025-12-25
 
 ---
 
