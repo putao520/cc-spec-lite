@@ -1,439 +1,333 @@
 ---
-description: SPEC初始化 - AI驱动的交互式引导创建项目SPEC
-argument-hint: [项目路径(可选)]
+description: SPEC Initialization - AI-driven interactive project SPEC creation
+argument-hint: [project path (optional)]
 ---
 
-# SPEC初始化命令
+# SPEC Initialization Command
 
-## 核心职责
+## Core Responsibilities
 
-**SPEC初始化的统一入口，根据项目状态智能路由**
+**Unified entry point for SPEC initialization, intelligently routes based on project state**
 
-- ❌ **不做**复杂的代码分析
-- ❌ **不做**SPEC格式推断
-- ✅ **只做**项目状态检测
-- ✅ **只做**交互式信息收集（新项目）
-- ✅ **只做**智能路由到 /architect
+- ❌ **Don't do** complex code analysis
+- ❌ **Don't do** SPEC format inference
+- ✅ **Only do** project state detection
+- ✅ **Only do** interactive information collection (for new projects)
+- ✅ **Only do** intelligent routing to /architect
 
 ---
 
-## 执行流程
+## Execution Flow
 
-### 阶段0：项目状态检测（自动）
+### Phase 0: Project State Detection (Automatic)
 
 ```bash
-# 1. 检查 SPEC/ 是否存在且完整
+# 1. Check if SPEC/ exists and is complete
 if [ -d "SPEC" ]; then
     spec validate SPEC/ 2>/dev/null
     if [ $? -eq 0 ]; then
-        echo "✅ SPEC 已完整初始化"
-        echo "使用 /architect 修改现有 SPEC"
+        echo "✅ SPEC fully initialized"
+        echo "Use /architect to modify existing SPEC"
         exit 0
     fi
 fi
 
-# 2. 检查是否有现有代码
-code_files=$(find . -type f \( -name "*.py" -o -name "*.js" -o -name "*.ts" \
-    -o -name "*.go" -o -name "*.java" -o -name "*.rs" \
-    -o -name "*.jsx" -o -name "*.tsx" -o -name "*.vue" \) \
-    ! -path "*/node_modules/*" ! -path "*/.git/*" 2>/dev/null | wc -l)
+# 2. Check if this is a new project
+if [ ! -d ".git" ]; then
+    echo "⚠️  Not a git repository"
+    echo "Recommended: git init first"
+fi
 
-if [ $code_files -eq 0 ]; then
-    echo "📁 空项目 → 进入交互式引导模式"
-    MODE="interactive"
+# 3. Detect project type
+if [ -f "package.json" ]; then
+    PROJECT_TYPE="node"
+elif [ -f "pom.xml" ]; then
+    PROJECT_TYPE="java"
+elif [ -f "requirements.txt" ] || [ -f "pyproject.toml" ]; then
+    PROJECT_TYPE="python"
+elif [ -f "go.mod" ]; then
+    PROJECT_TYPE="go"
 else
-    echo "💻 有代码 ($code_files 个文件) → 交由架构师分析"
-    MODE="analyze"
+    PROJECT_TYPE="unknown"
 fi
 ```
 
 ---
 
-### 模式1：空项目 - 交互式引导
+### Phase 1: New Project Interactive Dialogue
 
-**步骤1：开放式项目描述**
-
-使用普通文本输入（不要选项列表）：
-
-```
-# 🎯 项目初始化向导
-
-欢迎使用 SPEC 驱动开发！
-
-请描述你想要做的项目：
-
-**提示：** 自由描述即可，例如：
-- "做一个类似 Instagram 的图片分享 App"
-- "开发一个实时协作的在线文档编辑器"
-- "做一个支持多商户的电商后台系统"
-- "写一个 Python 的代码质量检测工具"
-
-**你的项目描述：**
-[等待用户输入...]
-```
-
-**步骤2：AI分析 + 动态追问**
-
-根据用户描述，识别需要澄清的关键点：
-
-**分析维度（按需选择，不要问所有）：**
-
-| 用户描述示例 | 识别类型 | 必要追问 |
-|-------------|---------|---------|
-| "数据库/存储" | 系统软件 | 数据模型/一致性/分布式 |
-| "Web应用/网站" | Web应用 | 前端框架/后端架构/数据库 |
-| "移动应用/App" | 移动应用 | 平台/跨平台方案 |
-| "工具/库" | 开发工具 | 目标语言/包管理 |
-| "游戏" | 游戏开发 | 引擎/2D3D/平台 |
-| "管理后台" | Web应用 | 前端框架/权限设计 |
-| "API服务" | 后端服务 | 协议/认证/文档 |
-
-**追问示例：**
+**For projects without SPEC or with incomplete SPEC:**
 
 ```markdown
-# 项目技术选型
+## Interactive Information Collection
 
-基于你的描述，我需要了解一些关键信息：
+### Question 1: Project Name
+**AI**: What is your project name?
+**User**: [e.g., E-commerce Backend System]
 
-**1. 开发语言**
-你倾向于使用什么语言？
-[用户输入]
+### Question 2: Project Type
+**AI**: What type of project is this?
+- Web Application
+- Mobile Application
+- Desktop Application
+- API Service
+- Library/SDK
+- Other
 
-**2. 项目类型**
-这是 Web应用、移动应用、后端服务、还是桌面应用？
-[用户输入]
+**User**: [Select one]
 
-**3. 数据存储**
-需要持久化数据吗？如果需要，用什么数据库？
-[用户输入]
-```
+### Question 3: Primary Technology Stack
+**AI**: What are the main technologies?
+**User**: [e.g., Next.js + PostgreSQL + Prisma]
 
-**关键原则：**
-- ✅ 基于用户描述动态选择追问内容
-- ✅ 每个问题都是开放式文本输入
-- ❌ 不要使用选项列表
-- ❌ 不要问无关的问题
+### Question 4: Core Features
+**AI**: What are the core features? List them briefly.
+**User**: [e.g., User authentication, Product catalog, Order processing, Payment integration]
 
-**步骤3：理解确认**
+### Question 5: Special Requirements
+**AI**: Any special requirements or constraints?
+- Performance requirements
+- Security requirements
+- Compliance requirements
+- Deployment environment
+- Other
 
-展示AI对项目的理解：
+**User**: [Optional description]
 
-```markdown
-## 📋 项目理解总结
+### Question 6: Development Team Size
+**AI**: What is your team size?
+- Solo (1 person)
+- Small team (2-5 people)
+- Medium team (6-20 people)
+- Large team (20+ people)
 
-### 项目概述
-**项目类型：** [推导的类型]
-**核心功能：**
-- [功能1]
-- [功能2]
-
-### 技术方案
-**语言/框架：** [推导的技术栈]
-**数据库：** [推导的数据库]
-**部署方式：** [推导的部署方案]
-
-### 模块划分（初步）
-- [模块1] - [职责]
-- [模块2] - [职责]
-
-### 数据模型（初步识别）
-- [实体1] - [核心字段]
-- [实体2] - [核心字段]
-
-### API设计（初步识别）
-- /api/[module1] - [功能]
-- /api/[module2] - [功能]
-
----
-
-**这个理解是否正确？**
-[✅ 理解正确，生成 SPEC]
-[✏️ 需要修正]
-```
-
-使用 AskUserQuestion，用户选择后：
-- ✅ 理解正确 → 进入步骤4
-- ✏️ 需要修正 → 追问细节 → 重新确认
-
-**步骤4：调用 /architect 生成SPEC**
-
-```bash
-# 将收集的信息传递给架构师
-/architect <<EOF
-# 项目初始化请求
-
-**项目类型：** 新项目
-
-**用户描述：**
-[用户的原始描述]
-
-**技术选型：**
-- 语言：[用户选择]
-- 框架：[推导/用户选择]
-- 数据库：[推导/用户选择]
-
-**功能模块：**
-[从对话中推导的模块]
-
-**数据模型：**
-[从对话中推导的实体]
-
-**API设计：**
-[从对话中推导的接口]
-
-请根据以上信息生成完整的SPEC：
-1. 01-REQUIREMENTS.md - 包含 REQ-XXX
-2. 02-ARCHITECTURE.md - 包含 ARCH-XXX
-3. 03-DATA-STRUCTURE.md - 包含 DATA-XXX
-4. 04-API-DESIGN.md - 包含 API-XXX
-5. 05-UI-DESIGN.md (如需前端)
-EOF
+**User**: [Select one]
 ```
 
 ---
 
-### 模式2：旧项目 - 交由架构师分析
+### Phase 2: Generate SPEC Structure
 
-**直接调用 /architect，不做任何预处理：**
+After collecting information, route to `/architect` with context:
+
+```markdown
+/architect, please help initialize SPEC for this project:
+
+**Project Information Collected**:
+- Name: {project_name}
+- Type: {project_type}
+- Tech Stack: {tech_stack}
+- Core Features: {core_features}
+- Special Requirements: {special_requirements}
+- Team Size: {team_size}
+
+**Required Actions**:
+1. Create SPEC/ directory structure
+2. Generate VERSION file (v0.1.0)
+3. Create 01-REQUIREMENTS.md with REQ-XXX IDs for core features
+4. Create 02-ARCHITECTURE.md with system architecture
+5. Create 03-DATA-STRUCTURE.md if database is used
+6. Create 04-API-DESIGN.md if it's an API service
+7. Assign appropriate IDs (REQ-XXX, ARCH-XXX, DATA-XXX, API-XXX)
+
+**User Confirmation**: Please present the generated SPEC for review before finalizing.
+```
+
+---
+
+### Phase 3: Existing Project SPEC Analysis
+
+**For projects with existing SPEC:**
 
 ```bash
-echo "检测到现有代码，将由架构师分析并生成SPEC"
+# Check SPEC completeness
+spec validate SPEC/ 2>/dev/null
+VALIDATION_RESULT=$?
+
+if [ $VALIDATION_RESULT -ne 0 ]; then
+    echo "⚠️  SPEC validation failed"
+    echo ""
+    echo "Issues found:"
+    spec validate SPEC/ 2>&1 | grep -E "ERROR|WARNING"
+    echo ""
+    echo "Use /architect to fix SPEC issues"
+    exit 1
+fi
+
+echo "✅ SPEC is valid and complete"
 echo ""
-
-/architect <<EOF
-# 逆向SPEC生成请求
-
-**项目类型：** 旧项目（有代码无SPEC）
-
-**项目信息：**
-- 路径: $(pwd)
-- 代码文件数: $code_files
-- 主要语言: [自动检测]
-
-**任务要求：**
-1. 分析项目代码结构
-2. 识别功能模块（ARCH-XXX）
-3. 识别数据模型（DATA-XXX）
-4. 识别API接口（API-XXX）
-5. 推导功能需求（REQ-XXX）
-6. 生成完整SPEC/目录
-
-**生成规范：**
-- 所有推断内容标记 [推断] 或 [待确认]
-- 标注代码位置（文件路径:行号）
-- 生成后展示给用户确认
-
-请开始分析并生成SPEC。
-EOF
+echo "Current SPEC status:"
+echo "- Requirements: $(grep -c 'REQ-' SPEC/01-REQUIREMENTS.md 2>/dev/null || echo 0)"
+echo "- Architecture: $(grep -c 'ARCH-' SPEC/02-ARCHITECTURE.md 2>/dev/null || echo 0)"
+echo "- Data Models: $(grep -c 'DATA-' SPEC/03-DATA-STRUCTURE.md 2>/dev/null || echo 0)"
+echo "- API Definitions: $(grep -c 'API-' SPEC/04-API-DESIGN.md 2>/dev/null || echo 0)"
 ```
 
 ---
 
-## 完成提示
+## Output Format
 
-### 新项目（交互式模式）
+### Success Output
 
 ```markdown
-✅ SPEC 初始化完成！
+✅ SPEC Initialization Complete!
 
-**已生成文件：**
-- SPEC/VERSION (v1.0.0)
-- SPEC/01-REQUIREMENTS.md (X 个需求)
-- SPEC/02-ARCHITECTURE.md (X 个模块)
-- SPEC/03-DATA-STRUCTURE.md (X 个实体)
-- SPEC/04-API-DESIGN.md (X 个接口)
+**Project**: [Project Name]
+**Location**: ./SPEC/
 
-**下一步：**
-1. 🔧 查看/修改 SPEC → 使用 `/architect`
-2. 💻 开始开发 → 使用 `/programmer`
-3. 📋 验证完整性 → 使用 `/spec-audit`
+**Generated Files**:
+- ✅ VERSION (v0.1.0)
+- ✅ 01-REQUIREMENTS.md (3 requirements)
+- ✅ 02-ARCHITECTURE.md (system architecture)
+- ✅ 03-DATA-STRUCTURE.md (data models)
+- ✅ 04-API-DESIGN.md (API specifications)
+
+**Next Steps**:
+1. Review generated SPEC files
+2. Use /spec-audit to verify completeness
+3. Start development with /programmer
+
+**Quick Actions**:
+- /spec-audit      # Verify SPEC completeness
+- /architect       # Modify SPEC
+- /programmer      # Start implementation
 ```
 
-### 旧项目（架构师分析模式）
+### Error Output
 
 ```markdown
-✅ SPEC 逆向生成完成！
+❌ SPEC Initialization Failed
 
-**从代码中识别出：**
-- 功能模块：X 个
-- 数据实体：X 个
-- API接口：X 个
-- 推导需求：X 个
+**Error**: [Error description]
 
-**已生成文件：**
-- SPEC/VERSION
-- SPEC/01-REQUIREMENTS.md (包含 [推断] 标记)
-- SPEC/02-ARCHITECTURE.md
-- SPEC/03-DATA-STRUCTURE.md
-- SPEC/04-API-DESIGN.md
+**Common Issues**:
+- Not in a project directory
+- Git repository not initialized
+- Insufficient permissions
 
-**重要：**
-- 所有推断内容已标记 [推断]
-- 请仔细检查并修正错误推断
-- 补充缺失的验收标准和文档
-
-**下一步：**
-1. 📝 检查推断结果 → `cat SPEC/01-REQUIREMENTS.md`
-2. ✏️ 修正/完善 → 使用 `/architect`
-3. 💻 开始开发 → 使用 `/programmer`
+**Suggestions**:
+- [Suggested actions]
 ```
 
 ---
 
-## 决策流程图
+## Integration with Other Commands
 
 ```
-用户执行 /spec-init
-    ↓
-检测 SPEC/ 是否存在且完整
-    ↓
-  [是] → ✅ 提示："SPEC已存在，使用 /architect 修改"
-    ↓
-  [否]
-    ↓
-检测是否有代码文件
-    ↓
-  ├─ [无代码] → 交互式引导
-  │              ↓
-  │           收集项目描述
-  │              ↓
-  │           AI动态追问（按需）
-  │              ↓
-  │           展示理解确认
-  │              ↓
-  │           ✅ 确认 → 调用 /architect 生成SPEC
-  │
-  └─ [有代码] → 直接调用 /architect
-                  ↓
-               分析代码
-                  ↓
-               生成SPEC（标记[推断]）
+/spec-init
+    ↓ (initialize SPEC)
+/spec-audit
+    ↓ (verify completeness)
+/architect
+    ↓ (improve/refine SPEC)
+/programmer
+    ↓ (implement based on SPEC)
+/spec-audit (final check)
 ```
 
 ---
 
-## 交互式问答技巧
+## Examples
 
-### ✅ 好的问题
+### Example 1: New Node.js API Project
 
-- **开放式**："描述一下你的项目主要功能"（而非选项列表）
-- **聚焦式**："用户如何登录？邮箱还是手机号？"（而非"是否需要登录"）
-- **引导式**："这个模块需要和哪些其他模块交互？"（而非让用户猜要回答什么）
+```bash
+/spec-init
 
-### ❌ 坏的问题
+**Dialogue**:
+AI: What is your project name?
+User: Task Management API
 
-- **封闭式**："选择项目类型：[Web] [移动] [桌面]"（限制了用户）
-- **过早决策**："使用 React 还是 Vue？"（可能还没确定要做Web）
-- **无关问题**："需要日志系统吗？"（大多数项目都隐含需要）
+AI: What type of project is this?
+User: API Service
 
-### 关键原则
+AI: What are the main technologies?
+User: Node.js, Express, PostgreSQL, Prisma
 
-1. **基于用户描述追问** - 用户提到"数据库"才追问存储方案
-2. **每次只问1-2个问题** - 避免信息过载
-3. **逐步细化** - 先了解整体，再深入细节
-4. **允许跳过** - 不确定的信息可以先标记为 [待定]
+AI: What are the core features?
+User: User authentication, task CRUD, team collaboration
 
----
+AI: Any special requirements?
+User: RESTful API, JWT auth, real-time notifications
 
-## 推导示例
-
-### 示例1：电商系统
-
-**用户说：** "做一个电商后台，支持多商户"
-
-**AI识别：**
-- 类型：Web应用 + 后台管理
-- 关键实体：商户、商品、订单、用户
-- 需要澄清：商户隔离方式、结算方式、权限设计
-
-**AI追问：**
-```
-1. 多商户数据如何隔离？
-   - 每个商户独立数据库？
-   - 共享数据库，通过 merchant_id 隔离？
-
-2. 商户可以自己管理商品和订单吗？
-   - 是，需要商户后台
-   - 否，只有平台管理员
-
-3. 支付如何结算？
-   - 直接到商户账户？
-   - 平台统一结算，定期分账？
+**Generated SPEC**:
+- REQ-TASK-001: User Authentication
+- REQ-TASK-002: Task Management
+- REQ-TASK-003: Team Collaboration
+- ARCH-TASK-001: API Architecture
+- ARCH-TASK-002: Database Design
+- DATA-TASK-001: users table
+- DATA-TASK-002: tasks table
+- API-TASK-001: Auth endpoints
+- API-TASK-002: Task endpoints
 ```
 
-**推导结果：**
-- 模块：用户管理、商户管理、商品管理、订单管理、支付结算
-- 数据：User、Merchant、Product、Order、Payment、Settlement
-- API：/api/admin/*、/api/merchant/*、/api/orders
+### Example 2: Existing Project
 
-### 示例2：聊天应用
+```bash
+/spec-init
 
-**用户说：** "做一个实时聊天应用，类似微信"
+**Output**:
+✅ Project already has SPEC
 
-**AI识别：**
-- 类型：实时通信应用
-- 技术特点：WebSocket、消息推送
-- 关键实体：用户、会话、消息
-- 需要澄清：平台选择、消息存储、多媒体支持
+SPEC Status:
+- Requirements: 12 defined
+- Architecture: Complete
+- Data Models: 8 tables
+- API Definitions: 25 endpoints
 
-**AI追问：**
-```
-1. 目标平台？
-   - Web only
-   - 移动 App（iOS/Android）
-   - 全平台
+Status: ✅ Complete
 
-2. 消息如何存储？
-   - 只存储在服务端
-   - 客户端本地缓存
-   - 两者都要
-
-3. 需要支持什么类型的消息？
-   - 文本
-   - 图片
-   - 语音
-   - 视频
-   - 文件
-```
-
-**推导结果：**
-- 模块：用户认证、联系人管理、消息收发、群组管理、多媒体处理
-- 数据：User、Contact、Conversation、Message、Group
-- API：WebSocket 接口、RESTful API
-
----
-
-## 与其他命令的协作
-
-```
-新项目
-  /spec-init (交互收集) → /architect (生成) → /programmer (开发)
-
-旧项目
-  /spec-init (路由) → /architect (分析生成) → /spec-audit (验证)
-
-已有SPEC
-  /spec-init → 提示使用 /architect 修改
+Use /architect to modify SPEC
 ```
 
 ---
 
-## 禁止操作
+## Key Principles
 
-- ❌ **禁止做复杂的代码分析** - 交给 /architect
-- ❌ **禁止推断SPEC格式** - 交给 /architect
-- ❌ **禁止生成代码** - 只生成SPEC
-- ❌ **禁止使用固定选项** - 必须开放式对话
-- ❌ **禁止跳过理解确认** - 必须展示推导结果
+**Minimalism**:
+- Only guide the user through essential questions
+- Don't overwhelm with technical details
+- Let architect handle complex design
+
+**Smart Routing**:
+- New projects → Interactive dialogue → Generate SPEC
+- Existing projects → Analyze SPEC → Report status
+- Incomplete SPEC → Suggest improvements
+
+**User Control**:
+- User is the expert, AI is the guide
+- User confirms before finalizing SPEC
+- User can skip optional questions
 
 ---
 
-## 核心原则
+## Error Handling
 
-**spec-init = 薄路由层**
+```bash
+# Not in project directory
+if [ ! -d ".git" ]; then
+    echo "⚠️  Warning: Not a git repository"
+    echo "Recommend: git init"
+fi
 
-- 新项目：交互式收集 → 传给 /architect
-- 旧项目：直接传给 /architect
-- 已有SPEC：提示用户
+# SPEC already exists
+if [ -d "SPEC" ] && [ -f "SPEC/01-REQUIREMENTS.md" ]; then
+    echo "⚠️  SPEC already exists"
+    read -p "Overwrite? [y/N]: " overwrite
+    if [[ "$overwrite" != "y" && "$overwrite" != "Y" ]]; then
+        exit 0
+    fi
+fi
 
-所有复杂逻辑（分析、推导、生成）都在 /architect 技能中实现。
+# Architect not available
+if ! command -v architect &> /dev/null; then
+    echo "❌ /architect command not available"
+    echo "Please install cc-spec-lite framework"
+    exit 1
+fi
+```
+
+---
+
+**Note**: This command is a thin router. It detects project state and routes appropriately without performing complex analysis itself. All SPEC generation is handled by the /architect skill.

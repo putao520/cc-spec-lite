@@ -1,322 +1,322 @@
-# Claude Code 开发规范
+# Claude Code Development Standards
 
-> **文档定位**: 全局级 CLAUDE.md（~/.claude/CLAUDE.md）
+> **Document定位**: Global-level CLAUDE.md (~/.claude/CLAUDE.md)
 >
-> 本文档定义 SPEC-driven 开发的核心流程和规范，永久常驻于用户系统。
+> This document defines the core workflows and standards for SPEC-driven development, permanently resident in the user's system.
 >
-> **适用范围**: 所有使用本框架的项目
-> **安装位置**: `~/.claude/CLAUDE.md`
+> **Scope**: All projects using this framework
+> **Installation Location**: `~/.claude/CLAUDE.md`
 >
-> **项目级 CLAUDE.md**: 用户项目应该只包含 SPEC 位置说明（见下文"项目级 CLAUDE.md 规范"）
+> **Project-level CLAUDE.md**: User projects should only contain SPEC location instructions (see "Project-level CLAUDE.md Standards" below)
 
 ---
 
-## 八条铁律（违反即失败）
+## Eight Iron Rules (Violation = Failure)
 
-| # | 铁律 | 说明 |
-|---|------|------|
-| 1 | 主会话禁写代码 | 所有生产代码必须通过 /programmer 技能执行 |
-| 2 | 代码必经审查 | programmer 必须读取实际文件验证，不信任 AI CLI 汇报 |
-| 3 | Context7 先行 | 新功能开发前必须用 Context7 调研成熟库 |
-| 4 | SPEC 是真源 | 设计以 SPEC 为准，代码冲突时改代码不改 SPEC |
-| 5 | 销毁重建原则 | 禁止增量式修改，完全匹配才复用，否则删除重写 |
-| 6 | 完整交付 | 无 TODO/FIXME/stub，100% 实现 SPEC |
-| 7 | 提交后更新 SPEC | 代码提交后立即更新 SPEC 状态 |
+| # | Rule | Description |
+|---|------|-------------|
+| 1 | Main session prohibits writing code | All production code must be executed through /programmer skill |
+| 2 | Code must undergo review | programmer must read actual files for verification, don't trust AI CLI reports |
+| 3 | Context7 first | Must use Context7 to research mature libraries before new feature development |
+| 4 | SPEC is the source of truth | Design follows SPEC, code conflicts change code not SPEC |
+| 5 | Destroy and rebuild principle | Prohibit incremental changes, only reuse when fully matched, otherwise delete and rewrite |
+| 6 | Complete delivery | No TODO/FIXME/stub, 100% implement SPEC |
+| 7 | Update SPEC after commit | Update SPEC status immediately after code commit |
 
-### 架构师专项铁律（仅 /architect 生效）
+### Architect-Specific Iron Rules (Only effective for /architect)
 
-**铁律1：禁止在SPEC中生成代码**
-- 禁止任何编程语言的具体代码（类/函数/伪代码）
-- 禁止语言特定语法（Python类型注解/Go接口/TS泛型）
-- 禁止算法实现、配置实现等具体实现细节
-- ✅ 只写接口契约/数据结构/架构模式（语言无关）
+**Iron Rule 1: Prohibit generating code in SPEC**
+- Prohibit any concrete code in specific programming languages (classes/functions/pseudo-code)
+- Prohibit language-specific syntax (Python type annotations/Go interfaces/TS generics)
+- Prohibit algorithm implementations, configuration implementations, and other specific implementation details
+- ✅ Only write interface contracts/data structures/architectural patterns (language-agnostic)
 
-**铁律2：禁止擅自生成配置文件和环境变量**
-- 禁止预设.env、.yml、.json等配置文件内容
-- 禁止擅自定义环境变量（除非架构核心依赖）
-- 禁止预设Docker/K8s等部署配置
-- ✅ 除非用户明确要求，否则只做架构设计
+**Iron Rule 2: Prohibit unauthorized generation of configuration files and environment variables**
+- Prohibit pre-setting .env, .yml, .json and other configuration file content
+- Prohibit unauthorized definition of environment variables (unless core architecture dependencies)
+- Prohibit pre-setting Docker/K8s and other deployment configurations
+- ✅ Only do architectural design unless explicitly requested by user
 
-**铁律3：用户主导设计原则**
-- 用户是最资深的设计师，architect是执行助手
-- 禁止推荐或建议方案（用户决策，architect执行）
-- 禁止未经用户确认就更新SPEC
-- ✅ 交互式协作，直到用户满意后再更新SPEC
-
----
-
-## 临时文件规范
-
-**禁止在项目根目录生成任何汇报/分析/调试类文件**
-
-**必须生成到临时目录的文件**：
-- 所有分析报告：*ANALYSIS.md, *REPORT.md, *ALIGNMENT.md
-- 所有调试输出：debug-*, trace-*, verbose-*
-- 所有临时状态：temp-*, tmp-*, backup-*
-
-**允许位置**：`/tmp/claude-reports/`、`$HOME/.claude/tmp/`、`/dev/shm/claude-reports/`
-
-**项目根目录只应包含**：源代码、配置文件、构建脚本、SPEC文档、README
+**Iron Rule 3: User-led design principle**
+- User is the senior designer, architect is the execution assistant
+- Prohibit recommending or suggesting solutions (user decides, architect executes)
+- Prohibit updating SPEC without user confirmation
+- ✅ Interactive collaboration until user satisfied before updating SPEC
 
 ---
 
-## 主会话决策流程（每次收到消息必须执行）
+## Temporary File Standards
+
+**Prohibit generating any report/analysis/debug files in project root directory**
+
+**Files that must be generated to temporary directories**:
+- All analysis reports: *ANALYSIS.md, *REPORT.md, *ALIGNMENT.md
+- All debug output: debug-*, trace-*, verbose-*
+- All temporary states: temp-*, tmp-*, backup-*
+
+**Allowed locations**: `/tmp/claude-reports/`, `$HOME/.claude/tmp/`, `/dev/shm/claude-reports/`
+
+**Project root directory should only contain**: Source code, configuration files, build scripts, SPEC documents, README
+
+---
+
+## Main Session Decision Flow (Must execute every time a message is received)
 
 ```
-用户消息
+User message
     ↓
-步骤1：判断是否涉及需求/设计变更
-  以下情况 = 需求变更 = 必须调用 /architect：
-  - 用户说"改成XXX"、"支持XXX"、"不要XXX"
-  - 用户调整功能参数、接口、行为
-  - 用户修改技术方案、架构决策
-  - 任何导致SPEC内容需要变化的指令
-  → 立即调用 /architect，禁止口头调整计划
-    ↓ 否
-步骤2：判断是否涉及代码实现
-  以下情况 = 必须调用 /programmer：
-  - 用户说"继续"、"开始实现"、"写代码"
-  - 计划确认后的代码开发
-  - Bug修复、功能修改
-  → 立即调用 /programmer，禁止自己写代码
-    ↓ 否
-步骤3：主会话直接处理（仅限以下情况）
-  - 纯文档（README、注释）
-  - 配置值修改
-  - 格式调整
-  - 回答问题
+Step 1: Determine if it involves requirements/design changes
+  Following situations = requirement change = must call /architect:
+  - User says "change to XXX", "support XXX", "don't XXX"
+  - User adjusts function parameters, interfaces, behaviors
+  - User modifies technical solutions, architecture decisions
+  - Any instructions that cause SPEC content to change
+  → Immediately call /architect, prohibit verbally adjusting plans
+    ↓ No
+Step 2: Determine if it involves code implementation
+  Following situations = must call /programmer:
+  - User says "continue", "start implementing", "write code"
+  - Code development after plan confirmation
+  - Bug fixes, function modifications
+  → Immediately call /programmer, prohibit writing code yourself
+    ↓ No
+Step 3: Main session handles directly (only for following situations)
+  - Pure documentation (README, comments)
+  - Configuration value modifications
+  - Format adjustments
+  - Answer questions
 ```
 
-**关键规则**：
-- ❌ 禁止口头调整计划 - 用户修改需求时，必须调用architect更新SPEC
-- ❌ 禁止自己写代码 - 即使是"很简单的改动"，也必须调用programmer
-- ✅ 不确定时默认调用技能 - 宁可多调用，不可漏调用
+**Key rules**:
+- ❌ Prohibit verbally adjusting plans - when user modifies requirements, must call architect to update SPEC
+- ❌ Prohibit writing code yourself - even for "very simple changes", must call programmer
+- ✅ When in doubt, default to calling skills - better to call more than miss
 
 ---
 
-## 主会话与programmer的职责分工
+## Main Session and Programmer Responsibility Division
 
-**programmer技能负责自动执行代码提交，主会话不再干预提交流程**
+**programmer skill is responsible for automatically executing code commits, main session no longer intervenes in commit process**
 
-programmer流程：
-1. 步骤1-7：正常的开发、验证、代码审查流程
-2. 步骤8：验证通过后自动执行代码提交、Issue关闭、SPEC状态更新、向主会话报告完成
+programmer workflow:
+1. Steps 1-7: Normal development, verification, code review process
+2. Step 8: After verification passes, automatically execute code commit, issue closure, SPEC status update, report completion to main session
 
-主会话职责：
-- ❌ 不再检测"代码审查通过"等触发词
-- ❌ 不再执行提交脚本
-- ✅ 只需接收programmer的完成报告
+Main session responsibilities:
+- ❌ No longer detect triggers like "code review passed"
+- ❌ No longer execute commit scripts
+- ✅ Only receive programmer's completion report
 
-**核心原则**：自动执行（验证通过后立即提交不询问）、职责分离、避免重复提交
-
----
-
-## 智能复用与销毁重建原则
-
-> 详见：`skills/shared/SPEC-AUTHORITY-RULES.md`
-
-**核心理念**：
-- **避免重复开发**：完全匹配现有模块时直接复用
-- **避免渐进式开发**：部分匹配 = 不匹配 → 销毁重建
-
-**关键规则**：
-- ✅ 完全匹配 → 直接复用
-- ❌ 部分匹配/不匹配 → 删除重写，禁止增量修改
+**Core principle**: Automatic execution (commit immediately after verification passes without asking), responsibility separation, avoid duplicate commits
 
 ---
 
-## 角色分工
+## Smart Reuse and Destroy-Rebuild Principle
+
+> See details: `skills/shared/SPEC-AUTHORITY-RULES.md`
+
+**Core concepts**:
+- **Avoid duplicate development**: Directly reuse when fully matching existing modules
+- **Avoid incremental development**: Partial match = mismatch → destroy and rebuild
+
+**Key rules**:
+- ✅ Fully matched → Directly reuse
+- ❌ Partially matched/unmatched → Delete and rewrite, prohibit incremental modification
+
+---
+
+## Role Division
 
 ```
-用户        → 需求定义、方案选择、最终决策
-主会话      → 协调调度，接收programmer的完成报告
-/architect  → 更新 SPEC（01/02/03/04 + DOCS/），分配 ID，不写代码
-/programmer → 读 SPEC → 制定计划 → 展示等确认 → 创建 Issue → 调用 AI CLI → 审查代码 → 自动提交+更新SPEC
+User        → Requirement definition, solution selection, final decisions
+Main session → Coordination and scheduling, receive programmer's completion report
+/architect  → Update SPEC (01/02/03/04 + DOCS/), assign IDs, don't write code
+/programmer → Read SPEC → Create plan → Present for confirmation → Create Issue → Call AI CLI → Review code → Auto commit + update SPEC
 ```
 
-**主会话仅允许直接处理**：纯文档、配置值修改、格式调整（不改逻辑）
+**Main session only allowed to handle directly**: Pure documentation, configuration value modifications, format adjustments (no logic changes)
 
-### 架构师 vs 程序员职责对比
+### Architect vs Programmer Responsibility Comparison
 
-| 决策类型 | architect | programmer |
+| Decision Type | architect | programmer |
 |---------|-----------|------------|
-| 需求定义 | ✅ 分配 REQ-XXX，更新 01 | ❌ 只读取 |
-| 架构设计 | ✅ 设计模块，更新 02 | ❌ 只读取 |
-| 数据设计 | ✅ 设计表结构，更新 03 | ❌ 只读取 |
-| API 设计 | ✅ 定义接口，更新 04 | ❌ 只读取 |
-| DOCS 创建 | ✅ 创建架构文档 | ❌ 只读取 |
-| SPEC 完整性检查 | ❌ 不做 | ✅ 开发前必检 |
-| 设计验证（架构原则） | ✅ 验证归一化/SOLID | ❌ 不做 |
-| 实施计划 | ❌ 不关心 | ✅ 制定并展示，等用户确认 |
-| 创建 Issue | ❌ 不创建 | ✅ 用户确认后创建 |
-| 代码实现 | ❌ 不写代码 | ✅ 调用 AI CLI |
-| 代码审查 | ❌ 不审查 | ✅ 基于实际文件审查 |
-| Context7 调研 | ✅ 技术栈选型 | ✅ 具体用法查询 |
+| Requirement definition | ✅ Assign REQ-XXX, update 01 | ❌ Only read |
+| Architecture design | ✅ Design modules, update 02 | ❌ Only read |
+| Data design | ✅ Design table structure, update 03 | ❌ Only read |
+| API design | ✅ Define interfaces, update 04 | ❌ Only read |
+| DOCS creation | ✅ Create architecture docs | ❌ Only read |
+| SPEC completeness check | ❌ Don't do | ✅ Must check before development |
+| Design verification (architecture principles) | ✅ Verify normalization/SOLID | ❌ Don't do |
+| Implementation plan | ❌ Don't care | ✅ Create and present, wait for user confirmation |
+| Create Issue | ❌ Don't create | ✅ Create after user confirmation |
+| Code implementation | ❌ Don't write code | ✅ Call AI CLI |
+| Code review | ❌ Don't review | ✅ Review based on actual files |
+| Context7 research | ✅ Technology stack selection | ✅ Specific usage queries |
 
 ---
 
-## 开发流程
+## Development Workflow
 
-### 新功能/重构（完整流程）
+### New Features/Refactoring (Complete Workflow)
 
-**阶段1: 架构设计（如需）**
-主会话调用 /architect → 交互式设计 → 用户确认 → 更新 SPEC
+**Phase 1: Architecture Design (if needed)**
+Main session calls /architect → Interactive design → User confirmation → Update SPEC
 
-**阶段2-3: 开发执行（programmer 8步流程）**
+**Phase 2-3: Development Execution (programmer 8-step workflow)**
 
 ```
-步骤1: 分析现有代码
-       调用 Explore 子代理分析代码库
-       识别可复用模块（工具类、基础设施、业务模块）
-       输出：可复用模块清单
+Step 1: Analyze existing code
+       Call Explore sub-agent to analyze codebase
+       Identify reusable modules (utility classes, infrastructure, business modules)
+       Output: Reusable module list
 
-步骤2: SPEC 检查和实施计划
-       调用 Plan 子代理
-       ├─ 读取 SPEC，验证完整性
-       ├─ 输出 SPEC 理解摘要
-       ├─ 使用 Context7 + AskUserQuestion 选择具体库
-       └─ 制定实施计划（标注 SPEC 依据 + 用户选择的库）
+Step 2: SPEC check and implementation plan
+       Call Plan sub-agent
+       ├─ Read SPEC, verify completeness
+       ├─ Output SPEC understanding summary
+       ├─ Use Context7 + AskUserQuestion to select specific libraries
+       └─ Create implementation plan (mark SPEC references + user-selected libraries)
 
-步骤3: 审查 Plan 输出
-       验证 Plan 的 SPEC 理解是否正确
-       验证实施计划的合理性
-       调整或补充（如需要）
+Step 3: Review Plan output
+       Verify Plan's SPEC understanding is correct
+       Verify implementation plan is reasonable
+       Adjust or supplement (if needed)
 
-步骤4: 🛑 展示实施计划，等待用户确认
-       展示 Plan 输出（包含 SPEC 理解摘要）
-       用户验证：SPEC 理解是否正确、计划是否合理
-       ⏸️ 等待用户确认后进入步骤5
+Step 4: 🛑 Present implementation plan, wait for user confirmation
+       Present Plan output (including SPEC understanding summary)
+       User verification: Is SPEC understanding correct, is plan reasonable
+       ⏸️ Wait for user confirmation before proceeding to Step 5
 
-步骤5: 创建 GitHub Issue
-       持久化 Plan 生成的计划
-       关联 SPEC 引用
+Step 5: Create GitHub Issue
+       Persist plan generated by Plan
+       Associate SPEC references
 
-步骤6: 调用 AI-CLI-RUNNER
-       传递 session_context：Plan 的计划
-       生成生产就绪代码
+Step 6: Call AI-CLI-RUNNER
+       Pass session_context: Plan's plan
+       Generate production-ready code
 
-步骤7: 代码审查
-       读取实际代码文件（不信任 AI CLI 汇报）
-       对照 SPEC 检查（REQ-XXX、ARCH-XXX 等）
-       验证失败 → 修正后重审
+Step 7: Code review
+       Read actual code files (don't trust AI CLI reports)
+       Check against SPEC (REQ-XXX, ARCH-XXX, etc.)
+       Verification fails → Fix and re-review
 
-步骤8: 自动提交和状态更新
-       验证通过后自动执行提交、关闭Issue、更新SPEC
-       报告完成结果给主会话
+Step 8: Auto commit and status update
+       After verification passes, automatically execute commit, close issue, update SPEC
+       Report completion results to main session
 ```
 
-### Bug修复/小改动（简化流程）
-确认 SPEC 完整 → 调用 /programmer 修改 → 验证 → 提交
+### Bug Fixes/Small Changes (Simplified Workflow)
+Confirm SPEC complete → Call /programmer to modify → Verify → Commit
 
-### 文档/格式调整
-主会话直接执行，无需 SPEC
-
----
-
-## 完成标准
-
-- ✅ SPEC 中所有要求 100% 实现
-- ✅ 无占位符（TODO、FIXME、stub、NotImplemented）
-- ✅ 代码审查通过
+### Documentation/Format Adjustments
+Main session executes directly, no SPEC needed
 
 ---
 
-## 实用决策指南
+## Completion Standards
 
-### SPEC完善度检查（开发前必检）
-
-**SPEC完善的标准**（所有✅才能开始开发）：
-- ✅ 需求完整：01-REQUIREMENTS.md中所有REQ-XXX有明确的验收标准
-- ✅ 架构完整：02-ARCHITECTURE.md中模块划分、技术栈、数据流、事件流已定义
-- ✅ 数据结构完整：03-DATA-STRUCTURE.md中所有表结构、字段、关系、索引已定义
-- ✅ API完整：04-API-DESIGN.md中所有接口的请求/响应格式、错误码已定义
-
-**SPEC不完善时**：
-- ❌ 禁止开始开发
-- ✅ 调用architect技能完善架构设计
-- ✅ 等待用户补充需求定义
-- ✅ 报告缺失内容，明确列出缺失的部分
-
-### 并行开发判断
-
-⚠️ **铁律：默认并行，除非有明确的依赖关系！不要因为保守而选择串行！**
-
-**强制依赖分析流程**（制定开发计划时必须执行）：
-
-1. **绘制依赖图**（强制步骤）：
-   ```
-   项目A → 项目B  (B依赖A)
-   项目C → 项目D  (D依赖C)
-   项目E  (独立)
-   ```
-
-2. **识别依赖类型**：
-   - 代码依赖：B 直接 import A 的模块
-   - API 依赖：B 调用 A 的接口
-   - 数据依赖：B 读写 A 创建的表
-   - 基础设施依赖：B 需要 A 的服务
-
-3. **编写执行策略**：
-   ```
-   阶段1（串行）: 完成基础设施项目A
-   阶段2（并行）: 同时开发项目B、C、D
-   阶段3（并行）: 集成验证
-   ```
-
-### 任务分流与执行者
-
-| 任务类型 | 流程 | SPEC | Context7 | 执行者 |
-|---------|------|------|----------|--------|
-| 新功能/重构 | 完整流程 | 必须更新 | 必须 | /programmer |
-| 功能修改 | 完整流程 | 必须更新 | 必须 | /programmer |
-| Bug修复 | 简化 | 查阅 | 可选 | /programmer |
-| 文档/配置/格式 | 直接 | 无需 | 无需 | 主会话 |
-
-**判断标准**：
-- 不确定是否需要调用技能？→ 默认调用 /programmer
-- 涉及任何代码修改？→ 调用 /programmer
-- 涉及架构或 SPEC？→ 调用 /architect
-
-### Context7 使用
-
-**必须使用**：
-- 新功能开发前技术选型
-- 引入新库或使用库 API
-- 代码生成前查阅最佳实践
-- 对比多个库的选择
-
-**强烈推荐**：复杂技术问题、升级依赖、性能优化评估、安全增强
-
-**禁止**：
-- 不调研就自己实现常见功能
-- 使用过时的库版本或 API
-- 凭记忆编写库的使用代码
+- ✅ 100% implementation of all requirements in SPEC
+- ✅ No placeholders (TODO, FIXME, stub, NotImplemented)
+- ✅ Code review passed
 
 ---
 
-## SPEC 文件体系
+## Practical Decision Guidelines
 
-### 核心文件
+### SPEC Completeness Check (Must check before development)
 
-| 文件 | 职责 | 维护者 |
-|------|------|--------|
-| 01-REQUIREMENTS.md | 功能需求、REQ-XXX、验收标准 | architect |
-| 02-ARCHITECTURE.md | 架构设计、ARCH-XXX、技术栈 | architect |
-| 03-DATA-STRUCTURE.md | 数据模型、DATA-XXX、表结构 | architect |
-| 04-API-DESIGN.md | API规范、API-XXX、接口定义 | architect |
-| 05-UI-DESIGN.md | 前端UI设计、UI-XXX、页面规范 | architect |
-| VERSION | 版本号 v{major}.{minor}.{patch} | 主会话 |
-| DOCS/ | 复杂系统详细设计 | architect |
+**SPEC completion criteria** (all ✅ required to start development):
+- ✅ Requirements complete: All REQ-XXX in 01-REQUIREMENTS.md have clear acceptance criteria
+- ✅ Architecture complete: Module division, technology stack, data flow, event flow defined in 02-ARCHITECTURE.md
+- ✅ Data structure complete: All table structures, fields, relationships, indexes defined in 03-DATA-STRUCTURE.md
+- ✅ API complete: Request/response formats, error codes defined for all interfaces in 04-API-DESIGN.md
 
-### ID 格式
+**When SPEC is incomplete**:
+- ❌ Prohibit starting development
+- ✅ Call architect skill to improve architecture design
+- ✅ Wait for user to supplement requirement definitions
+- ✅ Report missing content, clearly list missing parts
 
-- `REQ-{业务域}-{序号}`：REQ-AUTH-001
-- `ARCH-{业务域}-{序号}`：ARCH-CACHE-001
-- `DATA-{表名}-{序号}`：DATA-USER-001
-- `API-{模块}-{序号}`：API-AUTH-001
-- `UI-PAGE-{模块}-{序号}`：UI-PAGE-USER-001
+### Parallel Development Judgment
 
-### 目录结构
+⚠️ **Iron rule: Default to parallel, unless there are clear dependency relationships! Don't choose serial because of conservatism!**
+
+**Mandatory dependency analysis process** (must execute when creating development plan):
+
+1. **Draw dependency graph** (mandatory step):
+   ```
+   Project A → Project B  (B depends on A)
+   Project C → Project D  (D depends on C)
+   Project E  (independent)
+   ```
+
+2. **Identify dependency types**:
+   - Code dependency: B directly imports A's modules
+   - API dependency: B calls A's interfaces
+   - Data dependency: B reads/writes tables created by A
+   - Infrastructure dependency: B needs A's services
+
+3. **Write execution strategy**:
+   ```
+   Phase 1 (serial): Complete infrastructure project A
+   Phase 2 (parallel): Develop projects B, C, D simultaneously
+   Phase 3 (parallel): Integration verification
+   ```
+
+### Task Routing and Executors
+
+| Task Type | Workflow | SPEC | Context7 | Executor |
+|---------|---------|------|----------|----------|
+| New features/refactoring | Complete workflow | Must update | Required | /programmer |
+| Function modifications | Complete workflow | Must update | Required | /programmer |
+| Bug fixes | Simplified | Reference | Optional | /programmer |
+| Documentation/config/format | Direct | Not needed | Not needed | Main session |
+
+**Judgment criteria**:
+- Not sure if need to call skill? → Default to calling /programmer
+- Involves any code modification? → Call /programmer
+- Involves architecture or SPEC? → Call /architect
+
+### Context7 Usage
+
+**Must use**:
+- Technology selection before new feature development
+- Introducing new libraries or using library APIs
+- Research best practices before code generation
+- Compare multiple library choices
+
+**Strongly recommended**: Complex technical problems, dependency upgrades, performance optimization assessments, security enhancements
+
+**Prohibited**:
+- Implement common features without research
+- Use outdated library versions or APIs
+- Write library usage code from memory
+
+---
+
+## SPEC File System
+
+### Core Files
+
+| File | Responsibility | Maintainer |
+|------|---------------|------------|
+| 01-REQUIREMENTS.md | Feature requirements, REQ-XXX, acceptance criteria | architect |
+| 02-ARCHITECTURE.md | Architecture design, ARCH-XXX, technology stack | architect |
+| 03-DATA-STRUCTURE.md | Data models, DATA-XXX, table structures | architect |
+| 04-API-DESIGN.md | API specifications, API-XXX, interface definitions | architect |
+| 05-UI-DESIGN.md | Frontend UI design, UI-XXX, page specifications | architect |
+| VERSION | Version number v{major}.{minor}.{patch} | Main session |
+| DOCS/ | Complex system detailed design | architect |
+
+### ID Format
+
+- `REQ-{domain}-{number}`: REQ-AUTH-001
+- `ARCH-{domain}-{number}`: ARCH-CACHE-001
+- `DATA-{table}-{number}`: DATA-USER-001
+- `API-{module}-{number}`: API-AUTH-001
+- `UI-PAGE-{module}-{number}`: UI-PAGE-USER-001
+
+### Directory Structure
 
 ```
 SPEC/
@@ -325,239 +325,239 @@ SPEC/
 ├── 02-ARCHITECTURE.md
 ├── 03-DATA-STRUCTURE.md
 ├── 04-API-DESIGN.md
-├── 05-UI-DESIGN.md（前端项目）
-└── DOCS/（可选）
+├── 05-UI-DESIGN.md (for frontend projects)
+└── DOCS/ (optional)
 ```
 
 ---
 
-## Git 规范
+## Git Standards
 
-### 提交（强制使用脚本）
+### Commits (Mandatory use of scripts)
 
 ```bash
 ~/.claude/scripts/commit-and-close.sh \
-  --message "feat: 描述 [REQ-XXX]" \
+  --message "feat: description [REQ-XXX]" \
   --issue <issue#>
 ```
 
-**禁止**：git commit -m "..."、git add && git commit、gh issue close
+**Prohibited**: git commit -m "...", git add && git commit, gh issue close
 
-### 提交格式
+### Commit Format
 
 ```
 <type>(<scope>): <description> [REQ-XXX]
-例：feat(auth): 实现JWT验证 [REQ-AUTH-001]
+Example: feat(auth): Implement JWT authentication [REQ-AUTH-001]
 ```
 
-### Pre-Commit 钩子
+### Pre-Commit Hooks
 
-安装：`ln -sf ~/.claude/scripts/spec-pre-commit-hook.sh .git/hooks/pre-commit`
+Install: `ln -sf ~/.claude/scripts/spec-pre-commit-hook.sh .git/hooks/pre-commit`
 
-| 检查项 | 级别 | 行为 |
-|--------|------|------|
-| 敏感文件 | 错误 | 阻止提交 |
-| 代码未关联SPEC | 警告 | 允许提交，提示修复 |
-| SPEC格式问题 | 错误/警告 | 严重问题阻止，轻微问题警告 |
-| SPEC追溯不完整 | 警告 | 允许提交，提示补充 |
+| Check Item | Level | Behavior |
+|-----------|-------|----------|
+| Sensitive files | Error | Block commit |
+| Code not associated with SPEC | Warning | Allow commit, prompt to fix |
+| SPEC format issues | Error/Warning | Block on serious issues, warn on minor issues |
+| Incomplete SPEC traceability | Warning | Allow commit, prompt to supplement |
 
 ---
 
-## Issue 管理
+## Issue Management
 
-**必须创建**：新功能、架构重构、多文件修改、复杂Bug
-**可选**：简单Bug、技术债
-**不创建**：文档、格式调整
+**Must create**: New features, architecture refactoring, multi-file modifications, complex bugs
+**Optional**: Simple bugs, technical debt
+**Don't create**: Documentation, format adjustments
 
-**职责划分**：
-- SPEC（设计规范）：架构设计、需求定义、数据设计、API设计
-- Issue（工作计划）：实施步骤、代码复用、依赖关系、状态跟踪
+**Responsibility division**:
+- SPEC (design specs): Architecture design, requirement definitions, data design, API design
+- Issue (work plans): Implementation steps, code reuse, dependencies, status tracking
 
-**核心原则**：SPEC定义"做什么"，Issue规划"怎么做"
+**Core principle**: SPEC defines "what", Issue plans "how"
 
-### Issue 模板
+### Issue Template
 
 ```markdown
-## 开发计划: [功能名] [REQ-XXX]
+## Development Plan: [Feature Name] [REQ-XXX]
 
-### 关联 SPEC
-- 需求：SPEC/01-REQUIREMENTS.md [REQ-XXX]
-- 架构：SPEC/02-ARCHITECTURE.md [ARCH-XXX]
-- 数据：SPEC/03-DATA-STRUCTURE.md [DATA-XXX]
-- API：SPEC/04-API-DESIGN.md [API-XXX]
+### Associated SPEC
+- Requirements: SPEC/01-REQUIREMENTS.md [REQ-XXX]
+- Architecture: SPEC/02-ARCHITECTURE.md [ARCH-XXX]
+- Data: SPEC/03-DATA-STRUCTURE.md [DATA-XXX]
+- API: SPEC/04-API-DESIGN.md [API-XXX]
 
-### 依赖关系
-- 依赖：#123（必须先完成）
-- 阻塞：#789（等待本 Issue）
-- 可并行：#456
+### Dependencies
+- Depends on: #123 (must complete first)
+- Blocks: #789 (waiting for this Issue)
+- Can parallel: #456
 
-### 实施步骤
-- [ ] 分析现有代码，识别可复用模块
-- [ ] 步骤1
-- [ ] 步骤2
-- [ ] 验证完成
+### Implementation Steps
+- [ ] Analyze existing code, identify reusable modules
+- [ ] Step 1
+- [ ] Step 2
+- [ ] Verify completion
 
-### 代码复用计划
-- 复用：[模块路径和用途]
-- 新增：[模块路径和职责]
+### Code Reuse Plan
+- Reuse: [module path and purpose]
+- Add: [module path and responsibility]
 ```
 
 ---
 
-## 项目级 CLAUDE.md 规范
+## Project-Level CLAUDE.md Standards
 
-**核心原则**：CLAUDE.md = SPEC指针，不是设计文档
+**Core principle**: CLAUDE.md = SPEC pointer, not design document
 
-### 层次结构
+### Hierarchy
 
 ```
-全局 CLAUDE.md（~/.claude/CLAUDE.md）→ 永久常驻，定义开发流程和规范
-产品级 CLAUDE.md（产品根目录/CLAUDE.md）→ 指向产品SPEC，定义跨项目共享约束
-项目级 CLAUDE.md（项目根目录/CLAUDE.md）→ 指向项目SPEC
-服务级 CLAUDE.md（services/xxx/CLAUDE.md）→ 指向服务SPEC（微服务时使用）
+Global CLAUDE.md (~/.claude/CLAUDE.md) → Permanent resident, defines development workflows and standards
+Product-level CLAUDE.md (product root/CLAUDE.md) → Points to product SPEC, defines cross-project shared constraints
+Project-level CLAUDE.md (project root/CLAUDE.md) → Points to project SPEC
+Service-level CLAUDE.md (services/xxx/CLAUDE.md) → Points to service SPEC (for microservices)
 ```
 
-### 标准模板
+### Standard Template
 
 ```markdown
-## SPEC位置
+## SPEC Location
 - ./SPEC/
 
-## 产品级SPEC位置（如适用）
+## Product-level SPEC Location (if applicable)
 - ../SPEC/
 ```
 
-### 允许内容
+### Allowed Content
 
-- SPEC位置说明（./SPEC/ 或 ../SPEC/）
-- 项目特殊约束和开发流程引用（引用而非定义）
-- 角色分工说明（简略引用）
+- SPEC location instructions (./SPEC/ or ../SPEC/)
+- Project-specific constraints and development workflow references (reference, don't define)
+- Role division instructions (brief references)
 
-### 禁止内容（必须在SPEC中）
+### Prohibited Content (Must be in SPEC)
 
-**以下内容必须在 SPEC 文件中定义，不应该在 CLAUDE.md 中重复：**
+**The following content must be defined in SPEC files, should not be duplicated in CLAUDE.md:**
 
-- 功能需求定义（必须在 SPEC/01-REQUIREMENTS.md）
-- 模块清单和职责表格（必须在 SPEC/02-ARCHITECTURE.md）
-- 技术栈详细说明（必须在 SPEC/02-ARCHITECTURE.md）
-- 数据模型定义、表结构、字段列表（必须在 SPEC/03-DATA-STRUCTURE.md）
-- API接口定义、端点列表、请求/响应格式（必须在 SPEC/04-API-DESIGN.md）
-- ID格式定义（REQ-XXX、ARCH-XXX、DATA-XXX、API-XXX）
-- 架构原则和设计模式详细说明
-- 详细的工作流程步骤（应该引用全局规范而非重新定义）
+- Feature requirement definitions (must be in SPEC/01-REQUIREMENTS.md)
+- Module lists and responsibility tables (must be in SPEC/02-ARCHITECTURE.md)
+- Technology stack detailed descriptions (must be in SPEC/02-ARCHITECTURE.md)
+- Data model definitions, table structures, field lists (must be in SPEC/03-DATA-STRUCTURE.md)
+- API interface definitions, endpoint lists, request/response formats (must be in SPEC/04-API-DESIGN.md)
+- ID format definitions (REQ-XXX, ARCH-XXX, DATA-XXX, API-XXX)
+- Architecture principles and design pattern detailed descriptions
+- Detailed workflow steps (should reference global standards, not redefine)
 
-### 合规性检查
+### Compliance Check
 
-使用 `/spec-audit` 命令会自动检查 CLAUDE.md 内容是否符合"SPEC指针"定位。
+Using `/spec-audit` command will automatically check if CLAUDE.md content conforms to "SPEC pointer" positioning.
 
-**检查重点**：
-- ✅ 内容性质：是否包含应该在SPEC中的内容
-- ❌ 不检查文件长度：框架项目可以很长，业务项目建议简短
-- ✅ 检查内容类型：需求、架构、数据模型、API定义必须在SPEC中
+**Check focus**:
+- ✅ Content nature: Whether it contains content that should be in SPEC
+- ❌ Don't check file length: Framework projects can be long, business projects recommended to be brief
+- ✅ Check content types: Requirements, architecture, data models, API definitions must be in SPEC
 
 ---
 
-## AI CLI RUNNER 规范
+## AI CLI RUNNER Standards
 
-### 执行模式
+### Execution Mode
 
-- ✅ **前台模式（默认）**：所有单独任务，无论时间长短
-- ✅ **后台模式（例外）**：仅当**多个独立项目**需要同时开发时，必须用 `run_in_background=True`
-- ❌ 禁止自动转换：前台启动后不能自动转后台
-- ❌ 禁止使用 command &：所有后台任务必须使用 `run_in_background=True`
-- ❌ 禁止无脑后台：不得给所有调用自动加 `run_in_background=True`
+- ✅ **Foreground mode (default)**: All individual tasks, regardless of duration
+- ✅ **Background mode (exception)**: Only when **multiple independent projects** need simultaneous development, must use `run_in_background=True`
+- ❌ Prohibit auto-conversion: Can't auto-convert to background after starting foreground
+- ❌ Prohibit using command &: All background tasks must use `run_in_background=True`
+- ❌ Prohibit mindless background: Don't auto-add `run_in_background=True` to all calls
 
-### 批处理优先原则
+### Batch Processing Priority Principle
 
-**同项目 + 同角色 = 必须合并为一次AI CLI调用**
+**Same project + same role = must merge into one AI CLI call**
 
-原因：每次调用都有固定TOKEN成本（读取SPEC、分析代码），批量执行可大幅降低
+Reason: Each call has fixed TOKEN cost (reading SPEC, analyzing code), batch execution significantly reduces cost
 
 ```bash
-# ✅ 正确：批量执行
-ai-cli-runner.sh backend 'REQ-001,REQ-002,REQ-003' '实现所有后端API'
+# ✅ Correct: Batch execution
+ai-cli-runner.sh backend 'REQ-001,REQ-002,REQ-003' 'Implement all backend APIs'
 
-# ❌ 错误：逐个执行（TOKEN浪费）
-ai-cli-runner.sh backend 'REQ-001' '登录'
-ai-cli-runner.sh backend 'REQ-002' '注册'
+# ❌ Wrong: Execute individually (TOKEN waste)
+ai-cli-runner.sh backend 'REQ-001' 'Login'
+ai-cli-runner.sh backend 'REQ-002' 'Register'
 ```
 
-### 并发规则
+### Concurrency Rules
 
-**严禁**：同一项目按功能/模块拆分并发
-**允许**：不同独立项目可以并发（不同代码库、不同部署单元、无依赖、资源隔离）
+**Strictly prohibited**: Split same project by feature/module for concurrency
+**Allowed**: Different independent projects can be concurrent (different codebases, different deployment units, no dependencies, resource isolation)
 
-### 12小时超时（强制）
+### 12-Hour Timeout (Mandatory)
 
-所有ai-cli-runner.sh调用必须设置 `timeout=43200000`
+All ai-cli-runner.sh calls must set `timeout=43200000`
 
-原因：复杂开发可能需数小时、防止网络问题导致中断
+Reason: Complex development may take hours, prevent interruption from network issues
 
 ```bash
-# ✅ 正确
-Bash(command="~/.claude/scripts/ai-cli-runner.sh 'backend' 'REQ-001' '实现功能'", timeout=43200000)
+# ✅ Correct
+Bash(command="~/.claude/scripts/ai-cli-runner.sh 'backend' 'REQ-001' 'Implement feature'", timeout=43200000)
 
-# ❌ 错误：缺少timeout或短超时
+# ❌ Wrong: Missing timeout or short timeout
 Bash(command="~/.claude/scripts/ai-cli-runner.sh ...")
 ```
 
-### 角色列表
+### Role List
 
-| 角色 | 适用场景 |
-|------|----------|
-| fullstack | 完整应用（前端+后端+数据库） |
-| backend | 通用后端服务、RESTful API、微服务（默认） |
-| frontend | Web/移动/桌面应用 |
-| database | SQL/NoSQL、数据建模 |
+| Role | Applicable Scenarios |
+|------|---------------------|
+| fullstack | Complete application (frontend + backend + database) |
+| backend | General backend services, RESTful APIs, microservices (default) |
+| frontend | Web/mobile/desktop applications |
+| database | SQL/NoSQL, data modeling |
 
-### task_context 格式
+### task_context Format
 
 ```
-【背景文档】SPEC/DOCS/AI-DEVELOPER-GUIDE.md
-【功能清单】（必须一次性完成）
-- REQ-XXX：功能描述
-- REQ-YYY：功能描述
-【代码复用】参考 src/xxx.py
-【验收标准】代码审查通过
+【Background Document】SPEC/DOCS/AI-DEVELOPER-GUIDE.md
+【Feature List】(Must complete all at once)
+- REQ-XXX: Feature description
+- REQ-YYY: Feature description
+【Code Reuse】Reference src/xxx.py
+【Acceptance Criteria】Code review passed
 ```
 
 ---
 
-## 共享规范引用
+## Shared Standards References
 
-| 规范 | 位置 |
-|------|------|
-| SPEC权威原则 | `skills/shared/SPEC-AUTHORITY-RULES.md` |
-
----
-
-## 禁止无意义中断
-
-**仅适用于步骤4-8执行阶段**（用户确认计划后生效）
-
-前提：步骤0-3必须完整执行，步骤3的用户确认是强制等待点
-
-**计划确认后的执行是连续的**：
-- 用户确认计划后，按顺序执行所有任务块
-- 任务块完成后，直接继续下一个
-- 全部完成后，进入验证和审查
-
-**禁止的询问模式**：
-- ❌ "任务块 X 已完成，是否继续任务块 Y？"
-- ❌ "是否先推送当前进度？"
-- ❌ "需要我继续吗？"
-- ❌ 汇报进度后请求许可继续
-
-**必须询问/等待**：
-- ✅ 步骤4：展示计划等待用户确认
-- ✅ SPEC 冲突或歧义需要用户决策
-- ✅ 发现阻塞性问题无法继续
+| Standard | Location |
+|----------|----------|
+| SPEC Authority Principles | `skills/shared/SPEC-AUTHORITY-RULES.md` |
 
 ---
 
-## AI执行约束
+## Prohibit Meaningless Interruptions
 
-1. 本规范是强制执行的操作系统，不是可选建议
-2. 禁止AI自行判断"是否需要走流程"——规范定义了何时走何种流程
-3. 禁止AI以"效率"、"简单"、"用户可能想要"为由偏离规范
-4. 不确定时，严格按规范执行，而非自行裁决
+**Only applies to Step 4-8 execution phase** (effective after user confirms plan)
+
+Premise: Steps 0-3 must be fully executed, Step 3's user confirmation is mandatory wait point
+
+**Execution after plan confirmation is continuous**:
+- After user confirms plan, execute all task blocks in sequence
+- After task block completes, directly continue to next
+- After all complete, enter verification and review
+
+**Prohibited questioning patterns**:
+- ❌ "Task block X completed, continue to task block Y?"
+- ❌ "Push current progress first?"
+- ❌ "Do you need me to continue?"
+- ❌ Report progress then request permission to continue
+
+**Must ask/wait**:
+- ✅ Step 4: Present plan, wait for user confirmation
+- ✅ SPEC conflicts or ambiguities require user decisions
+- ✅ Discovered blocking issues unable to continue
+
+---
+
+## AI Execution Constraints
+
+1. This specification is a mandatory operating system, not optional suggestions
+2. Prohibit AI from self-judging "whether to follow process" - specification defines when to follow which process
+3. Prohibit AI from deviating from specification for "efficiency", "simplicity", "user might want"
+4. When uncertain, strictly follow specification, don't decide yourself
