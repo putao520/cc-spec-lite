@@ -2,6 +2,9 @@
 *.log
 *.tmp
 
+# NPM packages
+*.tgz
+
 # Backup directories
 backup/
 
