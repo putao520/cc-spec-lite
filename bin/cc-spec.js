@@ -7,9 +7,13 @@
 
 const { program } = require('commander');
 const installer = require('../lib/installer');
+const { detectSystemLanguage } = require('../lib/utils');
 
 // Package info
 const pkg = require('../package.json');
+
+// Auto-detect default language based on system locale
+const defaultLang = detectSystemLanguage();
 
 program
   .name('cc-spec')
@@ -19,7 +23,7 @@ program
 program
   .command('install')
   .description('Install cc-spec-lite to ~/.claude')
-  .option('-l, --lang <language>', 'Language (en/zh)', 'en')
+  .option('-l, --lang <language>', 'Language (en/zh)', defaultLang)
   .option('-f, --force', 'Force reinstall (allows language switching)')
   .option('--skip-aiw', 'Skip aiw installation check')
   .action(installer.install);
