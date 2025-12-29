@@ -4,6 +4,12 @@
 >
 > 轻量级的 SPEC 驱动开发框架
 
+**What problem does it solve? / 解决什么问题？**
+
+Provides a complete **system-level specification framework** for AI-assisted software development in **Chinese environments**, ensuring long-term consistency across requirements, architecture, and implementation.
+
+为**中文开发环境**下的AI辅助软件提供完整的**系统级规范框架**，确保需求、架构、实现之间的长期一致性。
+
 CC-SPEC-Lite provides a streamlined, professional approach to AI-assisted software development with design-first workflow, role-based skills, and automation scripts.
 
 **Multi-language Support / 多语言支持**: English (en) and 简体中文 (zh)
@@ -17,6 +23,7 @@ CC-SPEC-Lite provides a streamlined, professional approach to AI-assisted softwa
 - [Uninstallation / 卸载](#uninstallation--卸载)
 - [Usage / 使用](#usage--使用)
 - [Features / 功能特性](#features--功能特性)
+- [How It Compares / 与其他方案对比](#how-it-compares--与其他方案对比)
 - [FAQ / 常见问题](#faq--常见问题)
 - [Contributing / 贡献](#contributing--贡献)
 
@@ -309,6 +316,44 @@ cat SPEC/01-REQUIREMENTS.md
   - 安装前自动备份
   - Restore option on uninstall
   - 卸载时可恢复
+
+---
+
+## How It Compares / 与其他方案对比
+
+### Problem Domain Comparison / 问题域对比
+
+| Problem / 问题 | OpenSpec | cc-spec-lite |
+|---------------|----------|--------------|
+| **Scope / 覆盖范围** | Task-level requirements / 任务级需求 | System-level specifications / 系统级规范 |
+| **Target Audience / 目标用户** | Individual features / 单个功能 | Long-term projects / 长期项目 |
+| **Primary Use Case / 主要场景** | "Describe one feature" / "描述单个功能" | "Maintain system consistency" / "维护系统一致性" |
+| **Language Support / 语言支持** | English-focused / 英文为主 | Full bilingual / 完整中英双语 |
+| **Development Environment / 开发环境** | International / 国际环境 | Chinese developers / 中文开发者 |
+| **Specification Scope / 规范范围** | Feature requirements / 功能需求 | Requirements + Architecture + Data + API / 需求+架构+数据+API |
+| **Role Separation / 角色分工** | ❌ Not covered / 未覆盖 | ✅ Architect ↔ Programmer ↔ Testing |
+| **Long-term Maintenance / 长期维护** | ⚠️ Per-feature / 按功能 | ✅ System-level SSOT / 系统级单一真源 |
+| **AI CLI Integration / AI CLI集成** | ❌ None / 无 | ✅ aiw with role injection / aiw角色注入 |
+
+### When to Use Each / 使用场景
+
+**Choose cc-spec-lite if you / 如果你是以下情况，选择 cc-spec-lite**:
+- ✅ Building long-term projects in Chinese / 构建长期的中文项目
+- ✅ Need system-level architecture tracking / 需要系统级架构追踪
+- ✅ Want role-based AI collaboration / 需要基于角色的AI协作
+- ✅ Value bilingual documentation / 重视双语文档
+- ✅ Care about cross-platform compatibility / 关注跨平台兼容性
+
+**Consider OpenSpec if you / 如果你是以下情况，考虑 OpenSpec**:
+- ✅ Need quick feature description / 需要快速描述单个功能
+- ✅ Working in English-only environment / 仅在英文环境工作
+- ✅ Don't need architecture tracking / 不需要架构追踪
+- ✅ Prefer lightweight task focus / 偏好轻量级任务聚焦
+
+**Complementary Use / 互补使用**:
+- Use OpenSpec for initial feature ideation / 用OpenSpec进行功能初步构思
+- Import into cc-spec-lite for system-level tracking / 导入cc-spec-lite进行系统级追踪
+- Maintain architect-controlled SSOT / 维护architect控制的单一真源
 
 ---
 
