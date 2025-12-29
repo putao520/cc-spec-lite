@@ -52,14 +52,7 @@ npm install -g @putao520/cc-spec-lite
 # Other locales → English
 ```
 
-**Manual selection**:
-```bash
-npm install -g @putao520/cc-spec-lite
-cc-spec install --lang en    # Force English
-cc-spec install --lang zh    # Force Chinese
-```
-
-**Switch languages**:
+**Switch languages manually**:
 ```bash
 cc-spec install --lang zh --force   # Switch to Chinese
 cc-spec install --lang en --force   # Switch to English
@@ -109,11 +102,11 @@ git init
 
 ```bash
 cc-spec install [options]
-  -l, --lang <en|zh>     Language (default: auto-detect)
-  -f, --force           Force reinstall
+  -l, --lang <en|zh>     Language (default: auto-detect from OS)
+  -f, --force           Force reinstall / language switch
   --skip-aiw           Skip aiw check
 
-cc-spec uninstall
+cc-spec uninstall --force
 cc-spec update
 cc-spec status
 ```
@@ -130,11 +123,11 @@ cc-spec status
 ## Uninstallation
 
 ```bash
-cc-spec uninstall
+cc-spec uninstall --force
 npm uninstall -g @putao520/cc-spec-lite
 ```
 
-Your existing configuration is backed up and can be restored.
+Your existing configuration is backed up and automatically restored on uninstall.
 
 ---
 
