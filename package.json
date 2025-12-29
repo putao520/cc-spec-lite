@@ -1,6 +1,6 @@
 {
   "name": "@putao520/cc-spec-lite",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "SPEC-driven development framework for Claude Code",
   "author": "putao520 <putao@example.com>",
   "license": "MIT",
