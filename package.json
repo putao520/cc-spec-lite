@@ -2,7 +2,7 @@
   "name": "@putao520/cc-spec-lite",
   "version": "0.0.1",
   "description": "SPEC-driven development framework for Claude Code",
-  "author": "putao520 <putao@example.com>",
+  "author": "putao520 <yuyao1022@hotmail.com>",
   "license": "MIT",
   "bin": {
     "cc-spec": "./bin/cc-spec.js",
