@@ -10,20 +10,24 @@ Provides a complete **system-level specification framework** for AI-assisted sof
 
 ## Quick Start
 
-### 3-Minute Setup
-
 ```bash
 npm install -g @putao520/cc-spec-lite
 cc-spec install
 ```
 
-That's it! Framework is now installed and ready to use.
+That's it! You're ready to use:
+
+```bash
+/spec-init        # Initialize project SPEC
+/architect        # Design system architecture
+"Let's implement"  # Start coding (auto-invokes programmer)
+```
 
 ---
 
 ## Installation
 
-### Install from npm
+### Install from npm (Recommended)
 
 ```bash
 npm install -g @putao520/cc-spec-lite
@@ -41,7 +45,7 @@ cc-spec install
 
 ---
 
-### Language Selection
+### Language Options
 
 **Auto-detection** (Recommended):
 ```bash
@@ -56,10 +60,7 @@ cc-spec install --lang en    # English
 cc-spec install --lang zh    # Chinese
 ```
 
----
-
-### Switch Languages
-
+**Switch languages**:
 ```bash
 cc-spec install --lang zh --force   # Switch to Chinese
 cc-spec install --lang en --force   # Switch to English
@@ -72,77 +73,40 @@ cc-spec install --lang en --force   # Switch to English
 ### Basic Workflow
 
 ```
-1. Initialize project
-   /spec-init
-
-2. Design & discuss requirements
-   Just talk to Claude - it automatically handles architecture
-
-3. Start development
-   Say "Let's implement this" - Claude automatically handles coding
-
-4. Validate completeness
-   /spec-audit
+1. /spec-init        → Initialize project SPEC
+2. Discuss design    → Auto-invokes architect skill
+3. "Let's implement"  → Auto-invokes programmer skill
+4. /spec-audit       → Verify SPEC completeness
 ```
 
-**Key Point**: You don't need to manually invoke skills like `/architect` or `/programmer`. Claude Code automatically selects the right skill based on your conversation context.
-
----
+**Key Point**: You don't manually invoke skills like `/architect` or `/programmer`. Claude Code automatically selects the right skill based on conversation context.
 
 ### Example: Building a Web App
 
 ```bash
-# Create your project
-mkdir my-app
-cd my-app
+mkdir my-app && cd my-app
 git init
 
-# Initialize SPEC
-/spec-init
-# Answer questions: project type, tech stack, features
-
-# Discuss design
-"I need a user authentication system with JWT"
-# Claude automatically uses architect skill to design it
-
-# Start coding
-"Let's implement the authentication"
-# Claude automatically uses programmer skill to write code
-
-# Validate
-/spec-audit
-# Verify everything is complete and documented
+/spec-init                    # Initialize SPEC
+"I need user authentication" # Discuss design
+"Let's implement"             # Start coding
+/spec-audit                   # Validate completeness
 ```
 
 ---
 
 ## Features
 
-- ✅ **System-Level SPEC**
-  - Complete specifications: Requirements, Architecture, Data, API, UI
-  - Single source of truth for entire project
-  - Traceable changes from idea to code
-
-- ✅ **Automatic Skill Selection**
-  - Claude Code picks the right skill at the right time
-  - No manual skill invocation needed
-  - Seamless workflow from design to code
-
-- ✅ **Cross-Platform**
-  - Works on Linux, macOS, Windows
-  - Auto-detects your system language
-  - Native scripts for each platform
-
-- ✅ **Safe Installation**
-  - Automatic backup before installing
-  - Restore option when uninstalling
-  - Never lose your existing configuration
+- ✅ **System-Level SPEC** - Complete specifications from requirements to UI
+- ✅ **Auto Skill Selection** - Claude Code picks the right skill automatically
+- ✅ **Cross-Platform** - Works on Linux, macOS, Windows
+- ✅ **Safe Installation** - Automatic backup, restore on uninstall
 
 ---
 
 ## Commands
 
-### Installation Commands
+### Installation
 
 ```bash
 cc-spec install [options]
@@ -155,10 +119,10 @@ cc-spec update
 cc-spec status
 ```
 
-### Development Commands
+### Development
 
 ```bash
-/spec-init       Initialize project SPEC (interactive)
+/spec-init       Initialize project SPEC
 /spec-audit      Verify SPEC completeness
 ```
 
@@ -166,25 +130,12 @@ cc-spec status
 
 ## Uninstallation
 
-### Standard Uninstall
-
 ```bash
 cc-spec uninstall
+npm uninstall -g @putao520/cc-spec-lite
 ```
 
 Your existing configuration is backed up and can be restored.
-
-### Complete Removal
-
-```bash
-# Uninstall the package
-cc-spec uninstall
-npm uninstall -g @putao520/cc-spec-lite
-
-# Remove backups (optional)
-rm -rf ~/.claude/backup/cc-spec-lite-*    # Linux/macOS
-rmdir /s "%USERPROFILE%\.claude\backup\cc-spec-lite-*"  # Windows
-```
 
 ---
 
@@ -193,13 +144,12 @@ rmdir /s "%USERPROFILE%\.claude\backup\cc-spec-lite-*"  # Windows
 ### How do I switch languages?
 
 ```bash
-cc-spec install --lang zh --force   # Switch to Chinese
-cc-spec install --lang en --force   # Switch to English
+cc-spec install --lang zh --force
 ```
 
 ### Will I lose my existing configuration?
 
-**No**. The installer automatically backs up your existing `~/.claude/` before installing. On uninstall, you can choose to restore the backup.
+**No**. Automatic backup before installing.
 
 ### Where are files installed?
 
@@ -215,26 +165,11 @@ npm update -g @putao520/cc-spec-lite
 cc-spec update
 ```
 
-### What is AI Warden CLI (aiw)?
-
-AI Warden CLI is a required dependency that enables role-based AI agents. It's automatically installed during setup.
-
-**Install manually**:
-```bash
-npm install -g @putao520/aiw
-```
-
 ### Something's not working?
 
 ```bash
-# Check installation status
-cc-spec status
-
-# Verify files are present
-ls -la ~/.claude/skills/    # Linux/macOS
-dir %USERPROFILE%\.claude\skills\   # Windows
-
-# Restart Claude Code after installation
+cc-spec status              # Check installation
+ls ~/.claude/skills/        # Verify files
 ```
 
 ---
@@ -243,14 +178,14 @@ dir %USERPROFILE%\.claude\skills\   # Windows
 
 - **Node.js** >= 14.0.0
 - **npm** >= 6.0.0
-- **Git** (for version control)
-- **Claude Code** (AI development environment)
+- **Git**
+- **Claude Code**
 
 ---
 
 ## Contributing
 
-Contributions welcome! Please:
+Contributions welcome!
 
 1. Fork the repository
 2. Create a feature branch
