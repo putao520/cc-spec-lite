@@ -221,7 +221,7 @@ AI Warden CLI is a required dependency that enables role-based AI agents. It's a
 
 **Install manually**:
 ```bash
-npm install -g @putao520/agentic-warden
+npm install -g @putao520/aiw
 ```
 
 ### Something's not working?
