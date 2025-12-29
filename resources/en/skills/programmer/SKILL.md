@@ -673,7 +673,7 @@ For each feature:
 - ✅ **Error handling**: Complete error handling, avoid swallowing exceptions, meaningful error messages
 - ✅ **Prohibited patterns**: No hardcoded debug code, no temporary patch fixes, no try-catch swallowing exceptions
 
-**Reference**: Debugging principles and prohibited behaviors in `roles/debugger.md`
+**Reference**: Debugging principles and prohibited behaviors in `skills/shared/debugger.md`
 
 **7.4 Decision Making**
 

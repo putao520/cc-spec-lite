@@ -672,7 +672,7 @@ gh issue view <issue#> --json body,title
 - ✅ **错误处理**：完整的错误处理、避免吞掉异常、有意义的错误信息
 - ✅ **禁止模式**：无硬编码调试代码、无临时补丁式修复、无try-catch吞异常
 
-**参考**：`roles/debugger.md` 中的调试原则和禁止行为
+**参考**：`skills/shared/debugger.md` 中的调试原则和禁止行为
 
 **7.4 决策**
 
