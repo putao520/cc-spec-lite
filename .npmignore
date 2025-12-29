@@ -3,8 +3,10 @@
 .gitignore
 SPEC/
 CLAUDE.md
+# Don't ignore .md files in resources directory
 *.md
 !README.md
+!resources/**/*.md
 
 # Node
 node_modules/
