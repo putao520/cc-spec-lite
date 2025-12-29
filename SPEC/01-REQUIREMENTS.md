@@ -89,13 +89,13 @@
 
 ### REQ-CONFIG-001: AI CLI 优先级配置系统
 **优先级**: P0
-**状态**: 待实现
+**状态**: ✅ 已实现 (2025-12-30) [commit: 316bbd7] [Issue: #1]
 
 - [x] 配置文件模板设计
-- [ ] 安装时交互式配置界面
-- [ ] 供应商动态读取（~/.aiw/providers.json）
-- [ ] 配置文件生成（~/.claude/config/aiw-priority.yaml）
-- [ ] ai-cli-runner.sh 配置读取
+- [x] 安装时交互式配置界面
+- [x] 供应商动态读取（~/.aiw/providers.json）
+- [x] 配置文件生成（~/.claude/config/aiw-priority.yaml）
+- [x] ai-cli-runner.sh 配置读取
 
 **功能描述**:
 - 安装时引导用户选择 AI CLI 优先级顺序
@@ -104,11 +104,11 @@
 - 脚本读取配置并按优先级依次尝试
 
 **验收标准**:
-- ⏳ 安装时英文交互式界面（两步选择）
-- ⏳ 动态读取可用供应商列表
-- ⏳ 配置文件正确生成
-- ⏳ 脚本支持配置读取和 fallback
-- ⏳ 默认配置：codex+auto → gemini+auto → claude+official
+- ✅ 安装时英文交互式界面（两步选择）
+- ✅ 动态读取可用供应商列表
+- ✅ 配置文件正确生成
+- ✅ 脚本支持配置读取和 fallback
+- ✅ 默认配置：codex+auto → gemini+auto → claude+official
 
 ---
 
