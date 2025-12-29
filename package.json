@@ -1,6 +1,6 @@
 {
   "name": "@putao520/cc-spec-lite",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "SPEC-driven development framework for Claude Code",
   "author": "putao520 <yuyao1022@hotmail.com>",
   "license": "MIT",
@@ -29,6 +29,7 @@
     "chalk": "^4.1.2",
     "commander": "^11.0.0",
     "fs-extra": "^11.1.1",
+    "inquirer": "^8.2.5",
     "ora": "^5.4.1",
     "os-locale": "^6.0.2"
   },
