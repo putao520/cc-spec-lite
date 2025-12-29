@@ -50,7 +50,9 @@ get_priority_pairs() {
     local config_file="$1"
     local -a pairs=()
 
-    if [ -f "$config_file" ]; then
+    # 检查配置文件是否存在且可读
+    if [ -f "$config_file" ] && [ -r "$config_file" ]; then
+        # 方法1: 使用 yq 解析（如果可用）
         if command -v yq >/dev/null 2>&1; then
             local yq_output
             yq_output=$(yq -r '.priority[] | "\(.cli)+\(.provider)"' "$config_file" 2>/dev/null || true)
@@ -63,6 +65,7 @@ get_priority_pairs() {
             fi
         fi
 
+        # 方法2: 使用 awk 解析（fallback）
         if [ ${#pairs[@]} -eq 0 ]; then
             local awk_output
             awk_output=$(awk '
@@ -79,7 +82,9 @@ get_priority_pairs() {
         fi
     fi
 
-    if [ ${#pairs[@]} -ne 3 ]; then
+    # 兜底：如果解析失败或配置不完整，使用默认值
+    if [ ${#pairs[@]} -lt 3 ]; then
+        echo "⚠️  配置文件读取失败或不完整，使用默认配置" >&2
         pairs=("${DEFAULT_PRIORITY_LIST[@]}")
     fi
 

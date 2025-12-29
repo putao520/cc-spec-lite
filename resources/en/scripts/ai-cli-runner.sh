@@ -45,12 +45,14 @@ Providers: auto, glm, openrouter, anthropic, google 等 (默认: auto，自动�
 EOF
 }
 
-# 读取优先级配置（yq → awk → 默认值）
+# Read priority configuration (yq → awk → default values)
 get_priority_pairs() {
     local config_file="$1"
     local -a pairs=()
 
-    if [ -f "$config_file" ]; then
+    # Check if config file exists and is readable
+    if [ -f "$config_file" ] && [ -r "$config_file" ]; then
+        # Method 1: Parse with yq (if available)
         if command -v yq >/dev/null 2>&1; then
             local yq_output
             yq_output=$(yq -r '.priority[] | "\(.cli)+\(.provider)"' "$config_file" 2>/dev/null || true)
@@ -63,6 +65,7 @@ get_priority_pairs() {
             fi
         fi
 
+        # Method 2: Parse with awk (fallback)
         if [ ${#pairs[@]} -eq 0 ]; then
             local awk_output
             awk_output=$(awk '
@@ -79,7 +82,9 @@ get_priority_pairs() {
         fi
     fi
 
-    if [ ${#pairs[@]} -ne 3 ]; then
+    # Fallback: use default values if parsing failed or config incomplete
+    if [ ${#pairs[@]} -lt 3 ]; then
+        echo "⚠️  Config file read failed or incomplete, using default configuration" >&2
         pairs=("${DEFAULT_PRIORITY_LIST[@]}")
     fi
 

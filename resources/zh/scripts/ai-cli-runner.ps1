@@ -558,35 +558,58 @@ function Validate-AiTool {
 function Get-PriorityPairs {
     $pairs = @()
 
-    if (Test-Path $CONFIG_FILE) {
-        $content = Get-Content $CONFIG_FILE -Raw
-        $inPriority = $false
-        $currentCli = ""
-        $currentProvider = ""
+    try {
+        if (Test-Path $CONFIG_FILE -PathType Leaf) {
+            $content = Get-Content $CONFIG_FILE -Raw -ErrorAction SilentlyContinue
 
-        foreach ($line in $content -split "`n") {
-            $trimmed = $line.Trim()
-            if ($trimmed -eq "priority:") {
-                $inPriority = $true
-                continue
-            }
-            if ($inPriority -and $trimmed -match "^-\s*cli:\s*(.+)$") {
-                $currentCli = $matches[1].Trim()
-                continue
-            }
-            if ($inPriority -and $trimmed -match "^provider:\s*(.+)$") {
-                $currentProvider = $matches[1].Trim()
-                if ($currentCli -and $currentProvider -and $currentCli -ne "null" -and $currentProvider -ne "null") {
-                    $pairs += "$currentCli+$currentProvider"
-                }
+            if ($content -and $content.Trim().Length -gt 0) {
+                $inPriority = $false
                 $currentCli = ""
                 $currentProvider = ""
-                continue
+
+                foreach ($line in $content -split "`n") {
+                    $trimmed = $line.Trim()
+
+                    # Skip empty lines and comments
+                    if ([string]::IsNullOrWhiteSpace($trimmed) -or $trimmed.StartsWith('#')) {
+                        continue
+                    }
+
+                    if ($trimmed -eq "priority:") {
+                        $inPriority = $true
+                        continue
+                    }
+
+                    if ($inPriority -and $trimmed -match "^-\s*cli:\s*(.+)$") {
+                        $currentCli = $matches[1].Trim()
+                        continue
+                    }
+
+                    if ($inPriority -and $trimmed -match "^provider:\s*(.+)$") {
+                        $currentProvider = $matches[1].Trim()
+
+                        # Only add if both cli and provider are valid
+                        if ($currentCli -and $currentProvider -and
+                            $currentCli -ne "null" -and $currentProvider -ne "null" -and
+                            $currentCli -match "^(codex|gemini|claude)$") {
+                            $pairs += "$currentCli+$currentProvider"
+                        }
+
+                        $currentCli = ""
+                        $currentProvider = ""
+                        continue
+                    }
+                }
             }
         }
+    } catch {
+        # Silently fall through to default
+        Write-Warning "Failed to read config file: $($_.Exception.Message)"
     }
 
-    if ($pairs.Count -ne 3) {
+    # Fallback to default if: no pairs found, wrong count, or parse errors
+    if ($pairs.Count -lt 3) {
+        Write-Host "Using default AI CLI priority configuration" -ForegroundColor Yellow
         $pairs = $DEFAULT_PRIORITY_LIST
     }
 
