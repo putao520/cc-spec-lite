@@ -335,25 +335,34 @@ cat SPEC/01-REQUIREMENTS.md
 | **Long-term Maintenance / 长期维护** | ⚠️ Per-feature / 按功能 | ✅ System-level SSOT / 系统级单一真源 |
 | **AI CLI Integration / AI CLI集成** | ❌ None / 无 | ✅ aiw with role injection / aiw角色注入 |
 
-### When to Use Each / 使用场景
+### Why cc-spec-lite is a Complete Solution / 为什么cc-spec-lite是完整方案
 
-**Choose cc-spec-lite if you / 如果你是以下情况，选择 cc-spec-lite**:
-- ✅ Building long-term projects in Chinese / 构建长期的中文项目
-- ✅ Need system-level architecture tracking / 需要系统级架构追踪
-- ✅ Want role-based AI collaboration / 需要基于角色的AI协作
-- ✅ Value bilingual documentation / 重视双语文档
-- ✅ Care about cross-platform compatibility / 关注跨平台兼容性
+**cc-spec-lite covers everything OpenSpec does, plus:**
+**cc-spec-lite 覆盖OpenSpec的所有功能，并且：**
 
-**Consider OpenSpec if you / 如果你是以下情况，考虑 OpenSpec**:
-- ✅ Need quick feature description / 需要快速描述单个功能
-- ✅ Working in English-only environment / 仅在英文环境工作
-- ✅ Don't need architecture tracking / 不需要架构追踪
-- ✅ Prefer lightweight task focus / 偏好轻量级任务聚焦
+- ✅ **Broader scope / 更广的覆盖**: Task-level + System-level / 任务级 + 系统级
+- ✅ **Chinese-native / 中文优先**: Full bilingual support / 完整双语支持
+- ✅ **Long-term focus / 长期导向**: System consistency, not just feature description / 系统一致性，不仅是功能描述
+- ✅ **Role-based collaboration / 基于角色协作**: Architect ↔ Programmer ↔ Testing / 架构师 ↔ 程序员 ↔ 测试
+- ✅ **AI CLI integration / AI CLI集成**: Native aiw support with role injection / 原生aiw支持与角色注入
+- ✅ **Safe installation / 安全安装**: Backup & restore mechanism / 备份恢复机制
 
-**Complementary Use / 互补使用**:
-- Use OpenSpec for initial feature ideation / 用OpenSpec进行功能初步构思
-- Import into cc-spec-lite for system-level tracking / 导入cc-spec-lite进行系统级追踪
-- Maintain architect-controlled SSOT / 维护architect控制的单一真源
+**OpenSpec can do, cc-spec-lite does better:**
+**OpenSpec能做的，cc-spec-lite做得更好：**
+
+| OpenSpec Task | cc-spec-lite Equivalent | Advantage / 优势 |
+|--------------|------------------------|-----------------|
+| Feature description / 功能描述 | `01-REQUIREMENTS.md [REQ-XXX]` | Structured + Traceable / 结构化 + 可追溯 |
+| Interface design / 接口设计 | `04-API-DESIGN.md [API-XXX]` | Complete error codes / 完整错误码 |
+| Data modeling / 数据建模 | `03-DATA-STRUCTURE.md [DATA-XXX]` | Indexes + Relations / 索引 + 关系 |
+| Architecture / 架构 | `02-ARCHITECTURE.md [ARCH-XXX]` | Module dependencies / 模块依赖 |
+
+**Conclusion / 结论**:
+> cc-spec-lite = OpenSpec (task-level) + System-level SPEC + Multi-role collaboration + Chinese environment support
+>
+> cc-spec-lite = OpenSpec（任务级）+ 系统级SPEC + 多角色协作 + 中文环境支持
+>
+> **No need for OpenSpec when using cc-spec-lite / 使用cc-spec-lite时无需OpenSpec**
 
 ---
 
