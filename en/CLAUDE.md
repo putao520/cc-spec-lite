@@ -22,6 +22,7 @@
 | 5 | Destroy and rebuild principle | Prohibit incremental changes, only reuse when fully matched, otherwise delete and rewrite |
 | 6 | Complete delivery | No TODO/FIXME/stub, 100% implement SPEC |
 | 7 | Update SPEC after commit | Update SPEC status immediately after code commit |
+| 8 | **Bilingual synchronization maintenance** | Must update both language versions simultaneously when modifying zh/ or en/ files |
 
 ### Architect-Specific Iron Rules (Only effective for /architect)
 
