@@ -1,0 +1,28 @@
+# Development files
+.git/
+.gitignore
+SPEC/
+CLAUDE.md
+*.md
+!README.md
+
+# Node
+node_modules/
+
+# Test files
+test/
+*.test.js
+
+# CI/CD
+.github/
+.gitattributes
+
+# Documentation
+docs/
+.tools/
+
+# Temporary files
+*.tmp
+*.log
+.DS_Store
+Thumbs.db

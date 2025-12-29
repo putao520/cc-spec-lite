@@ -1,0 +1,43 @@
+{
+  "name": "@putao520/cc-spec-lite",
+  "version": "1.0.0",
+  "description": "SPEC-driven development framework for Claude Code",
+  "author": "putao520 <putao@example.com>",
+  "license": "MIT",
+  "bin": {
+    "cc-spec": "./bin/cc-spec.js",
+    "spec-install": "./bin/spec-install.js",
+    "spec-status": "./bin/spec-status.js",
+    "spec-update": "./bin/spec-update.js"
+  },
+  "scripts": {
+    "install": "node lib/installer.js install",
+    "uninstall": "node lib/installer.js uninstall",
+    "test": "node lib/installer.js test"
+  },
+  "keywords": [
+    "claude-code",
+    "spec",
+    "ai-development",
+    "cc-spec",
+    "development-framework"
+  ],
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "commander": "^11.0.0",
+    "inquirer": "^8.2.5",
+    "fs-extra": "^11.1.1",
+    "ora": "^5.4.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/putao520/cc-spec-lite.git"
+  },
+  "homepage": "https://github.com/putao520/cc-spec-lite#readme",
+  "bugs": {
+    "url": "https://github.com/putao520/cc-spec-lite/issues"
+  }
+}

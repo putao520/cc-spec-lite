@@ -88,25 +88,32 @@ git init
 
 ```
 cc-spec-lite/
-├── en/                      # English version / 英文版
-│   ├── CLAUDE.md           # Global development rules
-│   ├── skills/             # AI skill definitions
-│   ├── commands/           # Custom commands
-│   ├── scripts/            # Automation scripts
-│   ├── roles/              # Role-based standards
-│   └── hooks/              # Git hooks (optional)
-│
-├── zh/                      # Chinese version / 中文版
-│   ├── CLAUDE.md           # 全局开发规范
-│   ├── skills/             # AI 技能定义
-│   ├── commands/           # 自定义命令
-│   ├── scripts/            # 自动化脚本
-│   ├── roles/              # 角色规范
-│   └── hooks/              # Git 钩子（可选）
-│
-├── install.sh              # Installation script / 安装脚本
-├── README.md               # This file / 本文件
-└── LICENSE                 # MIT License
+├── package.json             # npm package configuration
+├── bin/                     # CLI commands
+│   ├── cc-spec.js          # Main command
+│   ├── spec-install.js     # Quick install
+│   ├── spec-status.js      # Quick status check
+│   └── spec-update.js      # Quick update
+├── lib/                     # Core logic
+│   ├── installer.js        # Installation logic
+│   ├── platform.js         # Platform detection
+│   └── utils.js            # Utility functions
+├── resources/               # Language resources
+│   ├── en/                 # English version
+│   │   ├── CLAUDE.md
+│   │   ├── skills/
+│   │   ├── commands/
+│   │   ├── scripts/
+│   │   └── roles/
+│   └── zh/                 # Chinese version
+│       ├── CLAUDE.md
+│       ├── skills/
+│       ├── commands/
+│       ├── scripts/
+│       └── roles/
+├── SPEC/                    # Project SPEC (self-hosting)
+├── CLAUDE.md                # Project-level standards
+└── README.md                # This file
 ```
 
 **Installation Target / 安装目标**:
@@ -127,28 +134,64 @@ For comprehensive testing, quality, and delivery features, use the full **cc-spe
 
 ## Installation
 
-- **Claude Code**: v2.0.12 or higher
-- **AI Warden CLI (aiw)**: v0.5.30 or higher
-  - Required for running AI CLI with role-based context
-  - Installation: https://github.com/putao520/agentic-warden
-  - Verify: `aiw --version`
-- **Git**: For version control operations
-- **Shell Environment**:
-  - Linux: Bash (native)
-  - macOS: Bash or Zsh (native)
-  - Windows: PowerShell 5.1+, Git Bash, or WSL
+### Requirements
 
-### Quick Install (Recommended)
+- **Node.js** >= 14.0.0
+- **npm** (comes with Node.js)
+- AI development environment
+
+### npm Install (Recommended)
 
 ```bash
-# Clone and run installer
+# Install from npm
+npm install -g @putao520/cc-spec-lite
+
+# Or install from Git repository
 git clone https://github.com/putao520/cc-spec-lite.git
 cd cc-spec-lite
-./install.sh
+npm install -g .
+```
 
-# Or specify language directly
-./install.sh --lang en    # English (default)
-./install.sh --lang zh    # 简体中文
+### Select Language
+
+```bash
+# Install English version
+cc-spec install --lang en
+
+# 安装中文版本
+cc-spec install --lang zh
+```
+
+### Available Commands
+
+```bash
+# Install cc-spec-lite
+cc-spec install [options]
+  --lang <language>    Language (en/zh)
+  --force              Force reinstall (allows language switching)
+  --skip-aiw           Skip aiw check
+
+# Uninstall
+cc-spec uninstall
+
+# Update to latest version
+cc-spec update
+
+# Show installation status
+cc-spec status
+```
+
+### Quick Commands
+
+```bash
+# Quick install (English)
+spec-install
+
+# Check status
+spec-status
+
+# Update
+spec-update
 ```
 
 **The installer will:**
@@ -156,32 +199,16 @@ cd cc-spec-lite
 - ✅ Automatically install AI Warden CLI (aiw) if needed
 - ✅ Backup your existing configuration
 - ✅ Install all files to `~/.claude/`
-- ✅ Set proper file permissions
+- ✅ Detect and ask if switching language
 
-### Update Existing Installation
-
-```bash
-cd cc-spec-lite
-./install.sh --update
-```
-
-### Manual Installation
+### Language Switching
 
 ```bash
-# Clone repository
-git clone https://github.com/putao520/cc-spec-lite.git
+# Switch from English to Chinese
+cc-spec install --lang zh --force
 
-# Copy to Claude config directory
-cp -r cc-spec-lite/skills/* ~/.claude/skills/
-cp -r cc-spec-lite/commands/* ~/.claude/commands/
-cp -r cc-spec-lite/scripts/* ~/.claude/scripts/
-cp cc-spec-lite/CLAUDE.md ~/.claude/
-
-# Install AI Warden CLI (required)
-npm install -g @putao520/agentic-warden
-```
-
-### Development Installation
+# Switch from Chinese to English
+cc-spec install --lang en --force
 ```
 
 ### Verification
