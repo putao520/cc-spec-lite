@@ -1,0 +1,7 @@
+# 设置命令文件的默认权限
+commands/*.md text eol=lf
+skills/**/SKILL.md text eol=lf
+
+# 确保脚本文件有正确的执行权限
+scripts/*.sh text eol=lf
+scripts/*.ps1 text eol=crlf
