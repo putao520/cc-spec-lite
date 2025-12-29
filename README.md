@@ -50,8 +50,9 @@ cc-spec install
 **Auto-detection** (Recommended):
 ```bash
 cc-spec install
-# China (zh_CN) → Chinese version
-# Other regions → English version
+# Automatically detects from OS locale
+# zh-CN, zh-TW, zh-HK, zh-SG → Chinese
+# Other locales → English
 ```
 
 **Manual selection**:
@@ -208,5 +209,5 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**Version**: 0.0.1
+**Version**: 0.0.2
 **Author**: putao520 <yuyao1022@hotmail.com>

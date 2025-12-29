@@ -7,13 +7,20 @@
 
 const { program } = require('commander');
 const installer = require('../lib/installer');
-const { detectSystemLanguage } = require('../lib/utils');
 
 // Package info
 const pkg = require('../package.json');
 
-// Auto-detect default language based on system locale
-const defaultLang = detectSystemLanguage();
+// Auto-detect default language from OS
+const { detectSystemLanguage } = require('../lib/utils');
+
+// Set default language asynchronously
+let defaultLang = 'zh'; // fallback
+detectSystemLanguage().then(lang => {
+  defaultLang = lang;
+}).catch(() => {
+  defaultLang = 'zh';
+});
 
 program
   .name('cc-spec')
