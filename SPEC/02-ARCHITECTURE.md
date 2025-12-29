@@ -58,11 +58,13 @@ cc-spec-lite/
 | 模块 | 职责 | 文件 |
 |------|------|------|
 | **CLI 工具** | spec 命令实现 | `src/spec-cli.ts`（待实现） |
-| **安装脚本** | 文件安装和配置 | `install.sh` |
+| **安装脚本** | 文件安装和配置 | `install.sh`, `lib/installer.js` |
+| **配置管理** | AI CLI 优先级配置 | `lib/config-manager.js`（待实现） |
 | **规范文档** | 开发规范定义 | `zh/`, `en/` |
 | **Git Hooks** | 自动检查和验证 | `zh/.git-hooks/`, `en/.git-hooks/` |
 | **命令系统** | 自定义命令入口 | `zh/commands/`, `en/commands/` |
 | **技能系统** | AI 技能定义 | `zh/skills/`, `en/skills/` |
+| **AI CLI Runner** | AI CLI 执行和配置读取 | `resources/{zh|en}/scripts/ai-cli-runner.sh` |
 
 ### 模块依赖
 
@@ -75,6 +77,71 @@ Git Hooks
   ↓ 集成到
 用户项目
 ```
+
+---
+
+## ARCH-CONFIG-001: 配置管理架构
+
+### 配置加载流程
+
+```
+ai-cli-runner.sh 启动
+    ↓
+检查 ~/.claude/config/aiw-priority.yaml
+    ↓ 存在
+解析 YAML 配置（yq 或 grep/sed/awk）
+    ↓ 解析成功
+按优先级列表依次尝试
+    ↓
+1. 调用: aiw {cli} -p {provider} "task"
+    ↓ 失败
+2. 尝试下一个优先级
+    ↓
+全部失败或成功
+    ↓ 不存在/解析失败
+使用硬编码默认值
+```
+
+### 安装流程配置生成
+
+```
+用户运行安装脚本
+    ↓
+语言选择（zh/en）
+    ↓
+[新增] AI CLI 优先级配置界面
+    ├─ Step 1: 选择 CLI 顺序
+    │   ├─ 默认顺序
+    │   └─ 自定义顺序
+    ├─ Step 2: 为每个 CLI 选择供应商
+    │   ├─ 读取 ~/.aiw/providers.json
+    │   └─ 显示可用供应商列表
+    └─ 生成 ~/.claude/config/aiw-priority.yaml
+    ↓
+复制其他文件
+    ↓
+完成
+```
+
+### 供应商管理
+
+| 来源 | 供应商ID | 说明 |
+|------|---------|------|
+| **内置** | auto | 自动路由（默认） |
+| **用户配置** | ~/.aiw/providers.json 读取 | official, glm, openrouter 等 |
+
+**动态读取**：
+- 安装时读取 `~/.aiw/providers.json`
+- 所有 CLI 可使用所有供应商（无限制）
+- 用户添加新供应商后重新安装可见
+
+### 配置文件路径
+
+| 类型 | 位置 | 说明 |
+|------|------|------|
+| **模板** | `resources/config/aiw-priority.yaml` | 项目内模板（无注释） |
+| **用户配置** | `~/.claude/config/aiw-priority.yaml` | 安装时生成 |
+| **供应商配置** | `~/.aiw/providers.json` | aiw 配置（只读） |
 
 ---
 

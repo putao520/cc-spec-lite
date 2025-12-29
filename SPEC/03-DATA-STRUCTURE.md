@@ -94,6 +94,84 @@ docs(readme): 更新安装说明
 
 ---
 
+## DATA-CONFIG-001: AI CLI 优先级配置数据结构
+
+### 配置文件格式
+
+**文件位置**: `~/.claude/config/aiw-priority.yaml`
+
+**格式**: YAML
+
+### 配置项定义
+
+| 字段 | 类型 | 必填 | 默认值 | 说明 |
+|------|------|------|--------|------|
+| `priority` | array | ✅ | - | 优先级列表（按顺序尝试） |
+| `priority[].cli` | string | ✅ | - | AI CLI 名称（codex/gemini/claude） |
+| `priority[].provider` | string | ✅ | - | 供应商名称（auto/official/glm/openrouter等） |
+
+### 配置示例
+
+**默认配置**:
+```yaml
+priority:
+  - cli: codex
+    provider: auto
+  - cli: gemini
+    provider: auto
+  - cli: claude
+    provider: official
+```
+
+**自定义配置示例**:
+```yaml
+priority:
+  - cli: codex
+    provider: glm
+  - cli: claude
+    provider: glm
+  - cli: gemini
+    provider: openrouter
+```
+
+### CLI 名称枚举
+
+| 值 | 说明 |
+|----|------|
+| codex | 默认推荐 CLI |
+| gemini | Google Gemini |
+| claude | Claude Anthropic |
+
+### 供应商名称
+
+| 值 | 说明 | 来源 |
+|----|------|------|
+| auto | 自动路由（推荐） | 内置 |
+| official | Anthropic 官方 API | ~/.aiw/providers.json |
+| glm | 智谱 AI | ~/.aiw/providers.json |
+| openrouter | OpenRouter 聚合 | ~/.aiw/providers.json |
+| * | 其他用户配置供应商 | ~/.aiw/providers.json |
+
+### 配置解析规则
+
+| 优先级 | 解析方法 | 使用场景 |
+|--------|---------|----------|
+| 1 | yq 工具 | 用户安装了 yq |
+| 2 | grep/sed/awk | 纯 Bash 环境 |
+| 3 | 硬编码默认值 | 配置文件不存在或解析失败 |
+
+### 默认值
+
+**配置文件不存在时使用硬编码默认值**:
+
+| 顺序 | cli | provider | 配置字符串 |
+|------|-----|----------|-----------|
+| 1 | codex | auto | codex+auto |
+| 2 | gemini | auto | gemini+auto |
+| 3 | claude | official | claude+official |
+
+---
+
 ## DATA-SPEC-004: 配置文件结构
 
 ### .claude-plugin/config.json（待实现）

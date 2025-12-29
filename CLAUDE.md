@@ -67,6 +67,44 @@
 
 ---
 
+### 配置文件设计模式（产品层核心原则）
+
+**核心理念**：`resources/` 中的配置是**模板/源文件**，安装后复制到用户 `~/.claude/` 才是**实际配置**。
+
+**设计原则**：
+1. **配置模板位置**：`resources/{zh|en}/config/*.yaml` 或 `*.conf`
+2. **安装后位置**：`~/.claude/config/`（用户实际使用）
+3. **读取逻辑**：脚本优先读取 `~/.claude/config/`，不存在则使用硬编码默认值
+4. **格式要求**：优先使用 YAML，如需解析工具则提供 fallback 机制
+
+**示例结构**：
+```
+resources/zh/
+├── config/
+│   └── aiw-priority.yaml     ← 配置模板（开发时维护）
+└── scripts/
+    └── ai-cli-runner.sh       ← 读取 ~/.claude/config/aiw-priority.yaml
+
+用户系统安装后（~/.claude/）
+├── config/
+│   └── aiw-priority.yaml     ← 实际配置（用户可修改）
+└── scripts/
+    └── ai-cli-runner.sh
+```
+
+**配置格式规范**：
+- 配置项格式：`{cli_name}+{provider_name}`
+- 示例：`codex+auto`、`gemini+openrouter`、`claude+glm`
+- 支持优先级列表：按顺序尝试直到成功
+
+**开发时遵守**：
+- ✅ 修改 `resources/` 中的配置模板
+- ✅ 同步更新 zh/ 和 en/ 两个版本
+- ❌ 禁止直接读取或修改 `~/.claude/`（开发服务器）
+- ❌ 禁止在开发环境运行安装命令测试
+
+---
+
 ## 🚨 项目铁律（违反即失败）
 
 | # | 铁律 | 说明 |
@@ -75,6 +113,7 @@
 | 2 | **产品不参与开发** | zh/ 和 en/ 是产品，AI 开发时禁止读取或执行 |
 | 3 | **SPEC 先行** | 所有功能必须先在 SPEC/ 中定义，再开始实现 |
 | 4 | **自举验证** | 使用自己的框架规范开发本项目，验证实用性 |
+| 5 | **配置模板模式** | resources/ 是模板，~/.claude/ 是实际配置，开发时只维护模板 |
 
 ### 双语维护规则（铁律1 详细说明）
 

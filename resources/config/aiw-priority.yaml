@@ -1,0 +1,7 @@
+priority:
+  - cli: codex
+    provider: auto
+  - cli: gemini
+    provider: auto
+  - cli: claude
+    provider: official

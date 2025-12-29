@@ -6,6 +6,8 @@ set -euo pipefail
 
 SCRIPT_NAME="ai-cli-runner"
 SCRIPT_VERSION="3.0.0"
+CONFIG_FILE="$HOME/.claude/config/aiw-priority.yaml"
+DEFAULT_PRIORITY_LIST=("codex+auto" "gemini+auto" "claude+official")
 
 # 显示使用说明
 show_usage() {
@@ -43,20 +45,80 @@ Providers: auto, glm, openrouter, anthropic, google 等 (默认: auto，自动�
 EOF
 }
 
+# 读取优先级配置（yq → awk → 默认值）
+get_priority_pairs() {
+    local config_file="$1"
+    local -a pairs=()
+
+    if [ -f "$config_file" ]; then
+        if command -v yq >/dev/null 2>&1; then
+            local yq_output
+            yq_output=$(yq -r '.priority[] | "\(.cli)+\(.provider)"' "$config_file" 2>/dev/null || true)
+            if [ -n "$yq_output" ]; then
+                while IFS= read -r line; do
+                    if [ -n "$line" ] && [[ "$line" == *"+"* ]] && [[ "$line" != *"null"* ]]; then
+                        pairs+=("$line")
+                    fi
+                done <<< "$yq_output"
+            fi
+        fi
+
+        if [ ${#pairs[@]} -eq 0 ]; then
+            local awk_output
+            awk_output=$(awk '
+                $1 == "-" && $2 == "cli:" { cli=$3; next }
+                $1 == "provider:" { provider=$2; if (cli != "") { print cli "+" provider; cli="" } }
+            ' "$config_file" 2>/dev/null || true)
+            if [ -n "$awk_output" ]; then
+                while IFS= read -r line; do
+                    if [ -n "$line" ] && [[ "$line" == *"+"* ]]; then
+                        pairs+=("$line")
+                    fi
+                done <<< "$awk_output"
+            fi
+        fi
+    fi
+
+    if [ ${#pairs[@]} -ne 3 ]; then
+        pairs=("${DEFAULT_PRIORITY_LIST[@]}")
+    fi
+
+    printf '%s\n' "${pairs[@]}"
+}
+
 # 主要执行功能 - 合并标准生成和AI CLI执行
 execute() {
     local task_type="$1"
     local spec_ids="$2"
     local task_description="$3"
     local task_context="${4:-}"  # 可选参数：任务背景信息
-    local ai_tool="${5:-codex}"  # 可选参数：AI代理选择器，默认codex
-    local provider="${6:-auto}"  # 可选参数：AI供应商，默认auto（自动选择最佳路由）
+    local ai_tool="${5:-}"  # 可选参数：AI代理选择器
+    local provider="${6:-}"  # 可选参数：AI供应商
+    local -a priority_pairs=()
+
+    if [ -n "$ai_tool" ]; then
+        local selected_provider="${provider:-auto}"
+        priority_pairs=("${ai_tool}+${selected_provider}")
+    else
+        while IFS= read -r pair; do
+            if [ -n "$pair" ]; then
+                priority_pairs+=("$pair")
+            fi
+        done < <(get_priority_pairs "$CONFIG_FILE")
+    fi
 
     echo "=== AI CLI Runner 执行任务 ==="
     echo "任务类型: $task_type"
     echo "关联SPEC ID: $spec_ids"
-    echo "AI工具: $ai_tool"
-    echo "AI供应商: $provider"
+    if [ ${#priority_pairs[@]} -gt 1 ]; then
+        echo "AI优先级顺序:"
+        for i in "${!priority_pairs[@]}"; do
+            echo "  $((i + 1)). ${priority_pairs[$i]}"
+        done
+    else
+        echo "AI工具: ${priority_pairs[0]%%+*}"
+        echo "AI供应商: ${priority_pairs[0]#*+}"
+    fi
     echo "任务描述: $task_description"
     if [ -n "$task_context" ]; then
         echo "包含任务背景: 是"
@@ -73,23 +135,33 @@ execute() {
     cat "$injection_file"
     echo ""
 
-    echo "=== 执行AI CLI命令 ==="
-    # 执行AI CLI命令，注入标准文本
-    # 始终使用 -p 参数传递供应商给 aiw
-    aiw "$ai_tool" -p "$provider" "$task_description
+    local exit_code=1
+    local attempt=1
 
-$(cat "$injection_file")"
+    for pair in "${priority_pairs[@]}"; do
+        local cli="${pair%%+*}"
+        local provider="${pair#*+}"
 
-    local exit_code=$?
+        echo "=== 执行AI CLI命令 ==="
+        echo "尝试优先级 ${attempt}: ${cli}+${provider}"
+        # 执行AI CLI命令，注入标准文本
+        # 始终使用 -p 参数传递供应商给 aiw
+        if aiw "$cli" -p "$provider" "$task_description
+
+$(cat "$injection_file")"; then
+            exit_code=0
+            echo "✅ AI CLI任务执行完成"
+            break
+        else
+            exit_code=$?
+            echo "❌ AI CLI任务执行失败 (退出码: $exit_code)"
+        fi
+
+        attempt=$((attempt + 1))
+    done
 
     # 清理临时文件
     rm -f "$injection_file"
-
-    if [ $exit_code -eq 0 ]; then
-        echo "✅ AI CLI任务执行完成"
-    else
-        echo "❌ AI CLI任务执行失败 (退出码: $exit_code)"
-    fi
 
     return $exit_code
 }

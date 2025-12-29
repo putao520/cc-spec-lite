@@ -27,6 +27,158 @@ Options:
 
 ---
 
+## API-CONFIG-001: 安装配置接口
+
+### 交互式配置流程
+
+#### 接口流程
+
+```
+npm install @putao520/cc-spec-lite
+    ↓
+lib/installer.js 执行
+    ↓
+[交互式界面 Step 1] 语言选择
+    输入: zh / en
+    ↓
+[交互式界面 Step 2] CLI 优先级选择
+    ├─ 选项1: 保持默认 (codex → gemini → claude)
+    └─ 选项2: 自定义顺序
+    ↓
+[交互式界面 Step 3] 供应商配置（每个 CLI）
+    ├─ 读取: ~/.aiw/providers.json
+    ├─ 显示: 可用供应商列表
+    └─ 输入: 为每个 CLI 选择供应商
+    ↓
+生成配置文件: ~/.claude/config/aiw-priority.yaml
+    ↓
+复制其他文件到 ~/.claude/
+    ↓
+完成
+```
+
+### Step 2: CLI 优先级选择
+
+**界面呈现**（英文）:
+
+```
+=========================================================
+     AI CLI Priority Configuration
+=========================================================
+
+Choose priority order for AI CLIs (highest to lowest)
+
+Available AI CLIs:
+  [1] codex    - (default recommended)
+  [2] gemini   - Google Gemini
+  [3] claude   - Claude Anthropic
+
+Options:
+  [1] Keep default order (codex → gemini → claude)
+  [2] Customize priority order
+
+Enter option [1-2]:
+```
+
+**选择逻辑**:
+
+| 用户输入 | 行为 |
+|---------|------|
+| 1 或默认顺序 | 使用固定顺序：codex → gemini → claude |
+| 2 | 进入自定义选择流程 |
+
+**自定义流程**（三个问题）:
+```
+Select 1st priority (highest): [1-3]
+Select 2nd priority: [1-2]
+Select 3rd priority: [1]
+```
+
+### Step 3: 供应商配置
+
+**读取供应商列表**:
+
+| 操作 | 说明 |
+|------|------|
+| 读取路径 | `~/.aiw/providers.json` |
+| 解析 JSON | 获取 `providers` 对象的所有键 |
+| 添加内置 | 始终包含 `auto` |
+| 输出示例 | `['auto', 'official', 'glm', 'openrouter']` |
+
+**界面呈现**（每个 CLI 重复）:
+
+```
+---------------------------------------------------------
+ [N] {cli_name} - Provider Selection
+---------------------------------------------------------
+
+Available providers:
+  [1] auto       - Auto routing (recommended)
+  [2] official   - Anthropic official API
+  [3] glm        - Zhipu AI
+  [4] openrouter - OpenRouter aggregation
+
+Select provider for {cli_name} [1-N]:
+```
+
+**配置约束**:
+
+| 约束 | 说明 |
+|------|------|
+| 所有 CLI 可选 | 任何 CLI 可以使用任何供应商 |
+| 默认值 | auto（推荐） |
+| 动态列表 | 根据用户配置动态显示 |
+
+### 配置文件生成
+
+**输出路径**: `~/.claude/config/aiw-priority.yaml`
+
+**生成格式**:
+
+| 条件 | 格式 |
+|------|------|
+| 用户选择配置 | 根据用户输入生成 |
+| 配置文件已存在 | 覆盖（重新安装时） |
+| 读取失败 | 使用默认值 |
+
+**YAML 结构**:
+
+```yaml
+priority:
+  - cli: {cli_1}
+    provider: {provider_1}
+  - cli: {cli_2}
+    provider: {provider_2}
+  - cli: {cli_3}
+    provider: {provider_3}
+```
+
+### 错误处理
+
+| 错误场景 | 处理方式 |
+|---------|---------|
+| `~/.aiw/providers.json` 不存在 | 仅使用 `auto` 选项 |
+| `~/.aiw/providers.json` 格式错误 | 警告并仅使用 `auto` |
+| 配置文件写入失败 | 报错并终止安装 |
+| 用户取消输入 | 使用默认值继续 |
+
+### 完成确认
+
+**成功输出**:
+
+```
+✅ Configuration complete!
+
+Priority order with providers:
+  1. {cli_1}+{provider_1}
+  2. {cli_2}+{provider_2}
+  3. {cli_3}+{provider_3}
+
+Writing configuration to: ~/.claude/config/aiw-priority.yaml
+```
+
+---
+
 ## API-CLI-002: spec init
 
 ### 接口定义
