@@ -8,6 +8,10 @@ $ErrorActionPreference = "Stop"
 $SCRIPT_NAME = "ai-cli-runner"
 $SCRIPT_VERSION = "3.0.0"
 
+# Configuration file path
+$CONFIG_FILE = Join-Path $env:USERPROFILE ".claude" "config" "aiw-priority.yaml"
+$DEFAULT_PRIORITY_LIST = @("codex+auto", "gemini+auto", "claude+auto")
+
 function Show-Usage {
     @"
 AI CLI Runner - AI CLI Tool Executor (Lite Version)
@@ -446,15 +450,33 @@ function Execute-Task {
         [string]$SpecIds,
         [string]$TaskDescription,
         [string]$TaskContext = "",
-        [string]$AiTool = "codex",
-        [string]$Provider = "auto"
+        [string]$AiTool = "",
+        [string]$Provider = ""
     )
+
+    # Get priority configuration
+    $priorityPairs = @()
+
+    if ($AiTool) {
+        $selectedProvider = if ($Provider) { $Provider } else { "auto" }
+        $priorityPairs += "$AiTool+$selectedProvider"
+    } else {
+        $priorityPairs = Get-PriorityPairs
+    }
 
     Write-Host "=== AI CLI Runner Executing Task ===" -ForegroundColor Cyan
     Write-Host "Task Type: $TaskType"
     Write-Host "Associated SPEC ID: $SpecIds"
-    Write-Host "AI Tool: $AiTool"
-    Write-Host "AI Provider: $Provider"
+    if ($priorityPairs.Count -gt 1) {
+        Write-Host "AI Priority Order:"
+        for ($i = 0; $i -lt $priorityPairs.Count; $i++) {
+            Write-Host "  $($i + 1). $($priorityPairs[$i])"
+        }
+    } else {
+        $parts = $priorityPairs[0] -split '\+'
+        Write-Host "AI Tool: $($parts[0])"
+        Write-Host "AI Provider: $($parts[1])"
+    }
     Write-Host "Task Description: $TaskDescription"
     if ($TaskContext) {
         Write-Host "Includes Task Background: Yes"
@@ -478,19 +500,31 @@ $TaskDescription
 $injectionText
 "@
 
-    # Execute AI CLI command, always use -p parameter to pass provider to aiw
-    try {
-        & aiw $AiTool -p $Provider $fullPrompt
-        $exitCode = $LASTEXITCODE
-    } catch {
-        Write-Host "Error executing aiw: $_" -ForegroundColor Red
-        $exitCode = 1
-    }
+    $exitCode = 1
+    $attempt = 1
 
-    if ($exitCode -eq 0) {
-        Write-Host "AI CLI task completed successfully" -ForegroundColor Green
-    } else {
-        Write-Host "AI CLI task failed (exit code: $exitCode)" -ForegroundColor Red
+    foreach ($pair in $priorityPairs) {
+        $cli, $provider = $pair -split '\+'
+
+        Write-Host "Attempting priority $attempt : ${cli}+${provider}"
+
+        # Execute AI CLI command, always use -p parameter to pass provider to aiw
+        try {
+            & aiw $cli -p $provider $fullPrompt
+            $exitCode = $LASTEXITCODE
+        } catch {
+            Write-Host "Error executing aiw: $_" -ForegroundColor Red
+            $exitCode = 1
+        }
+
+        if ($exitCode -eq 0) {
+            Write-Host "AI CLI task completed successfully" -ForegroundColor Green
+            break
+        } else {
+            Write-Host "AI CLI task failed (exit code: $exitCode)" -ForegroundColor Red
+        }
+
+        $attempt++
     }
 
     return $exitCode
@@ -521,6 +555,44 @@ function Validate-AiTool {
     return $false
 }
 
+function Get-PriorityPairs {
+    $pairs = @()
+
+    if (Test-Path $CONFIG_FILE) {
+        $content = Get-Content $CONFIG_FILE -Raw
+        $inPriority = $false
+        $currentCli = ""
+        $currentProvider = ""
+
+        foreach ($line in $content -split "`n") {
+            $trimmed = $line.Trim()
+            if ($trimmed -eq "priority:") {
+                $inPriority = $true
+                continue
+            }
+            if ($inPriority -and $trimmed -match "^-\s*cli:\s*(.+)$") {
+                $currentCli = $matches[1].Trim()
+                continue
+            }
+            if ($inPriority -and $trimmed -match "^provider:\s*(.+)$") {
+                $currentProvider = $matches[1].Trim()
+                if ($currentCli -and $currentProvider -and $currentCli -ne "null" -and $currentProvider -ne "null") {
+                    $pairs += "$currentCli+$currentProvider"
+                }
+                $currentCli = ""
+                $currentProvider = ""
+                continue
+            }
+        }
+    }
+
+    if ($pairs.Count -ne 3) {
+        $pairs = $DEFAULT_PRIORITY_LIST
+    }
+
+    return $pairs
+}
+
 # Main entry point
 function Main {
     param([string[]]$Arguments)
@@ -541,8 +613,8 @@ function Main {
     $specIds = $Arguments[1]
     $taskDescription = $Arguments[2]
     $taskContext = if ($Arguments.Count -ge 4) { $Arguments[3] } else { "" }
-    $aiTool = if ($Arguments.Count -ge 5) { $Arguments[4] } else { "codex" }
-    $provider = if ($Arguments.Count -ge 6) { $Arguments[5] } else { "auto" }
+    $aiTool = if ($Arguments.Count -ge 5) { $Arguments[4] } else { "" }
+    $provider = if ($Arguments.Count -ge 6) { $Arguments[5] } else { "" }
 
     # Validate AI tool
     if ($Arguments.Count -ge 5) {

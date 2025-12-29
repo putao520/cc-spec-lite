@@ -7,7 +7,7 @@ set -euo pipefail
 SCRIPT_NAME="ai-cli-runner"
 SCRIPT_VERSION="3.0.0"
 CONFIG_FILE="$HOME/.claude/config/aiw-priority.yaml"
-DEFAULT_PRIORITY_LIST=("codex+auto" "gemini+auto" "claude+official")
+DEFAULT_PRIORITY_LIST=("codex+auto" "gemini+auto" "claude+auto")
 
 # 显示使用说明
 show_usage() {

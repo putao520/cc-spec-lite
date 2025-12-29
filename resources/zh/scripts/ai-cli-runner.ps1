@@ -8,6 +8,10 @@ $ErrorActionPreference = "Stop"
 $SCRIPT_NAME = "ai-cli-runner"
 $SCRIPT_VERSION = "3.0.0"
 
+# 配置文件路径
+$CONFIG_FILE = Join-Path $env:USERPROFILE ".claude" "config" "aiw-priority.yaml"
+$DEFAULT_PRIORITY_LIST = @("codex+auto", "gemini+auto", "claude+auto")
+
 function Show-Usage {
     @"
 AI CLI Runner - AI CLI Tool Executor (Lite Version)
@@ -446,31 +450,49 @@ function Execute-Task {
         [string]$SpecIds,
         [string]$TaskDescription,
         [string]$TaskContext = "",
-        [string]$AiTool = "codex",
-        [string]$Provider = "auto"
+        [string]$AiTool = "",
+        [string]$Provider = ""
     )
 
-    Write-Host "=== AI CLI Runner Executing Task ===" -ForegroundColor Cyan
-    Write-Host "Task Type: $TaskType"
-    Write-Host "Associated SPEC ID: $SpecIds"
-    Write-Host "AI Tool: $AiTool"
-    Write-Host "AI Provider: $Provider"
-    Write-Host "Task Description: $TaskDescription"
-    if ($TaskContext) {
-        Write-Host "Includes Task Background: Yes"
+    # 获取优先级配置
+    $priorityPairs = @()
+
+    if ($AiTool) {
+        $selectedProvider = if ($Provider) { $Provider } else { "auto" }
+        $priorityPairs += "$AiTool+$selectedProvider"
+    } else {
+        $priorityPairs = Get-PriorityPairs
     }
-    Write-Host "Execution Time: $(Get-Date)"
+
+    Write-Host "=== AI CLI Runner 执行任务 ===" -ForegroundColor Cyan
+    Write-Host "任务类型: $TaskType"
+    Write-Host "关联 SPEC ID: $SpecIds"
+    if ($priorityPairs.Count -gt 1) {
+        Write-Host "AI优先级顺序:"
+        for ($i = 0; $i -lt $priorityPairs.Count; $i++) {
+            Write-Host "  $($i + 1). $($priorityPairs[$i])"
+        }
+    } else {
+        $parts = $priorityPairs[0] -split '\+'
+        Write-Host "AI工具: $($parts[0])"
+        Write-Host "AI供应商: $($parts[1])"
+    }
+    Write-Host "任务描述: $TaskDescription"
+    if ($TaskContext) {
+        Write-Host "包含任务背景: 是"
+    }
+    Write-Host "执行时间: $(Get-Date)"
     Write-Host ""
 
-    # Generate injection text
-    Write-Host "Generating injection text..."
+    # 生成注入文本
+    Write-Host "生成注入文本..."
     $injectionText = Generate-Injection -TaskType $TaskType -SpecIds $SpecIds -TaskContext $TaskContext
 
-    Write-Host "=== AI CLI Injection Text ===" -ForegroundColor Yellow
+    Write-Host "=== AI CLI 注入文本 ===" -ForegroundColor Yellow
     Write-Host $injectionText
     Write-Host ""
 
-    Write-Host "=== Executing AI CLI Command ===" -ForegroundColor Green
+    Write-Host "=== 执行 AI CLI 命令 ===" -ForegroundColor Green
 
     $fullPrompt = @"
 $TaskDescription
@@ -478,19 +500,31 @@ $TaskDescription
 $injectionText
 "@
 
-    # Execute AI CLI command, always use -p parameter to pass provider to aiw
-    try {
-        & aiw $AiTool -p $Provider $fullPrompt
-        $exitCode = $LASTEXITCODE
-    } catch {
-        Write-Host "Error executing aiw: $_" -ForegroundColor Red
-        $exitCode = 1
-    }
+    $exitCode = 1
+    $attempt = 1
 
-    if ($exitCode -eq 0) {
-        Write-Host "AI CLI task completed successfully" -ForegroundColor Green
-    } else {
-        Write-Host "AI CLI task failed (exit code: $exitCode)" -ForegroundColor Red
+    foreach ($pair in $priorityPairs) {
+        $cli, $provider = $pair -split '\+'
+
+        Write-Host "尝试优先级 $attempt : ${cli}+${provider}"
+
+        # 执行 AI CLI 命令，始终使用 -p 参数传递供应商给 aiw
+        try {
+            & aiw $cli -p $provider $fullPrompt
+            $exitCode = $LASTEXITCODE
+        } catch {
+            Write-Host "Error executing aiw: $_" -ForegroundColor Red
+            $exitCode = 1
+        }
+
+        if ($exitCode -eq 0) {
+            Write-Host "✅ AI CLI 任务执行完成" -ForegroundColor Green
+            break
+        } else {
+            Write-Host "❌ AI CLI 任务执行失败 (退出码: $exitCode)" -ForegroundColor Red
+        }
+
+        $attempt++
     }
 
     return $exitCode
@@ -521,6 +555,44 @@ function Validate-AiTool {
     return $false
 }
 
+function Get-PriorityPairs {
+    $pairs = @()
+
+    if (Test-Path $CONFIG_FILE) {
+        $content = Get-Content $CONFIG_FILE -Raw
+        $inPriority = $false
+        $currentCli = ""
+        $currentProvider = ""
+
+        foreach ($line in $content -split "`n") {
+            $trimmed = $line.Trim()
+            if ($trimmed -eq "priority:") {
+                $inPriority = $true
+                continue
+            }
+            if ($inPriority -and $trimmed -match "^-\s*cli:\s*(.+)$") {
+                $currentCli = $matches[1].Trim()
+                continue
+            }
+            if ($inPriority -and $trimmed -match "^provider:\s*(.+)$") {
+                $currentProvider = $matches[1].Trim()
+                if ($currentCli -and $currentProvider -and $currentCli -ne "null" -and $currentProvider -ne "null") {
+                    $pairs += "$currentCli+$currentProvider"
+                }
+                $currentCli = ""
+                $currentProvider = ""
+                continue
+            }
+        }
+    }
+
+    if ($pairs.Count -ne 3) {
+        $pairs = $DEFAULT_PRIORITY_LIST
+    }
+
+    return $pairs
+}
+
 # Main entry point
 function Main {
     param([string[]]$Arguments)
@@ -541,8 +613,8 @@ function Main {
     $specIds = $Arguments[1]
     $taskDescription = $Arguments[2]
     $taskContext = if ($Arguments.Count -ge 4) { $Arguments[3] } else { "" }
-    $aiTool = if ($Arguments.Count -ge 5) { $Arguments[4] } else { "codex" }
-    $provider = if ($Arguments.Count -ge 6) { $Arguments[5] } else { "auto" }
+    $aiTool = if ($Arguments.Count -ge 5) { $Arguments[4] } else { "" }
+    $provider = if ($Arguments.Count -ge 6) { $Arguments[5] } else { "" }
 
     # Validate AI tool
     if ($Arguments.Count -ge 5) {

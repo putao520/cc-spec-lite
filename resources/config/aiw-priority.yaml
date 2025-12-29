@@ -4,4 +4,4 @@ priority:
   - cli: gemini
     provider: auto
   - cli: claude
-    provider: official
+    provider: auto
