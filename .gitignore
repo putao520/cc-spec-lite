@@ -22,3 +22,6 @@ Thumbs.db
 /tmp/
 *.tmp
 *.bak
+
+# Marketing/News
+news/
