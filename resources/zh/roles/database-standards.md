@@ -1,12 +1,8 @@
 # 数据库开发规范 - CODING-STANDARDS-DATABASE
 
-**适用范围**: 数据库开发岗位（SQL/NoSQL/图数据库/时序数据库，技术栈无关）
-
 ---
 
 ## 🚨 核心铁律（继承自 common.md）
-
-> **必须遵循 common.md 的四大核心铁律**
 
 ```
 铁律1: SPEC 是唯一真源（SSOT）

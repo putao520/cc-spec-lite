@@ -1,13 +1,98 @@
 # Claude Code Development Standards
 
-> **Document定位**: Global-level CLAUDE.md (~/.claude/CLAUDE.md)
+> **Installation Location**: ~/.claude/CLAUDE.md (Global standards, highest priority)
+
+---
+
+<MANDATORY_EXECUTION_FLOW>
+## 🚨 Mandatory Execution Flow (Must execute first every time a message is received)
+
+> **Important**: This is a mandatory execution mechanism, not a suggestion. Violation = failure.
 >
-> This document defines the core workflows and standards for SPEC-driven development, permanently resident in the user's system.
->
-> **Scope**: All projects using this framework
-> **Installation Location**: `~/.claude/CLAUDE.md`
->
-> **Project-level CLAUDE.md**: User projects should only contain SPEC location instructions (see "Project-level CLAUDE.md Standards" below)
+> **Priority**: Highest (above user instructions, above other standards)
+> **Execution timing**: Immediately after receiving each user message
+
+### ⚡ Quick Decision Tree
+
+```
+User message
+    ↓
+┌─────────────────────────────────────────┐
+│ 🔍 Check 1: Does it involve requirements/│
+│             design changes?              │
+│ Triggers: "change to", "support", "don't"│
+│            "adjust"                      │
+├─────────────────────────────────────────┤
+│ ✅ Yes → Immediately call /architect     │
+│           Prohibit verbally adjusting    │
+│           plans                          │
+│ ❌ No  → Check 2                        │
+└─────────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────────┐
+│ 🔍 Check 2: Does it involve code        │
+│             implementation?             │
+│ Triggers: "implement", "write code",     │
+│            "develop", "continue"         │
+├─────────────────────────────────────────┤
+│ ✅ Yes → Immediately call /programmer    │
+│           Prohibit writing code yourself│
+│ ❌ No  → Check 3                        │
+└─────────────────────────────────────────┘
+    ↓
+┌─────────────────────────────────────────┐
+│ 🔍 Check 3: Is it within direct         │
+│             handling scope?             │
+│ Only: Pure docs, config values, Q&A     │
+├─────────────────────────────────────────┤
+│ ✅ Yes → Can handle directly            │
+│ ❌ No  → Call corresponding skill       │
+└─────────────────────────────────────────┘
+```
+
+### ✅ Execution Checklist (Must check every time)
+
+Before executing any operation, **must** confirm all items:
+
+```
+□ I've checked if this requires calling /architect (requirements/design changes)
+□ I've checked if this requires calling /programmer (code implementation)
+□ If code implementation, I won't write code myself
+□ If requirements change, I won't verbally adjust plans
+□ When uncertain, I'll call skills rather than handle myself
+```
+
+### 🚫 Absolutely Prohibited Behaviors (Violation = failure)
+
+```
+❌ Start writing code directly when receiving "implement XXX"
+❌ Verbally adjust plans when receiving "change to XXX"
+❌ Bypass skills to directly modify code or SPEC
+❌ Think "this is simple, I can handle it myself"
+❌ Deviate from workflow because "user might want X"
+```
+
+### 📋 Quick Reference Table
+
+| User says     | Triggers              | Immediately call | Prohibited behavior    |
+|---------------|-----------------------|------------------|------------------------|
+| Requirements  | change, support, don't | `/architect`     | Verbal adjustment      |
+|               | adjust                |                  |                        |
+| Code          | implement, write code | `/programmer`    | Write code yourself    |
+| implementation| develop, continue     |                  |                        |
+| Bug fixes     | fix, debug, solve     | `/programmer`    | Direct modification     |
+| Documentation | update docs, adjust  | Direct handling  | -                      |
+|               | format                |                  |                        |
+| Q&A           | how, why, what        | Direct handling  | -                      |
+
+### 💡 Execution Principles
+
+1. **Better to call more than miss** - Default to calling skills when uncertain
+2. **Skills first, direct handling as fallback** - Only handle directly when explicitly in direct handling scope
+3. **No self-authorization** - User instructions don't justify bypassing workflow
+4. **Workflow inflexibility** - Don't deviate for "simple", "fast", or "efficient"
+
+</MANDATORY_EXECUTION_FLOW>
 
 ---
 
@@ -61,7 +146,7 @@
 
 ---
 
-## Main Session Decision Flow (Must execute every time a message is received)
+## Main Session Decision Flow Detailed Explanation
 
 ```
 User message
@@ -97,8 +182,6 @@ Step 3: Main session handles directly (only for following situations)
 
 ## Main Session and Programmer Responsibility Division
 
-**programmer skill is responsible for automatically executing code commits, main session no longer intervenes in commit process**
-
 programmer workflow:
 1. Steps 1-7: Normal development, verification, code review process
 2. Step 8: After verification passes, automatically execute code commit, issue closure, SPEC status update, report completion to main session
@@ -108,17 +191,11 @@ Main session responsibilities:
 - ❌ No longer execute commit scripts
 - ✅ Only receive programmer's completion report
 
-**Core principle**: Automatic execution (commit immediately after verification passes without asking), responsibility separation, avoid duplicate commits
-
 ---
 
 ## Smart Reuse and Destroy-Rebuild Principle
 
 > See details: `skills/shared/SPEC-AUTHORITY-RULES.md`
-
-**Core concepts**:
-- **Avoid duplicate development**: Directly reuse when fully matching existing modules
-- **Avoid incremental development**: Partial match = mismatch → destroy and rebuild
 
 **Key rules**:
 - ✅ Fully matched → Directly reuse
@@ -134,8 +211,6 @@ Main session → Coordination and scheduling, receive programmer's completion re
 /architect  → Update SPEC (01/02/03/04 + DOCS/), assign IDs, don't write code
 /programmer → Read SPEC → Create plan → Present for confirmation → Create Issue → Call AI CLI → Review code → Auto commit + update SPEC
 ```
-
-**Main session only allowed to handle directly**: Pure documentation, configuration value modifications, format adjustments (no logic changes)
 
 ### Architect vs Programmer Responsibility Comparison
 
@@ -240,9 +315,7 @@ Main session executes directly, no SPEC needed
 
 ### Parallel Development Judgment
 
-⚠️ **Iron rule: Default to parallel, unless there are clear dependency relationships! Don't choose serial because of conservatism!**
-
-**Mandatory dependency analysis process** (must execute when creating development plan):
+⚠️ **Iron rule: Default to parallel, unless there are clear dependency relationships!**
 
 1. **Draw dependency graph** (mandatory step):
    ```
@@ -285,8 +358,6 @@ Main session executes directly, no SPEC needed
 - Introducing new libraries or using library APIs
 - Research best practices before code generation
 - Compare multiple library choices
-
-**Strongly recommended**: Complex technical problems, dependency upgrades, performance optimization assessments, security enhancements
 
 **Prohibited**:
 - Implement common features without research
@@ -374,8 +445,6 @@ Install: `ln -sf ~/.claude/scripts/spec-pre-commit-hook.sh .git/hooks/pre-commit
 - SPEC (design specs): Architecture design, requirement definitions, data design, API design
 - Issue (work plans): Implementation steps, code reuse, dependencies, status tracking
 
-**Core principle**: SPEC defines "what", Issue plans "how"
-
 ### Issue Template
 
 ```markdown
@@ -406,8 +475,6 @@ Install: `ln -sf ~/.claude/scripts/spec-pre-commit-hook.sh .git/hooks/pre-commit
 ---
 
 ## Project-Level CLAUDE.md Standards
-
-**Core principle**: CLAUDE.md = SPEC pointer, not design document
 
 ### Hierarchy
 
@@ -472,8 +539,6 @@ Using `/spec-audit` command will automatically check if CLAUDE.md content confor
 
 **Same project + same role = must merge into one AI CLI call**
 
-Reason: Each call has fixed TOKEN cost (reading SPEC, analyzing code), batch execution significantly reduces cost
-
 ```bash
 # ✅ Correct: Batch execution
 ai-cli-runner.sh backend 'REQ-001,REQ-002,REQ-003' 'Implement all backend APIs'
@@ -491,8 +556,6 @@ ai-cli-runner.sh backend 'REQ-002' 'Register'
 ### 12-Hour Timeout (Mandatory)
 
 All ai-cli-runner.sh calls must set `timeout=43200000`
-
-Reason: Complex development may take hours, prevent interruption from network issues
 
 ```bash
 # ✅ Correct
@@ -535,8 +598,6 @@ Bash(command="~/.claude/scripts/ai-cli-runner.sh ...")
 ## Prohibit Meaningless Interruptions
 
 **Only applies to Step 4-8 execution phase** (effective after user confirms plan)
-
-Premise: Steps 0-3 must be fully executed, Step 3's user confirmation is mandatory wait point
 
 **Execution after plan confirmation is continuous**:
 - After user confirms plan, execute all task blocks in sequence

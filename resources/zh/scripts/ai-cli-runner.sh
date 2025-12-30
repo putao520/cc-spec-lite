@@ -151,9 +151,10 @@ execute() {
         echo "尝试优先级 ${attempt}: ${cli}+${provider}"
         # 执行AI CLI命令，注入标准文本
         # 始终使用 -p 参数传递供应商给 aiw
-        if aiw "$cli" -p "$provider" "$task_description
+        # ⚠️ 优先级修正：约束在前，任务描述在后（防止AI先形成计划再看到约束）
+        if aiw "$cli" -p "$provider" "$(cat "$injection_file")
 
-$(cat "$injection_file")"; then
+$task_description"; then
             exit_code=0
             echo "✅ AI CLI任务执行完成"
             break

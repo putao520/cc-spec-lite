@@ -1,12 +1,8 @@
 # 前端开发规范 - CODING-STANDARDS-FRONTEND
 
-**适用范围**: 前端开发岗位（Web/移动APP/桌面应用，技术栈无关）
-
 ---
 
 ## 🚨 核心铁律（继承自 common.md）
-
-> **必须遵循 common.md 的四大核心铁律**
 
 ```
 铁律1: SPEC 是唯一真源（SSOT）
