@@ -46,6 +46,7 @@
 - [x] `/spec-migrator` - 旧格式迁移
 
 **待实现命令**:
+- [x] `/spec` - SPEC 需求描述态（主动进入 SPEC 完善 → 触发程序员执行）
 - [ ] `spec status` - 显示状态概览
 - [ ] `spec validate` - 验证 SPEC 格式
 - [ ] `spec install` - 安装 Git hooks

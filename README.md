@@ -126,8 +126,48 @@ cc-spec status
 
 ```bash
 /spec-init       Initialize project SPEC
+/spec            Enter SPEC requirement description mode
 /spec-audit      Verify SPEC completeness
 ```
+
+#### /spec - SPEC Requirement Description Mode
+
+**Purpose**: Proactively enter SPEC-driven development workflow, ensuring focus on specification before implementation.
+
+**When to use**:
+- Starting a new feature
+- Modifying existing functionality
+- Fixing bugs with SPEC updates
+- Any code changes requiring SPEC documentation
+
+**Workflow**:
+```
+1. /spec "Describe your requirement"
+   ↓
+2. Interactive requirement refinement
+   - AI asks clarifying questions
+   - Define acceptance criteria
+   - Specify data models and APIs
+   ↓
+3. SPEC automatically updated
+   - Calls /architect to update SPEC files
+   - Assigns REQ-XXX, DATA-XXX, API-XXX IDs
+   ↓
+4. Option to start implementation
+   - Auto-invokes /programmer if confirmed
+   - Or update SPEC only
+```
+
+**Example**:
+```bash
+/spec "Implement user registration with email verification"
+```
+
+**Benefits**:
+- ✅ Forces SPEC-first thinking
+- ✅ Prevents attention drift in long conversations
+- ✅ Ensures complete specifications before coding
+- ✅ Seamless transition to implementation
 
 ---
 
@@ -332,5 +372,5 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ---
 
-**Version**: 0.0.2
+**Version**: 0.3.0
 **Author**: putao520 <yuyao1022@hotmail.com>
