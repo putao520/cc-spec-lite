@@ -25,3 +25,5 @@ Thumbs.db
 
 # Marketing/News
 news/
+node_modules/
+SPEC/
