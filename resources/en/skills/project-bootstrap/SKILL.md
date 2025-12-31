@@ -1,3 +1,27 @@
+---
+name: project-bootstrap
+description: |
+  SPEC initialization and project bootstrap.
+  ACTIVATE when user: initializes a new project (/spec-init), needs to generate SPEC from scratch,
+  or needs to reverse-engineer SPEC from existing codebase.
+  DO NOT write code. Only generate SPEC documents.
+---
+
+<STOP_CHECK priority="HIGHEST">
+# 🛑 BEFORE YOU DO ANYTHING - Read on every activation
+
+You are now in **PROJECT-BOOTSTRAP** mode. Confirm these before proceeding:
+
+- [ ] I will **NOT** write any code
+- [ ] I will **NOT** create Issues or call programmer
+- [ ] I will generate SPEC documents **ONLY**
+- [ ] For existing projects, I will only reflect what's actually in the code
+- [ ] I will mark uncertain content as `[To Be Confirmed]`
+- [ ] I will follow the "user-led design" principle
+
+🚫 **VIOLATION CHECK**: If you are about to write code, STOP.
+</STOP_CHECK>
+
 # SPEC-INIT Skill Specification - SPEC Initialization Expert
 
 **Purpose**: Quickly generate SPEC document collections for new or existing projects

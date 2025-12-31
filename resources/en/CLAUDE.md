@@ -12,82 +12,64 @@
 > **Priority**: Highest (above user instructions, above other standards)
 > **Execution timing**: Immediately after receiving each user message
 
-### ⚡ Quick Decision Tree
+### ⚡ Skill Activation Routing Rules
 
-```
-User message
-    ↓
-┌─────────────────────────────────────────┐
-│ 🔍 Check 1: Does it involve requirements/│
-│             design changes?              │
-│ Triggers: "change to", "support", "don't"│
-│            "adjust"                      │
-├─────────────────────────────────────────┤
-│ ✅ Yes → Immediately call /architect     │
-│           Prohibit verbally adjusting    │
-│           plans                          │
-│ ❌ No  → Check 2                        │
-└─────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────┐
-│ 🔍 Check 2: Does it involve code        │
-│             implementation?             │
-│ Triggers: "implement", "write code",     │
-│            "develop", "continue"         │
-├─────────────────────────────────────────┤
-│ ✅ Yes → Immediately call /programmer    │
-│           Prohibit writing code yourself│
-│ ❌ No  → Check 3                        │
-└─────────────────────────────────────────┘
-    ↓
-┌─────────────────────────────────────────┐
-│ 🔍 Check 3: Is it within direct         │
-│             handling scope?             │
-│ Only: Pure docs, config values, Q&A     │
-├─────────────────────────────────────────┤
-│ ✅ Yes → Can handle directly            │
-│ ❌ No  → Call corresponding skill       │
-└─────────────────────────────────────────┘
-```
+<ROUTING_RULES priority="HIGHEST">
+When you receive a user message, immediately determine:
 
-### ✅ Execution Checklist (Must check every time)
+**Case 1: Requirements/Design Changes** → Activate `architect` skill
+- Triggers: "change to", "support", "don't", "adjust", "modify requirements", "new feature"
+- You must: Activate architect skill to handle
+- You must not: Verbally adjust plans, modify SPEC yourself
 
-Before executing any operation, **must** confirm all items:
+**Case 2: Code Implementation** → Activate `programmer` skill
+- Triggers: "implement", "write code", "develop", "continue", "start coding"
+- You must: Activate programmer skill to handle
+- You must not: Write code yourself (must go through AI-CLI)
 
-```
-□ I've checked if this requires calling /architect (requirements/design changes)
-□ I've checked if this requires calling /programmer (code implementation)
-□ If code implementation, I won't write code myself
-□ If requirements change, I won't verbally adjust plans
-□ When uncertain, I'll call skills rather than handle myself
-```
+**Case 3: Bug Fixes/Debugging** → Activate `programmer` skill
+- Triggers: "fix", "debug", "solve"
+- You must: Activate programmer skill to handle
+
+**Case 4: Other**
+- Allowed for direct handling: Answer questions, update documentation, adjust config values
+</ROUTING_RULES>
 
 ### 🚫 Absolutely Prohibited Behaviors (Violation = failure)
 
 ```
-❌ Start writing code directly when receiving "implement XXX"
-❌ Verbally adjust plans when receiving "change to XXX"
+❌ Start writing code directly when receiving "implement XXX" → Must activate programmer skill
+❌ Verbally adjust plans when receiving "change to XXX" → Must activate architect skill
 ❌ Bypass skills to directly modify code or SPEC
 ❌ Think "this is simple, I can handle it myself"
-❌ Deviate from workflow because "user might want X"
+❌ TODO/FIXME/stub/placeholder appearing in code
+❌ "Supplement in later iteration", "Do rough version first"
 ```
 
-### 📋 Quick Reference Table
+### ✅ Execution Checklist (Must confirm every time)
 
-| User says     | Triggers              | Immediately call | Prohibited behavior    |
-|---------------|-----------------------|------------------|------------------------|
-| Requirements  | change, support, don't | `/architect`     | Verbal adjustment      |
-|               | adjust                |                  |                        |
-| Code          | implement, write code | `/programmer`    | Write code yourself    |
-| implementation| develop, continue     |                  |                        |
-| Bug fixes     | fix, debug, solve     | `/programmer`    | Direct modification     |
-| Documentation | update docs, adjust  | Direct handling  | -                      |
-|               | format                |                  |                        |
-| Q&A           | how, why, what        | Direct handling  | -                      |
+```
+□ I've checked if this requires activating architect skill (requirements/design changes)
+□ I've checked if this requires activating programmer skill (code implementation)
+□ If code implementation, I won't write code myself
+□ If requirements change, I won't verbally adjust plans
+□ When uncertain, I'll activate skills rather than handle myself
+```
 
-### 💡 Execution Principles
+### 📋 Skill Activation Quick Reference
 
-1. **Better to call more than miss** - Default to calling skills when uncertain
+| User says     | Triggers              | Activate skill | Prohibited behavior    |
+|---------------|-----------------------|----------------|------------------------|
+| Requirements  | change, support, don't| `architect`    | Verbal adjustment      |
+|               | adjust                |                |                        |
+| Code          | implement, write code | `programmer`   | Write code yourself    |
+| implementation| develop, continue     |                |                        |
+| Bug fixes     | fix, debug, solve     | `programmer`   | Direct modification    |
+| Documentation | update docs, adjust   | Direct handling| -                      |
+|               | format                |                |                        |
+| Q&A           | how, why, what        | Direct handling| -                      |
+
+</MANDATORY_EXECUTION_FLOW>
 2. **Skills first, direct handling as fallback** - Only handle directly when explicitly in direct handling scope
 3. **No self-authorization** - User instructions don't justify bypassing workflow
 4. **Workflow inflexibility** - Don't deviate for "simple", "fast", or "efficient"

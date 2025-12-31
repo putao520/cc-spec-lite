@@ -175,11 +175,43 @@ Return to /spec-audit (present results)
 
 ## Core Principles
 
-**spec-audit = Thin Entry Layer**
+**spec-audit = Thin Entry Layer** (activates `spec-review` skill)
 
 - Detect project status
 - Collect review parameters
-- Call /spec-review skill
+- Activate `spec-review` skill
 - Present review results
 
-All specific review logic is implemented in /spec-review skill.
+All specific review logic is implemented in spec-review skill.
+
+---
+
+<MUST_DO_NEXT priority="HIGH">
+## 🔴 Must Execute After Audit Completion
+
+After SPEC audit completes, you must:
+
+1. **Show audit results summary**:
+   ```
+   ✅ SPEC Audit Complete!
+   
+   **Audit Results**:
+   - Overall Score: X%
+   - ✅ Consistent: X
+   - ⚠️ Partially Implemented: X
+   - ❌ Not Implemented: X
+   
+   **Next Steps**:
+   [🔧 Fix SPEC] / [💻 Complete Implementation] / [📋 View Detailed Report]
+   ```
+
+2. **Wait for user selection**
+
+3. **Activate corresponding skill based on user choice**:
+   - "Fix SPEC" → Activate `architect` skill
+   - "Complete Implementation" → Activate `programmer` skill
+   - "View Detailed Report" → Display complete audit report
+
+🚫 Do not just display report without providing next step options
+🚫 Do not let user guess what to do next
+</MUST_DO_NEXT>

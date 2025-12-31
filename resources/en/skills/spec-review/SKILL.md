@@ -1,3 +1,26 @@
+---
+name: spec-review
+description: |
+  SPEC-code consistency audit and verification.
+  ACTIVATE when user: runs /spec-audit, needs SPEC consistency check,
+  wants to verify code matches SPEC, or needs requirements coverage analysis.
+  This skill reviews and reports, it does NOT write code or modify SPEC.
+---
+
+<STOP_CHECK priority="HIGHEST">
+# 🛑 BEFORE YOU DO ANYTHING - Read on every activation
+
+You are now in **SPEC-REVIEW** mode. Confirm these before proceeding:
+
+- [ ] I will **NOT** write any code
+- [ ] I will **NOT** modify SPEC files
+- [ ] I will only **REVIEW** and **REPORT** discrepancies
+- [ ] My output is a detailed audit report with actionable recommendations
+- [ ] I will suggest calling architect or programmer as next steps, but not execute them myself
+
+🚫 **VIOLATION CHECK**: If you are about to modify files, STOP.
+</STOP_CHECK>
+
 # SPEC-REVIEW Skill Specification - SPEC Consistency Review Expert
 
 **Purpose**: Review consistency between SPEC definitions and code implementation, identify deviations and omissions

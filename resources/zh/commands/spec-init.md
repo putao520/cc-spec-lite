@@ -430,10 +430,43 @@ EOF
 
 ## 核心原则
 
-**spec-init = 薄路由层**
+**spec-init = 薄路由层**（激活 `project-bootstrap` 技能）
 
-- 新项目：交互式收集 → 传给 /architect
-- 旧项目：直接传给 /architect
+- 新项目：交互式收集 → 激活 `architect` 技能生成 SPEC
+- 旧项目：直接激活 `architect` 技能分析生成
 - 已有SPEC：提示用户
 
-所有复杂逻辑（分析、推导、生成）都在 /architect 技能中实现。
+所有复杂逻辑（分析、推导、生成）都在 architect 技能中实现。
+
+---
+
+<MUST_DO_NEXT priority="HIGH">
+## 🔴 完成后必须执行
+
+当 SPEC 初始化完成后，你必须：
+
+1. **展示完成摘要**：
+   ```
+   🎉 SPEC 初始化完成！
+   
+   **已生成文件**：
+   - SPEC/VERSION
+   - SPEC/01-REQUIREMENTS.md (X 个需求)
+   - SPEC/02-ARCHITECTURE.md (X 个模块)
+   - SPEC/03-DATA-STRUCTURE.md (X 个实体)
+   - SPEC/04-API-DESIGN.md (X 个接口)
+   
+   **下一步操作**：
+   [🔧 修改 SPEC] / [💻 开始开发] / [📋 审查 SPEC]
+   ```
+
+2. **等待用户选择**
+
+3. **根据用户选择激活对应技能**：
+   - "修改 SPEC" → 激活 `architect` 技能
+   - "开始开发" → 激活 `programmer` 技能
+   - "审查 SPEC" → 激活 `spec-review` 技能
+
+🚫 禁止跳过这个步骤
+🚫 禁止忘记提供下一步选项
+</MUST_DO_NEXT>

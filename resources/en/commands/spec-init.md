@@ -330,4 +330,37 @@ fi
 
 ---
 
-**Note**: This command is a thin router. It detects project state and routes appropriately without performing complex analysis itself. All SPEC generation is handled by the /architect skill.
+**Note**: This command is a thin router (activates `project-bootstrap` skill). It detects project state and routes appropriately without performing complex analysis itself. All SPEC generation is handled by the architect skill.
+
+---
+
+<MUST_DO_NEXT priority="HIGH">
+## 🔴 Must Execute After Completion
+
+After SPEC initialization completes, you must:
+
+1. **Show completion summary**:
+   ```
+   🎉 SPEC Initialization Complete!
+   
+   **Generated Files**:
+   - SPEC/VERSION
+   - SPEC/01-REQUIREMENTS.md (X requirements)
+   - SPEC/02-ARCHITECTURE.md (X modules)
+   - SPEC/03-DATA-STRUCTURE.md (X entities)
+   - SPEC/04-API-DESIGN.md (X interfaces)
+   
+   **Next Steps**:
+   [🔧 Modify SPEC] / [💻 Start Development] / [📋 Review SPEC]
+   ```
+
+2. **Wait for user selection**
+
+3. **Activate corresponding skill based on user choice**:
+   - "Modify SPEC" → Activate `architect` skill
+   - "Start Development" → Activate `programmer` skill
+   - "Review SPEC" → Activate `spec-review` skill
+
+🚫 Do not skip this step
+🚫 Do not forget to provide next step options
+</MUST_DO_NEXT>

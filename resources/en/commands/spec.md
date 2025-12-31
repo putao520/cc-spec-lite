@@ -380,3 +380,37 @@ AI: Based on your description, I need to refine the following SPEC:
 - Execute /spec again and choose "Start implementation"
 - Or directly call /programmer
 ```
+
+---
+
+<MUST_DO_NEXT priority="HIGH">
+## 🔴 Must Execute After Completion
+
+After SPEC is updated (via /architect completing design), you must:
+
+1. **Show update summary**:
+   ```
+   ✅ SPEC Updated!
+   
+   **Updated Files**:
+   - [List updated SPEC files and IDs]
+   
+   **Start implementation now?**
+   [✅ Start implementation] / [❌ Not now]
+   ```
+
+2. **Wait for user response**
+
+3. **If user chooses "Start implementation"** (or says "yes"/"ok"/"continue"):
+   - Immediately activate `programmer` skill
+   - Pass all related REQ-XXX, DATA-XXX, API-XXX
+   - Don't ask more questions, start working directly
+
+4. **If user chooses "Not now"**:
+   - Display: "SPEC saved. Run /spec later to continue."
+   - End
+
+🚫 Do not skip this step
+🚫 Do not forget to provide "Start implementation" option
+🚫 Do not ask more questions after user confirms
+</MUST_DO_NEXT>

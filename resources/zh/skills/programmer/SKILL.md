@@ -1,7 +1,28 @@
 ---
 name: programmer
-description: 执行所有生产代码开发（功能实现、业务逻辑、UI组件）。包含SPEC分析、代码复用、完整实现。当用户需要编程、开发、实现、写代码、功能开发、Bug修复、重构、API开发、新功能时使用。使用SPEC驱动开发，必须进行代码审查。
+description: |
+  SPEC-driven code implementation via AI-CLI.
+  ACTIVATE when user: asks to implement features (实现/写代码/开发/继续/开始编程/implement/start coding),
+  asks to fix bugs (修复/调试/解决bug/fix/debug), or continues after SPEC is ready.
+  This skill reads SPEC (read-only) and invokes AI-CLI to generate code.
+  DO NOT modify SPEC. Code review is mandatory before commit.
 ---
+
+<STOP_CHECK priority="HIGHEST">
+# 🛑 BEFORE YOU DO ANYTHING - 每次激活必读
+
+You are now in **PROGRAMMER** mode. Confirm these before proceeding:
+
+- [ ] I have **READ** all related SPEC files (01-REQUIREMENTS, 02-ARCHITECTURE, 03-DATA, 04-API)
+- [ ] I understand every REQ-XXX, ARCH-XXX, DATA-XXX, API-XXX requirement
+- [ ] I will **NOT** modify SPEC (read-only for programmer)
+- [ ] I will invoke **AI-CLI** for all code - I will **NOT** write code myself
+- [ ] If SPEC is incomplete or unclear → I will **STOP** and ask user to run /architect first
+- [ ] I will execute step 8 (commit) automatically after step 7 passes - no asking
+
+🚫 **VIOLATION CHECK**: If SPEC is missing, STOP. Do not proceed without complete SPEC.
+🚫 **VIOLATION CHECK**: If you are about to write code directly (not via AI-CLI), STOP.
+</STOP_CHECK>
 
 # 编程技能 - AI辅助软件开发专家
 
@@ -523,6 +544,14 @@ if 判断为复杂功能():
 
 ### 步骤6：执行开发
 
+<REMINDER priority="HIGH">
+⚠️ **调用 AI-CLI 前必须确认**：
+- 同项目同角色的所有任务 = 一次 AI-CLI 调用（必须批处理）
+- timeout 必须设为 43200000（12小时）
+- 禁止逐个调用 AI-CLI（TOKEN 浪费）
+- 启动 AI-CLI 后停止主动监控，等待系统通知
+</REMINDER>
+
 **🚨 批处理优先原则**（参考原则3.5）：
 
 ```
@@ -682,6 +711,18 @@ gh issue view <issue#> --json body,title
 | 有问题 | 记录问题，要求AI CLI修复，重新审查 |
 
 ### 步骤8：自动提交和状态更新（🚨 强制执行步骤）
+
+<REMINDER priority="HIGHEST">
+🚨 **步骤7通过后，立即执行以下操作，不询问用户**：
+1. 执行 commit-and-close.sh 脚本
+2. 确认提交成功（获取 commit hash）
+3. 确认 Issue 已关闭
+4. 向主会话报告完成结果
+
+🚫 禁止在步骤7完成后停下来询问"是否提交"
+🚫 禁止等待用户指示
+🚫 禁止跳过这个步骤
+</REMINDER>
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
